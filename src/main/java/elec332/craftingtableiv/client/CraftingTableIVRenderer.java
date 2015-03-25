@@ -1,6 +1,6 @@
-package elec332.core.craftingtableiv.client;
+package elec332.craftingtableiv.client;
 
-import elec332.core.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;

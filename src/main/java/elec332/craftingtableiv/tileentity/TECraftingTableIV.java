@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.tileentity;
+package elec332.craftingtableiv.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

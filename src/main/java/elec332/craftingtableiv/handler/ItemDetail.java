@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.handler;
+package elec332.craftingtableiv.handler;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

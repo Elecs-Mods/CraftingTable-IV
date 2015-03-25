@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.client;
+package elec332.craftingtableiv.client;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;

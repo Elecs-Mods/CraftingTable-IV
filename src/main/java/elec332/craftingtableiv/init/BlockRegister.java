@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.init;
+package elec332.craftingtableiv.init;
 
 /**
  * Created by Elec332 on 23-3-2015.

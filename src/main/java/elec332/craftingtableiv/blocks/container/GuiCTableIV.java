@@ -1,9 +1,9 @@
-package elec332.core.craftingtableiv.blocks.container;
+package elec332.craftingtableiv.blocks.container;
 
-import elec332.core.craftingtableiv.blocks.slot.SlotCrafter;
-import elec332.core.craftingtableiv.handler.CraftingHandler;
-import elec332.core.craftingtableiv.handler.ItemDetail;
-import elec332.core.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.blocks.slot.SlotCrafter;
+import elec332.craftingtableiv.handler.CraftingHandler;
+import elec332.craftingtableiv.handler.ItemDetail;
+import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;

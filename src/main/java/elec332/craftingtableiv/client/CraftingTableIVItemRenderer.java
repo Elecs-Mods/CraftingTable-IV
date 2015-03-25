@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.client;
+package elec332.craftingtableiv.client;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import net.minecraft.client.renderer.RenderBlocks;

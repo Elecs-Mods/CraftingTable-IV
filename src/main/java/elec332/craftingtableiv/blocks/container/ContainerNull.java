@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.blocks.container;
+package elec332.craftingtableiv.blocks.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;

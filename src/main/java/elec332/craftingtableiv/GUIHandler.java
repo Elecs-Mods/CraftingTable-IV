@@ -1,9 +1,9 @@
-package elec332.core.craftingtableiv;
+package elec332.craftingtableiv;
 
 import cpw.mods.fml.common.network.IGuiHandler;
-import elec332.core.craftingtableiv.blocks.container.CraftingTableIVContainer;
-import elec332.core.craftingtableiv.blocks.container.GuiCTableIV;
-import elec332.core.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
+import elec332.craftingtableiv.blocks.container.GuiCTableIV;
+import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 

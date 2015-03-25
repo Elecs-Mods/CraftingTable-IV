@@ -1,11 +1,10 @@
-package elec332.core.craftingtableiv.proxies;
+package elec332.craftingtableiv.proxies;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
-import elec332.core.craftingtableiv.CraftingTableIV;
-import elec332.core.craftingtableiv.client.CraftingTableIVItemRenderer;
-import elec332.core.craftingtableiv.client.CraftingTableIVRenderer;
-import elec332.core.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.CraftingTableIV;
+import elec332.craftingtableiv.client.CraftingTableIVItemRenderer;
+import elec332.craftingtableiv.client.CraftingTableIVRenderer;
+import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 

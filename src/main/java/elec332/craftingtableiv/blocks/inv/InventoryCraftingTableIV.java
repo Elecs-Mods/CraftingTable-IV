@@ -1,4 +1,4 @@
-package elec332.core.craftingtableiv.blocks.inv;
+package elec332.craftingtableiv.blocks.inv;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;

@@ -1,6 +1,6 @@
-package elec332.core.craftingtableiv.blocks.slot;
+package elec332.craftingtableiv.blocks.slot;
 
-import elec332.core.craftingtableiv.blocks.container.CraftingTableIVContainer;
+import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

@@ -1,18 +1,16 @@
-package elec332.core.craftingtableiv.handler;
+package elec332.craftingtableiv.handler;
 
-import elec332.core.craftingtableiv.blocks.container.ContainerNull;
-import elec332.core.craftingtableiv.blocks.container.CraftingTableIVContainer;
-import elec332.core.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.blocks.container.ContainerNull;
+import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
+import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraftforge.common.ForgeHooks;
 
 import java.util.ArrayList;
 
