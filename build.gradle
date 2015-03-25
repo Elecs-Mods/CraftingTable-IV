@@ -1,0 +1,82 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+ext.modInfo = file "mod.properties"
+
+modInfo.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.mod = new ConfigSlurper().parse prop
+}
+
+version = "${config.minecraft_version}-${config.mod_version}." + (System.env.DRONE_BUILD_NUMBER ?: "localBuild")
+group= mod.group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = config.fileName
+
+minecraft {
+    version = config.minecraft_version + "-" + config.forge_version
+    runDir = "eclipse"
+	
+	replaceIn mod.mainClass
+    replace "#ELECCORE_VER#", config.eleccore_version
+}
+
+dependencies {
+    // you may put jars on which you depend on in ./libs
+    // or you may define them like so..
+    //compile "some.group:artifact:version:classifier"
+    //compile "some.group:artifact:version"
+      
+    // real examples
+    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // for more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", config.mod_version
+    inputs.property "mcversion", config.minecraft_version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':(config.mod_version+"."+(System.env.DRONE_BUILD_NUMBER ?: "9999.custom")), 'mcversion':config.minecraft_version, 'modid': mod.modid
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
