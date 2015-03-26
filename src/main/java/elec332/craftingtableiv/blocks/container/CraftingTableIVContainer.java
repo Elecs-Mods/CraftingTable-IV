@@ -12,6 +12,7 @@ import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.ItemDetail;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -223,37 +224,45 @@ public class CraftingTableIVContainer extends Container {
         } catch(Exception e) {
             e.printStackTrace();
             return null;
-        }*/
+        }*/try {
         if (irecipe == null)
             return null;
         else if (irecipe instanceof ShapelessRecipes) {
             ArrayList recipeItems = new ArrayList(((ShapelessRecipes) irecipe).recipeItems);
             return (ItemStack[]) recipeItems.toArray(new ItemStack[recipeItems.size()]);
-        } else if(irecipe instanceof ShapedRecipes) {
+        } else if (irecipe instanceof ShapedRecipes) {
             return ((ShapedRecipes) irecipe).recipeItems;
-        } else if (irecipe instanceof ShapedOreRecipe){
+        } else if (irecipe instanceof ShapedOreRecipe) {
             ArrayList<PositionedStack> t = new ShapedRecipeHandler().forgeShapedRecipe((ShapedOreRecipe) irecipe).ingredients;
             ArrayList<ItemStack> q = new ArrayList<ItemStack>();
-            for (PositionedStack positionedStack : t){
+            for (PositionedStack positionedStack : t) {
                 q.add(positionedStack.item);
             }
             return q.toArray(new ItemStack[q.size()]);
         } else if (irecipe instanceof ShapelessOreRecipe) {
             ArrayList<PositionedStack> t = new ShapelessRecipeHandler().forgeShapelessRecipe((ShapelessOreRecipe) irecipe).ingredients;
             ArrayList<ItemStack> q = new ArrayList<ItemStack>();
-            for (PositionedStack positionedStack : t){
+            for (PositionedStack positionedStack : t) {
                 q.add(positionedStack.item);
             }
             return q.toArray(new ItemStack[q.size()]);
-        } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning){
+        } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
             return null;
-        }
-        else {
+        } else {
             if (irecipe.getRecipeOutput() != null)
                 CraftingTableIV.instance.error("ERROR FINDING RECIPE CLASS FOR: " + irecipe.getRecipeOutput().getItem().getUnlocalizedName());
             else CraftingTableIV.instance.error("ERROR: THE OUTPUT FOR THIS RECIPE IS NULL! " + irecipe.toString());
             return null;
         }
+    } catch (NullPointerException e){
+        if (ElecCore.proxy.isClient()) {
+            Minecraft.getMinecraft().thePlayer.sendChatMessage("There was an error loading some recipes, the error will be printed in the game log.");
+            Minecraft.getMinecraft().thePlayer.sendChatMessage("Please report this to Elec332 with the entire gamelog here: https://github.com/Elecs-Mods/CraftingTable-IV/issues");
+        }
+        CraftingTableIV.instance.error("Something went wrong while trying to aquire recipe ingredients!");
+        CraftingTableIV.instance.error(e);
+    }
+        return null;
     }
 
     public void updateVisibleSlots(float f)
