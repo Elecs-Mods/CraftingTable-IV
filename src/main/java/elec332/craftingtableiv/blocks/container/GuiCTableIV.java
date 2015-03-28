@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.blocks.container;
 
+import elec332.core.helper.RecipeHelper;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.ItemDetail;
@@ -8,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -105,26 +107,31 @@ public class GuiCTableIV extends GuiContainer {
             {
                 SlotCrafter theSlot = (SlotCrafter) this.inventorySlots.inventorySlots.get(a);
 
-                if (theSlot.myIndex > -1 && getIsMouseOverSlot(theSlot, i, j))
+                if ( //theSlot.myIndex > -1 &&
+                 getIsMouseOverSlot(theSlot, i, j))
                 {
                     try {
 
 
-                    ArrayList<ItemDetail> theRecipe = CraftingHandler.ValidRecipes.get(theSlot.myIndex);
+                    //ArrayList<ItemStack> theRecipe = CraftingHandler.ValidRecipes.get(theSlot.myIndex);
+                        ArrayList<ItemStack> theRecipe = new ArrayList<ItemStack>();
+                        for (ItemStack stack : CraftingHandler.getRecipeIngredients(theSlot.getIRecipe())){
+                            theRecipe.add(stack);
+                        }
                     int Counter = 0;
                     for (int b=0; b<theRecipe.size(); b++)
                     {
                         if (RecipeType == 1)
                         {
                             if (theRecipe.get(b) != null)
-                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b).toItemStack());
+                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b));
                             else
                                 ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, null);
                         } else if (RecipeType == 0)
                         {
                             if (theRecipe.get(b) != null)
                             {
-                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(Counter, theRecipe.get(b).toItemStack());
+                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(Counter, theRecipe.get(b));
                                 Counter++;
                             }
                         }
