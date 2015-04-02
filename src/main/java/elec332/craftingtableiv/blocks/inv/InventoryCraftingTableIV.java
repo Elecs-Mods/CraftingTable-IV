@@ -3,62 +3,40 @@ package elec332.craftingtableiv.blocks.inv;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 
+import java.util.ArrayList;
+
 /**
  * Created by Elec332 on 23-3-2015.
  */
 public class InventoryCraftingTableIV {
 
-    private IRecipe[] recipes;
-    public int[] listIndex;
-    private int recipesLength;
+    private ArrayList<IRecipe> recipes;
 
-    public InventoryCraftingTableIV(int i)
-    {
-        recipesLength = i;
-        recipes = new IRecipe[recipesLength];
-        listIndex = new int[recipesLength];
+
+    public InventoryCraftingTableIV() {
+        recipes = new ArrayList<IRecipe>();
     }
 
-    public int getSize()
-    {
-        for(int i = 0; i < recipes.length; i++) {
-            if(recipes[i] == null)
-                return i;
-        }
-
-        return 0;
+    public int getSize() {
+        return recipes.size();
     }
 
-    public boolean addRecipe(IRecipe irecipe, int theIndex)
-    {
-        int size = getSize();
-        if(size >= recipesLength || irecipe == null)
-            return false;
-
-        recipes[size] = irecipe;
-        listIndex[size] = theIndex;
-        return true;
+    public boolean addRecipe(IRecipe irecipe) {
+        return recipes.add(irecipe);
     }
 
-    public IRecipe getIRecipe(int i)
-    {
-        return recipes[i];
-    }
-    public int getListIndex(int i)
-    {
-        return listIndex[i];
+    public IRecipe getIRecipe(int i) {
+        return recipes.get(i);
     }
 
-    public ItemStack getRecipeOutput(int i)
-    {
-        if(recipes[i] != null)
-            return recipes[i].getRecipeOutput().copy();
-        else
-            return null;
+    public ItemStack getRecipeOutput(int i) {
+        //if(getIRecipe(i) != null)
+            return getIRecipe(i).getRecipeOutput().copy();
+        //else
+           // return null;
     }
 
     public void clearRecipes() {
-        recipes = null;
-        recipes = new IRecipe[recipesLength];
+        recipes.clear();
     }
 }

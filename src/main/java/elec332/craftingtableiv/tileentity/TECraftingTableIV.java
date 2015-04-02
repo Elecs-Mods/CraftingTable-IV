@@ -1,28 +1,38 @@
 package elec332.craftingtableiv.tileentity;
 
+import elec332.core.base.tileentity.BaseTileWithInventory;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ReportedException;
+import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.concurrent.Callable;
 
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class TECraftingTableIV extends TileEntity implements IInventory {
+public class TECraftingTableIV extends BaseTileWithInventory {
     public double playerDistance;
     public float doorAngle;
     public static final float openspeed = 0.2F;
     private int tablestate;
-    public ItemStack[] theInventory = new ItemStack[19];
+    private String customName;
+    public ItemStack[] theInventory = new ItemStack[18];
     private boolean enableDoor = true;
     private boolean enableNoise = true;
 
     public TECraftingTableIV() {
-        playerDistance = 7F;
-        doorAngle = 0F;
-        tablestate = 0;
+        super(18);
+        this.playerDistance = 7F;
+        this.doorAngle = 0F;
+        this.tablestate = 0;
     }
 
     public int getFacing()
@@ -30,8 +40,7 @@ public class TECraftingTableIV extends TileEntity implements IInventory {
         return getBlockMetadata();
     }
 
-    public void updateEntity()
-    {
+    public void updateEntity() {
         super.updateEntity();
         if (enableDoor) {
             EntityPlayer entityplayer = worldObj.getClosestPlayer((float)xCoord + 0.5F, (float)yCoord + 0.5F, (float)zCoord + 0.5F, 10D);
@@ -66,126 +75,11 @@ public class TECraftingTableIV extends TileEntity implements IInventory {
         }
     }
 
-    @Override
-    public void readFromNBT(NBTTagCompound nbttagcompound) {
-        super.readFromNBT(nbttagcompound);
-        NBTTagList nbttaglist = nbttagcompound.getTagList("stackList", 10);
-        theInventory = new ItemStack [nbttaglist.tagCount()];
-        for (int i = 0; i < theInventory.length; ++i) {
-            NBTTagCompound nbttagcompound2 = nbttaglist.getCompoundTagAt(i);
-            if (!nbttagcompound2.getBoolean("isNull")) {
-                theInventory [i] = ItemStack.loadItemStackFromNBT(nbttagcompound2);
-            }
-        }
-    }
-
-    @Override
-    public void writeToNBT(NBTTagCompound nbttagcompound) {
-        super.writeToNBT(nbttagcompound);
-
-        NBTTagList nbttaglist = new NBTTagList();
-
-        for (int i = 0; i < theInventory.length; ++i) {
-            NBTTagCompound nbttagcompound2 = new NBTTagCompound ();
-            nbttaglist.appendTag(nbttagcompound2);
-            if (theInventory[i] == null) {
-                nbttagcompound2.setBoolean("isNull", true);
-            } else {
-                nbttagcompound2.setBoolean("isNull", false);
-                theInventory[i].writeToNBT(nbttagcompound2);
-            }
-        }
-        nbttagcompound.setTag("stackList", nbttaglist);
-    }
-
-
-    @Override
-    public int getSizeInventory() {
-        return theInventory.length;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int i) {
-        return theInventory [i];
-    }
-
-    @Override
-    public ItemStack decrStackSize(int i, int j) {
-        ItemStack newStack = theInventory[i].copy();
-        newStack.stackSize = j;
-        theInventory [i].stackSize -= j;
-        if (theInventory[i].stackSize == 0) {
-            theInventory[i] = null;
-        }
-        return newStack;
-    }
-
-    @Override
-    public void setInventorySlotContents(int i, ItemStack itemstack) {
-        theInventory [i] = itemstack;
-    }
-
-    /**
-     * Returns the name of the inventory
-     */
-    @Override
-    public String getInventoryName() {
-        return "";
-    }
-
-    /**
-     * Returns if the inventory is named
-     */
-    @Override
-    public boolean hasCustomInventoryName() {
-        return false;
-    }
-
-    @Override
-    public int getInventoryStackLimit() {
-        return 64;
-    }
-
-    @Override
-    public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-        return true;
-    }
-
-    @Override
-    public void openInventory() {
-
-    }
-
-    @Override
-    public void closeInventory() {
-
-    }
-
-    /**
-     * Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot.
-     *
-     * @param p_94041_1_
-     * @param p_94041_2_
-     */
-    @Override
-    public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getStackInSlotOnClosing(int var1){
-        if (this.theInventory[var1] == null) return null;
-        ItemStack stack = this.theInventory[var1];
-        this.theInventory[var1] = null;
-        return stack;
-    }
-
-    public int getFreeSlot()
-    {
-        for (int i=0; i < this.getSizeInventory()-1; i++)
-        {
-            if (getStackInSlot(i) == null)
+    public int getFirstEmptyStack() {
+        for (int i = 0; i < this.getSizeInventory(); ++i) {
+            if (this.getStackInSlot(i) == null && i > 39) {
                 return i;
+            }
         }
         return -1;
     }
@@ -206,6 +100,146 @@ public class TECraftingTableIV extends TileEntity implements IInventory {
                             return i;
                     }
         }
+        return -1;
+    }
+/*
+    public boolean addItemStackToInventory(final ItemStack itemStack)
+    {
+        if (itemStack != null && itemStack.stackSize != 0 && itemStack.getItem() != null) {
+            try {
+                int i;
+                if (itemStack.isItemDamaged()) {
+                    i = this.getFirstEmptyStack();
+                    if (i >= 0) {
+                        this.theInventory[i] = ItemStack.copyItemStack(itemStack);
+                        this.theInventory[i].animationsToGo = 5;
+                        itemStack.stackSize = 0;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    do
+                    {
+                        i = itemStack.stackSize;
+                        itemStack.stackSize = this.storePartialItemStack(itemStack);
+                    }
+                    while (itemStack.stackSize > 0 && itemStack.stackSize < i);
+
+
+
+                        return itemStack.stackSize < i;
+
+                }
+            }
+            catch (Throwable throwable) {
+                CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Adding item to inventory");
+                CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being added");
+                crashreportcategory.addCrashSection("Item ID", Item.getIdFromItem(itemStack.getItem()));
+                crashreportcategory.addCrashSection("Item data", itemStack.getItemDamage());
+                crashreportcategory.addCrashSectionCallable("Item name", new Callable() {
+                    public String call() {
+                        return itemStack.getDisplayName();
+                    }
+                });
+                throw new ReportedException(crashreport);
+            }
+        }
+        else {
+            return false;
+        }
+    }
+*/
+    private int storePartialItemStack(ItemStack p_70452_1_)
+    {
+        Item item = p_70452_1_.getItem();
+        int i = p_70452_1_.stackSize;
+        int j;
+
+        if (p_70452_1_.getMaxStackSize() == 1)
+        {
+            j = this.getFirstEmptyStack();
+
+            if (j < 0)
+            {
+                return i;
+            }
+            else
+            {
+                if (this.theInventory[j] == null)
+                {
+                    this.theInventory[j] = ItemStack.copyItemStack(p_70452_1_);
+                }
+
+                return 0;
+            }
+        }
+        else
+        {
+            j = this.storeItemStack(p_70452_1_);
+
+            if (j < 0)
+            {
+                j = this.getFirstEmptyStack();
+            }
+
+            if (j < 0)
+            {
+                return i;
+            }
+            else
+            {
+                if (this.theInventory[j] == null)
+                {
+                    this.theInventory[j] = new ItemStack(item, 0, p_70452_1_.getItemDamage());
+
+                    if (p_70452_1_.hasTagCompound())
+                    {
+                        this.theInventory[j].setTagCompound((NBTTagCompound)p_70452_1_.getTagCompound().copy());
+                    }
+                }
+
+                int k = i;
+
+                if (i > this.theInventory[j].getMaxStackSize() - this.theInventory[j].stackSize)
+                {
+                    k = this.theInventory[j].getMaxStackSize() - this.theInventory[j].stackSize;
+                }
+
+                if (k > this.getInventoryStackLimit() - this.theInventory[j].stackSize)
+                {
+                    k = this.getInventoryStackLimit() - this.theInventory[j].stackSize;
+                }
+
+                if (k == 0)
+                {
+                    return i;
+                }
+                else
+                {
+                    i -= k;
+                    this.theInventory[j].stackSize += k;
+                    this.theInventory[j].animationsToGo = 5;
+                    return i;
+                }
+            }
+        }
+    }
+
+    private int storeItemStack(ItemStack p_70432_1_)
+    {
+        for (int i = 0; i < this.theInventory.length; ++i)
+        {
+            if (this.theInventory[i] != null && this.theInventory[i].getItem() == p_70432_1_.getItem() && this.theInventory[i].isStackable() && this.theInventory[i].stackSize < this.theInventory[i].getMaxStackSize() && this.theInventory[i].stackSize < this.getInventoryStackLimit() && (!this.theInventory[i].getHasSubtypes() || this.theInventory[i].getItemDamage() == p_70432_1_.getItemDamage()) && ItemStack.areItemStackTagsEqual(this.theInventory[i], p_70432_1_))
+            {
+                return i;
+            }
+        }
+
         return -1;
     }
 
@@ -240,6 +274,16 @@ public class TECraftingTableIV extends TileEntity implements IInventory {
             }
         }
         return true;
+    }
+
+    public int getFreeSlot()
+    {
+        for (int i=0; i < this.getSizeInventory()-1; i++)
+        {
+            if (getStackInSlot(i) == null)
+                return i;
+        }
+        return -1;
     }
 
     public TECraftingTableIV getCopy()
