@@ -41,7 +41,7 @@ public class CraftingHandler {
      * are trying to make an item for a request recipe
      *
      * Otherwise ForcedIndex should always be a value!
-     * If not dupe items will show on the table!
+     * If not dupe item will show on the table!
      */
     public static Object[] canPlayerCraft(InventoryPlayer inventoryPlayer, IInventory Internal, ItemStack TheItem, int Level, ItemStack Item1, ItemStack Item2, IRecipe recipe)
     {
@@ -109,7 +109,7 @@ public class CraftingHandler {
                 break;
             } else
             {
-                //Reset the items to before trying this recipe
+                //Reset the item to before trying this recipe
                 inventoryPlayer.copyInventory(ThePlayerBefore);
                 Internal = InternalBefore.getCopy();
             }

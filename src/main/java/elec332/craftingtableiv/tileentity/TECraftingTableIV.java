@@ -1,19 +1,10 @@
 package elec332.craftingtableiv.tileentity;
 
-import elec332.core.base.tileentity.BaseTileWithInventory;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
+import elec332.core.baseclasses.tileentity.BaseTileWithInventory;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ReportedException;
-import net.minecraftforge.oredict.OreDictionary;
-
-import java.util.concurrent.Callable;
 
 /**
  * Created by Elec332 on 23-3-2015.
