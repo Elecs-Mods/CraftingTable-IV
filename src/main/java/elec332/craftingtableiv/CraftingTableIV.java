@@ -11,7 +11,7 @@ import elec332.core.helper.FileHelper;
 import elec332.core.helper.MCModInfo;
 import elec332.core.main.ElecCTab;
 import elec332.core.modBaseUtils.ModBase;
-import elec332.core.modBaseUtils.modInfo;
+import elec332.core.modBaseUtils.ModInfo;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
 import elec332.craftingtableiv.init.BlockRegister;
 import elec332.craftingtableiv.proxies.CommonProxy;
@@ -23,8 +23,8 @@ import java.io.File;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-@Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = modInfo.DEPENDENCIES+"@[#ELECCORE_VER#,)",
-        acceptedMinecraftVersions = modInfo.ACCEPTEDMCVERSIONS, useMetadata = true, canBeDeactivated = true)
+@Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = ModInfo.DEPENDENCIES+"@[#ELECCORE_VER#,)",
+        acceptedMinecraftVersions = ModInfo.ACCEPTEDMCVERSIONS, useMetadata = true, canBeDeactivated = true)
 public class CraftingTableIV extends ModBase {
 
     public static final String ModName = "CraftingTable-IV"; //Human readable name
@@ -60,7 +60,7 @@ public class CraftingTableIV extends ModBase {
         GameRegistry.registerBlock(craftingTableIV = new BlockCraftingTableIV().setCreativeTab(ElecCTab.ElecTab), "ctable");
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
         proxy.registerRenders();
-        //register items/blocks
+        //register item/block
 
         notifyEvent(event);
     }
