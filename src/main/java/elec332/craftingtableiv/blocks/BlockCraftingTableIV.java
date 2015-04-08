@@ -1,18 +1,14 @@
 package elec332.craftingtableiv.blocks;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -21,65 +17,15 @@ import net.minecraft.world.World;
  */
 public class BlockCraftingTableIV extends BlockContainer {
 
-    private int toptexture;
-    private int blockIndexInTexture;
-
-
-    public BlockCraftingTableIV()
-    {
+    public BlockCraftingTableIV() {
         super(Material.wood);
-        this.setBlockName("craftingtableiii");
-        this.blockIndexInTexture = 0;
+        this.setBlockName("craftingtableiv");
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1F, 1.0F);
         setLightOpacity(0);
     }
 
-    //@Override
-    //public String getTextureFile()
-    //{
-    //    return mod_CraftingTableIII.texturePath;
-    //}
-
-    @SideOnly(Side.CLIENT)
-    public IIcon[] icons = new IIcon[3];
-
     @Override
-    public void registerBlockIcons(IIconRegister reg) {
-        for (int i = 0; i < 3; i ++) {
-            this.icons[i] = reg.registerIcon(this.textureName + "_" + i);
-        }
-    }
-
-    /*public int getBlockTextureFromSideAndMetadata(int i, int j)
-    {
-        return getBlockTextureFromSide(i);
-    }*/
-
-/*
-    @Override
-    public IIcon getIcon(int i)
-    {
-        if(i == 0)
-        {
-            return blockIndexInTexture + 1;
-        }
-        if(i == 1)
-        {
-            return blockIndexInTexture + 2;
-        }
-        if(i == 2)
-            return blockIndexInTexture;
-        if(i == 3)
-            return blockIndexInTexture;
-        else
-        {
-            return blockIndexInTexture + 1;
-        }
-    }*/
-
-    @Override
-    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {
+    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_) {
         entityplayer.openGui(CraftingTableIV.instance, CraftingTableIV.guiID, world, i, j, k);
         return true;
     }
@@ -111,23 +57,15 @@ public class BlockCraftingTableIV extends BlockContainer {
         return new TECraftingTableIV();
     }
 
-    public boolean renderAsNormalBlock()
-    {
+    public boolean renderAsNormalBlock() {
         return false;
     }
 
-    public boolean isOpaqueCube()
-    {
+    public boolean isOpaqueCube() {
         return false;
     }
 
-    /*public int getRenderType()
-    {
-        return mod_CraftingTableIII.craftingTableModelID;
-    }*/
-    public int getRenderType()
-    {
+    public int getRenderType() {
         return -1;
     }
-
 }

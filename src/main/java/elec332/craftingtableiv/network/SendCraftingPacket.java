@@ -19,9 +19,9 @@ public class SendCraftingPacket extends AbstractPacket {
 
     @Override
     public IMessage onMessage(AbstractPacket message, MessageContext ctx) {
-        ItemStack toMake = ItemStack.loadItemStackFromNBT(message.networkPackageObject);
+        /*ItemStack toMake = ItemStack.loadItemStackFromNBT(message.networkPackageObject);
         int RecipeLength = message.networkPackageObject.getInteger("num");
-        IRecipe RecipeToMake = CraftingHandler.getCraftingRecipe(toMake);
+        //IRecipe RecipeToMake = CraftingHandler.getCraftingRecipe(toMake);
         //TECraftingTableIV theTile = (TECraftingTableIV)ctx.getServerHandler().playerEntity.worldObj.getTileEntity(dataStream.readInt(), dataStream.readInt(), dataStream.readInt());
 
         ArrayList<ItemDetail> Temp = new ArrayList();
@@ -37,7 +37,7 @@ public class SendCraftingPacket extends AbstractPacket {
         //if (Proxy.SendContainerUpdate(Proxy.getPlayer(network)))
         {
         //    Proxy.SendPacketTo(Proxy.getPlayer(network), SendUpdatePacket());
-        }
+        }*/
         return null;
     }
 }

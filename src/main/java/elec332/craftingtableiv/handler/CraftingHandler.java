@@ -1,16 +1,26 @@
 package elec332.craftingtableiv.handler;
 
+import codechicken.nei.PositionedStack;
+import codechicken.nei.recipe.ShapedRecipeHandler;
+import codechicken.nei.recipe.ShapelessRecipeHandler;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import elec332.core.helper.ItemHelper;
+import elec332.core.helper.RecipeHelper;
+import elec332.core.main.ElecCore;
+import elec332.core.player.InventoryHelper;
+import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.ContainerNull;
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.*;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.ArrayList;
 
@@ -19,33 +29,12 @@ import java.util.ArrayList;
  */
 public class CraftingHandler {
     public static int MaxLevel = 20;
-    public static ArrayList<ArrayList<ItemDetail>> ValidRecipes;
-    public static ArrayList<ItemDetail> ValidOutput;
-    public static boolean RecipesInit = false;
-    public static IRecipe getCraftingRecipe(ItemStack item)
-    {
-        return getCraftingRecipe(item, new ArrayList());
-    }
-    public static IRecipe getCraftingRecipe(ItemStack item, ArrayList BlackList)
-    {
-        for(int i = 0; i < CraftingManager.getInstance().getRecipeList().size(); i++) {
-            ItemStack CurItem = ((IRecipe)CraftingManager.getInstance().getRecipeList().get(i)).getRecipeOutput();
-            if (TestItems(CurItem,item))
-            {
-                return (IRecipe)CraftingManager.getInstance().getRecipeList().get(i);
-            }
-        }
-        return null;
-    }
+    public static ArrayList<ItemStack> validOutputs;
 
-    public static boolean TestItems(ItemStack i1, ItemStack i2)
-    {
-        return i1.getItem() == i2.getItem() && (i1.getItemDamage() == i2.getItemDamage() || i1.getItemDamage() == -1 || i2.getItemDamage() == -1);
-    }
 
-    public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemDetail TheItem, IInventory Internal, int ForcedIndex)
+    //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
     {
-        return canPlayerCraft(ThePlayer, ((TECraftingTableIV)Internal).getCopy(), TheItem, 0, false, null, null, ForcedIndex);
+        //return canPlayerCraft(ThePlayer, ((TECraftingTableIV)Internal).getCopy(), TheItem, 0, null, null, ForcedIndex);
     }
     /*
      * Only time this is called with -1 is when we
@@ -54,241 +43,261 @@ public class CraftingHandler {
      * Otherwise ForcedIndex should always be a value!
      * If not dupe items will show on the table!
      */
-    public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, IInventory Internal, ItemDetail TheItem, int Level, boolean UpdateWorld, ItemDetail Item1, ItemDetail Item2, int ForcedIndex)
+    public static Object[] canPlayerCraft(InventoryPlayer inventoryPlayer, IInventory Internal, ItemStack TheItem, int Level, ItemStack Item1, ItemStack Item2, IRecipe recipe)
     {
         int SlotCount = 0;
 
         if (Level > MaxLevel)
-            return new Object[] {false, ThePlayer, SlotCount, Internal};
+            return new Object[] {false, inventoryPlayer, SlotCount, Internal};
 
         //Copys to prevent bugs
-        InventoryPlayer ThePlayerBefore = new InventoryPlayer(ThePlayer.player);
-        ThePlayerBefore.copyInventory(ThePlayer);
+        InventoryPlayer ThePlayerBefore = new InventoryPlayer(inventoryPlayer.player);
+        ThePlayerBefore.copyInventory(inventoryPlayer);
         TECraftingTableIV InternalBefore = ((TECraftingTableIV)Internal).getCopy();
 
-        int recipeIndex = ForcedIndex;
+        IRecipe recipeIndex = recipe;
 
-        if (recipeIndex == -1) {
-            recipeIndex = CraftingTableIVContainer.getRecipeIngredients(TheItem);
-            if (recipeIndex == -1)
-                return new Object[] {false, ThePlayer, SlotCount, Internal};
+        if (recipe == null) {
+            recipeIndex = RecipeHelper.getCraftingRecipe(TheItem);
+            if (recipeIndex == null)
+                return new Object[] {false, inventoryPlayer, SlotCount, Internal};
         }
 
         boolean playerHasAllItems = false;
 
-        while (recipeIndex > -1)
+        while (recipeIndex != null)
         {
             boolean playerHasAllItemsForThis = true;
-            ArrayList<ItemDetail> recipeIngredients = (ArrayList<ItemDetail>) CraftingHandler.ValidRecipes.get(recipeIndex);
+            ArrayList<ItemStack> recipeIngredients = new ArrayList<ItemStack>();
+            for (ItemStack stack : getRecipeIngredients(RecipeHelper.getCraftingRecipe(TheItem), inventoryPlayer)){
+                recipeIngredients.add(stack);
+            }
 
-            for (int i=0; i<recipeIngredients.size(); i++)
+            for (ItemStack itemStack : recipeIngredients)
             {
-                if (recipeIngredients.get(i) == null)
+                if (itemStack == null)
                     continue;
-                if (recipeIngredients.get(i).equalsForceIgnore(Item1))
+                if (ItemHelper.areItemsEqual(itemStack, Item1))
                     return new Object[] {false, ThePlayerBefore, SlotCount, InternalBefore};
-                if (recipeIngredients.get(i).equalsForceIgnore(Item2))
+                if (ItemHelper.areItemsEqual(itemStack, Item2))
                     return new Object[] {false, ThePlayerBefore, SlotCount, InternalBefore};
 
-                int SlotIndex = getFirstInventoryPlayerSlotWithItemStack(ThePlayer, Internal, recipeIngredients.get(i).toItemStack());
+                int SlotIndex = getFirstInventorySlotWithItemStack(inventoryPlayer, Internal, itemStack);
                 if (SlotIndex > -1)
                 {
-                    DecItemStackPlayer(ThePlayer, Internal, SlotIndex, recipeIngredients.get(i).StackSize, UpdateWorld); //ThePlayer.decrStackSize(SlotIndex, recipeIngredients.get(i).StackSize);
+                    decrStackSize(inventoryPlayer, Internal, SlotIndex, itemStack.stackSize); //inventoryPlayer.decrStackSize(SlotIndex, recipeIngredients.get(i).StackSize);
                 } else {
-                    Object[] Result = canPlayerCraft(ThePlayer, Internal, recipeIngredients.get(i), Level+1, UpdateWorld, recipeIngredients.get(i), TheItem, -1);
-                    ThePlayer = (InventoryPlayer) Result[1];
+                    Object[] Result = canPlayerCraft(inventoryPlayer, Internal, itemStack, Level+1, itemStack, TheItem, null);
+                    inventoryPlayer = (InventoryPlayer) Result[1];
                     Internal = (IInventory) Result[3];
                     if ((Boolean)Result[0] != true)
                     {
                         playerHasAllItemsForThis = false;
                         break;
                     }
-                    SlotIndex = getFirstInventoryPlayerSlotWithItemStack(ThePlayer, Internal, recipeIngredients.get(i).toItemStack());
+                    SlotIndex = getFirstInventorySlotWithItemStack(inventoryPlayer, Internal, itemStack);
                     if(SlotIndex != -1) {
-                        DecItemStackPlayer(ThePlayer, Internal, SlotIndex, recipeIngredients.get(i).StackSize, UpdateWorld); //ThePlayer.decrStackSize(SlotIndex, recipeIngredients.get(i).StackSize);
+                        decrStackSize(inventoryPlayer, Internal, SlotIndex, itemStack.stackSize); //inventoryPlayer.decrStackSize(SlotIndex, recipeIngredients.get(i).StackSize);
                     }
 
                 }
             }
 
-            if (playerHasAllItemsForThis == true)
+            if (playerHasAllItemsForThis)
             {
                 playerHasAllItems = true;
                 break;
             } else
             {
                 //Reset the items to before trying this recipe
-                ThePlayer.copyInventory(ThePlayerBefore);
+                inventoryPlayer.copyInventory(ThePlayerBefore);
                 Internal = InternalBefore.getCopy();
             }
-            if (ForcedIndex != -1)
+            if (recipe != null)
                 break;
-            recipeIndex = CraftingTableIVContainer.getRecipeIngredients(TheItem, recipeIndex+1);
+            recipeIndex = RecipeHelper.getCraftingRecipe(TheItem);
         }
-
 
         if (playerHasAllItems)
         {
-            TheItem = CraftingHandler.ValidOutput.get(recipeIndex); //Fixes damage values and set the proper item stack size
-            Object[] iTemp = AddItemStackPlayer(ThePlayer, Internal, TheItem.toItemStack(), UpdateWorld);
-            if ((Boolean)iTemp[0] == false) //ThePlayer.addItemStackToInventory(TheItem.toItemStack());
+            TheItem = recipe.getRecipeOutput(); //Fixes damage values and set the proper item stack size
+            //Object[] iTemp = addItemStackPlayer(inventoryPlayer, Internal, TheItem);
+            //if ((Boolean)iTemp[0] == false) //ThePlayer.addItemStackToInventory(TheItem.toItemStack());
             {
                 return new Object[] {false, ThePlayerBefore, SlotCount, InternalBefore}; //Look into this effecting player in some recipes
             }
-            Internal = (IInventory) iTemp[1];
-            if (UpdateWorld){
-                InventoryCrafting TempMatrix =GenCraftingMatrix(CraftingTableIVContainer.getRecipeIngredientsOLD(TheItem.iRecipe));
-                TheItem.toItemStack().onCrafting(ThePlayer.player.worldObj, ThePlayer.player, 1);
-                //ModLoader.takenFromCrafting(ThePlayer.player, TheItem.toItemStack(), TempMatrix);
-                //ForgeHooks.onTakenFromCrafting(ThePlayer.player, TheItem.toItemStack(), TempMatrix);
-                HandleCraftingMaxtrix(TempMatrix, ThePlayer);
-            }
+            //Internal = (IInventory) iTemp[1];
+            //InventoryCrafting TempMatrix =generateCraftingMatrix(getRecipeIngredients(RecipeHelper.getCraftingRecipe(TheItem)));
+            //TheItem.onCrafting(inventoryPlayer.player.worldObj, inventoryPlayer.player, 1);
+               //ModLoader.takenFromCrafting(ThePlayer.player, TheItem.toItemStack(), TempMatrix);
+               //ForgeHooks.onTakenFromCrafting(ThePlayer.player, TheItem.toItemStack(), TempMatrix);
+            //handleCraftingMatrix(TempMatrix, inventoryPlayer);
         }
-        return new Object[] {playerHasAllItems, ThePlayer, SlotCount, Internal};
-    }
-    public static Object[] AddItemStackPlayer(InventoryPlayer a, IInventory Internal, ItemStack b, boolean Update)
-    {
-        //if (!Update || (Proxy.IsClient() && !Proxy.isMutiplayer()) || !Proxy.IsClient())
-        //{
-            TECraftingTableIV TheInternal = (TECraftingTableIV)Internal;
-            if (TheInternal.addItemStackToInventory(b.copy()))
-            {
-                return new Object[] {true, TheInternal};
-            } else {
-                return new Object[] {a.addItemStackToInventory(b.copy()), TheInternal};
-            }
-        //}
-        //return new Object[] {true, Internal};
 
-    }
-    public static void DecItemStackPlayer(InventoryPlayer a, IInventory Internal, int Slot, int Amount, boolean Update)
-    {
-        //if (!Update || (Proxy.IsClient() && !Proxy.isMutiplayer()) || !Proxy.IsClient())
-        //{
-            if (Slot < 18)
-                Internal.decrStackSize(Slot, Amount);
-            else
-                a.decrStackSize(Slot-18, Amount);
-        //}
-    }
-    public static void HandleCraftingMaxtrix(InventoryCrafting CraftingMatrix, InventoryPlayer thePlayer)
-    {
-        for (int i=0; i<CraftingMatrix.getSizeInventory(); i++)
+        /*if (playerHasAllItems)
         {
-            ItemStack CurStack = CraftingMatrix.getStackInSlot(i);
-            if (CurStack != null)
-            {
-                CraftingMatrix.decrStackSize(i, 1);
+            ItemStack theItem = CraftingHandler.validOutputs.get(recipeIndex); //Fixes damage values and set the proper item stack size
+            boolean flag = AddItemStackPlayer(inventoryPlayer, (TECraftingTableIV)Internal, theItem);
+            if (!flag) {
+                return new Object[] {false, ThePlayerBefore, SlotCount, InternalBefore}; //Look into this effecting player in some recipes
+            }
+            InventoryCrafting TempMatrix = generateCraftingMatrix(getRecipeIngredients(RecipeHelper.getCraftingRecipe(TheItem)));
+            TheItem.onCrafting(inventoryPlayer.player.worldObj, inventoryPlayer.player, 1);
+            //ModLoader.takenFromCrafting(inventoryPlayer.player, TheItem.toItemStack(), TempMatrix);
+            //ForgeHooks.onTakenFromCrafting(inventoryPlayer.player, TheItem.toItemStack(), TempMatrix);
+            handleCraftingMatrix(TempMatrix, inventoryPlayer);
+            }
+        }*/
+        return new Object[] {playerHasAllItems, inventoryPlayer, SlotCount, Internal};
+    }
 
-                if(CurStack.getItem().hasContainerItem())
-                {
-                    ItemStack item2 = new ItemStack(CurStack.getItem().getContainerItem());
-                    CraftingMatrix.setInventorySlotContents(i, item2);
+
+    public static boolean addItemStackPlayer(InventoryPlayer inventoryPlayer, TECraftingTableIV internal, ItemStack b) {
+        return internal.addItemStackToInventory(b.copy()) || inventoryPlayer.addItemStackToInventory(b.copy());
+    }
+/*
+    public static Object[] addItemStackPlayer(InventoryPlayer a, IInventory Internal, ItemStack b) {
+        TECraftingTableIV TheInternal = (TECraftingTableIV) Internal;
+        if (TheInternal.addItemStackToInventory(b.copy())) {
+            return new Object[]{true, TheInternal};
+        } else {
+            return new Object[]{a.addItemStackToInventory(b.copy()), TheInternal};
+        }
+    }*/
+
+
+    public static void decrStackSize(InventoryPlayer inventoryPlayer, IInventory internal, int slot, int amount) {
+        if (slot < 18)
+            internal.decrStackSize(slot, amount);
+        else
+            inventoryPlayer.decrStackSize(slot-18, amount);
+    }
+
+    public static void handleCraftingMatrix(InventoryCrafting craftingMatrix, InventoryPlayer inventoryPlayer) {
+        //ItemStack output = CraftingManager.getInstance().findMatchingRecipe(craftingMatrix, inventoryPlayer.player.worldObj).copy();
+        //PlayerEvent.ItemCraftedEvent thisEvent = new PlayerEvent.ItemCraftedEvent(inventoryPlayer.player, output, craftingMatrix);
+        //MinecraftForge.EVENT_BUS.post(thisEvent);
+        if (//!thisEvent.isCanceled()) {
+        true) {
+            for (int i = 0; i < craftingMatrix.getSizeInventory(); i++) {
+                ItemStack stackInSlot = craftingMatrix.getStackInSlot(i);
+                if (stackInSlot != null) {
+                    craftingMatrix.decrStackSize(i, 1);
+                    if (stackInSlot.getItem().hasContainerItem(stackInSlot)) {
+                        ItemStack containerItem = new ItemStack(stackInSlot.getItem().getContainerItem());
+                        craftingMatrix.setInventorySlotContents(i, containerItem);
+                    }
                 }
-
-
             }
-        }
-        for(int i = 0; i <CraftingMatrix.getSizeInventory(); i++) {
-            ItemStack itemstack = CraftingMatrix.getStackInSlot(i);
-            if(itemstack != null) {
-                thePlayer.addItemStackToInventory(itemstack.copy());
-                CraftingMatrix.setInventorySlotContents(i, null);
+            for (int i = 0; i < craftingMatrix.getSizeInventory(); i++) {
+                ItemStack stackInSlot = craftingMatrix.getStackInSlot(i);
+                if (stackInSlot != null) {
+                    if (!inventoryPlayer.addItemStackToInventory(stackInSlot.copy()))
+                        throw new RuntimeException("EY!");
+                    craftingMatrix.setInventorySlotContents(i, null);
+                }
             }
+            //ItemStack selectedStack = inventoryPlayer.getCurrentItem();
+            //output.onCrafting(inventoryPlayer.player.worldObj, inventoryPlayer.player, 1);
+            /*if (selectedStack == null)
+                inventoryPlayer.setItemStack(output);
+            else if (ItemHelper.areItemsEqual(output, selectedStack) && selectedStack.stackSize < selectedStack.getMaxStackSize())
+                selectedStack.stackSize++;*/
         }
     }
-    public static InventoryCrafting GenCraftingMatrix(ItemStack[] Items)
-    {
-        InventoryCrafting Temp = new InventoryCrafting(new ContainerNull(), 3, 3);
-        for (int i=0; i<Items.length; i++)
-        {
-            if (Items[i] != null) {
-                Items[i].stackSize = 1;
-                Temp.setInventorySlotContents(i, Items[i]);
+
+    public static InventoryCrafting generateCraftingMatrix(ItemStack[] items) {
+        InventoryCrafting ret = new InventoryCrafting(new ContainerNull(), 3, 3);
+        for (int i=0; i < items.length; i++) {
+            ItemStack item = items[i];
+            if (item != null) {
+                item.stackSize = 1;
+                ret.setInventorySlotContents(i, item);
             }
         }
-        return Temp;
+        return ret;
     }
 
-    public static int getFirstInventoryPlayerSlotWithItemStack(InventoryPlayer inventory, IInventory Internal, ItemStack itemstack)
-    {
-        for(int i = 0; i < Internal.getSizeInventory()-1; i++) {
-            ItemStack itemstack1 = Internal.getStackInSlot(i);
-            if(itemstack1 != null && itemstack1.getItem() == itemstack.getItem()) {
-                if (itemstack1.getItemDamage() == itemstack.getItemDamage() || itemstack.getItemDamage() == -1 || itemstack1.getItem().getHasSubtypes() == false)
-                    return i;
-            }
-        }
-        for(int i = 0; i < inventory.getSizeInventory(); i++) {
-            ItemStack itemstack1 = inventory.getStackInSlot(i);
-            if(itemstack1 != null && itemstack1.getItem() == itemstack.getItem()) {
-                if (itemstack1.getItemDamage() == itemstack.getItemDamage() || itemstack.getItemDamage() == -1)
-                    return i+18;
-                if (itemstack1.getItem().getHasSubtypes() == false) //Damageable so ignore
-                    return i+18;
-            }
-        }
+    public static int getFirstInventorySlotWithItemStack(InventoryPlayer inventoryPlayer, IInventory internal, ItemStack itemStack) {
+        int i = InventoryHelper.getFirstSlotWithItemStack(internal, itemStack);
+        if (i > -1)
+            return i;
+
+        int q = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, itemStack);
+        if (q > -1)
+            return q + 18;
+
         return -1;
     }
+
+    //Validate all recipes, excluding all firework recipes, colouring recipes, ect.
     public static void InitRecipes() {
-        if (RecipesInit) return;
-        ValidRecipes = new ArrayList();
-        ValidOutput = new ArrayList();
-        //Get a list of the recipes in my form
-        for(int i = 0; i < CraftingManager.getInstance().getRecipeList().size(); i++) {
-
-            ItemStack[] recipeIngredients = CraftingTableIVContainer.getRecipeIngredientsOLD((IRecipe)CraftingManager.getInstance().getRecipeList().get(i));
-
-
-            if (recipeIngredients != null) {
-                ArrayList Temp = new ArrayList();
-                for (int a=0; a<recipeIngredients.length; a++)
-                {
-                    if (recipeIngredients[a] == null)
-                        Temp.add(null);
-                    else
-                    {
-                        if (recipeIngredients[a].getItem() == Item.getItemFromBlock(Blocks.log) || recipeIngredients[a].getItem() == Item.getItemFromBlock(Blocks.log2))
-                            Temp.add(new ItemDetail(recipeIngredients[a].getItem(), -1, 1, (IRecipe)CraftingManager.getInstance().getRecipeList().get(i)));
-                        else if (recipeIngredients[a].getItem() == Item.getItemFromBlock(Blocks.planks))
-                            Temp.add(new ItemDetail(recipeIngredients[a].getItem(), -1, 1, (IRecipe)CraftingManager.getInstance().getRecipeList().get(i)));
-                        else
-                            Temp.add(new ItemDetail(recipeIngredients[a].getItem(), recipeIngredients[a].getItemDamage(), 1, (IRecipe)CraftingManager.getInstance().getRecipeList().get(i)));
-
-                    }
-                }
-                ValidRecipes.add(Temp);
-                ItemStack Temp2 = ((IRecipe)CraftingManager.getInstance().getRecipeList().get(i)).getRecipeOutput();
-                ValidOutput.add(new ItemDetail(Temp2.getItem(), Temp2.getItemDamage(), Temp2.stackSize, (IRecipe)CraftingManager.getInstance().getRecipeList().get(i), true));
+        validOutputs = new ArrayList<ItemStack>();
+        for (Object object : CraftingManager.getInstance().getRecipeList()){
+            if (object instanceof IRecipe){
+                ItemStack output = ((IRecipe) object).getRecipeOutput();
+                if (output != null && (object instanceof ShapelessOreRecipe || object instanceof ShapedOreRecipe || object instanceof ShapedRecipes || object instanceof ShapelessRecipes))
+                    validOutputs.add(output);
             }
         }
-
     }
-    public static int FindRecipe(ArrayList<ItemDetail> TheIngrediants, ItemDetail Output)
-    {
-        int RecipeIndex = CraftingTableIVContainer.getRecipeIngredients(Output);
-        while (RecipeIndex > -1)
-        {
-            ArrayList<ItemDetail> recipeIngredients = (ArrayList<ItemDetail>) CraftingHandler.ValidRecipes.get(RecipeIndex);
-            if (recipeIngredients.size() != TheIngrediants.size())
-            {
-                RecipeIndex = CraftingTableIVContainer.getRecipeIngredients(Output, RecipeIndex+1);
-                continue; //Not the recipe...
+
+    @SuppressWarnings("unchecked")
+    @Deprecated  //TODO: rewrite to be smarter
+    public static ItemStack[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayer) {
+        try {
+            if (irecipe == null)
+                return null;
+            else if (irecipe instanceof ShapelessRecipes) {
+                ArrayList<ItemStack> recipeItems = new ArrayList<ItemStack>(((ShapelessRecipes) irecipe).recipeItems);
+                return recipeItems.toArray(new ItemStack[recipeItems.size()]);
+            } else if (irecipe instanceof ShapedRecipes) {
+                return ((ShapedRecipes) irecipe).recipeItems;
+            } else if (irecipe instanceof ShapedOreRecipe) {
+                Object[] input= ((ShapedOreRecipe) irecipe).getInput();
+                ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
+                for (Object object : input){
+                    if (object instanceof ItemStack)
+                        toRet.add((ItemStack) object);
+                    else if (object instanceof ArrayList)
+                        toRet.add(getBestItem((ArrayList<ItemStack>) object, inventoryPlayer));
+                    else if (object == null)
+                        toRet.add(null);
+                }
+                return toRet.toArray(new ItemStack[toRet.size()]);
+            } else if (irecipe instanceof ShapelessOreRecipe) {
+                ArrayList<Object> input= ((ShapelessOreRecipe) irecipe).getInput();
+                ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
+                for (Object object : input){
+                    if (object instanceof ItemStack)
+                        toRet.add((ItemStack) object);
+                    else if (object instanceof ArrayList)
+                        toRet.add(getBestItem((ArrayList<ItemStack>) object, inventoryPlayer));
+                }
+                return toRet.toArray(new ItemStack[toRet.size()]);
+            } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
+                return null;
+            } else {
+                if (irecipe.getRecipeOutput() != null)
+                    CraftingTableIV.instance.error("ERROR FINDING RECIPE CLASS FOR: " + irecipe.getRecipeOutput().getItem().getUnlocalizedName());
+                else CraftingTableIV.instance.error("ERROR: THE OUTPUT FOR THIS RECIPE IS NULL! " + irecipe.toString());
+                return null;
             }
-            boolean Valid = true;
-            for (int i=0; i<recipeIngredients.size(); i++)
-            {
-                if (recipeIngredients.get(i) != null)
-                    if (!recipeIngredients.get(i).equalsForceIgnore(TheIngrediants.get(i)))
-                    {
-                        Valid = false;
-                        break;
-                    }
+        } catch (NullPointerException e) {
+            if (ElecCore.proxy.isClient()) {
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("There was an error loading some recipes, the error will be printed in the game log.");
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("Please report this to Elec332 with the entire gamelog here: https://github.com/Elecs-Mods/CraftingTable-IV/issues");
             }
-            if (Valid)
-                return RecipeIndex;
-            RecipeIndex = CraftingTableIVContainer.getRecipeIngredients(Output, RecipeIndex + 1);
+            CraftingTableIV.instance.error("Something went wrong while trying to aquire recipe ingredients!");
+            CraftingTableIV.instance.error(e);
+            return null;
         }
-        return -1;
+    }
+
+    private static ItemStack getBestItem(ArrayList<ItemStack> itemStacks, InventoryPlayer inventoryPlayer){
+        for (ItemStack itemStack : itemStacks)
+            if (InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, itemStack) >= 0)
+                return itemStack;
+        return itemStacks.get(0);
     }
 }

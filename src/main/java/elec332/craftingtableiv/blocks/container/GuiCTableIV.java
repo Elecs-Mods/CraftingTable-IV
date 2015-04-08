@@ -2,12 +2,12 @@ package elec332.craftingtableiv.blocks.container;
 
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.handler.ItemDetail;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class GuiCTableIV extends GuiContainer {
 
-    private float field_35312_g;
+    private float scroll;
     private boolean field_35313_h;
     private boolean field_35314_i;
     int RecipeType = 0;
@@ -29,7 +29,7 @@ public class GuiCTableIV extends GuiContainer {
     public GuiCTableIV(EntityPlayer entityplayer, TECraftingTableIV tile)
     {
         super( new CraftingTableIVContainer(entityplayer, tile) );
-        field_35312_g = 0.0F;
+        scroll = 0.0F;
         field_35313_h = false;
         allowUserInput = true;
         ///entityplayer.inven = inventorySlots;   Dun get it
@@ -38,11 +38,8 @@ public class GuiCTableIV extends GuiContainer {
         ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(0.0F);
     }
 
-    public void updateContainer()
-    {
-        //((ContainerClevercraft)inventorySlots).populateSlotsWithRecipes();
-        ((CraftingTableIVContainer)inventorySlots).StartTimer();
-    }
+
+
 
     public void initGui()
     {
@@ -52,8 +49,7 @@ public class GuiCTableIV extends GuiContainer {
     }
 
     @Override
-    protected void handleMouseClick(Slot slot, int i, int j, int flag)
-    {
+    protected void handleMouseClick(Slot slot, int i, int j, int flag) {
         if (slot != null)
             if (slot.slotNumber < 94)
                 super.handleMouseClick(slot, i, j, flag);
@@ -82,16 +78,16 @@ public class GuiCTableIV extends GuiContainer {
         field_35314_i = flag;
         if(field_35313_h)
         {
-            field_35312_g = (float)(j - (j1 + 8)) / ((float)(l1 - j1) - 16F);
-            if(field_35312_g < 0.0F)
+            scroll = (float)(j - (j1 + 8)) / ((float)(l1 - j1) - 16F);
+            if(scroll < 0.0F)
             {
-                field_35312_g = 0.0F;
+                scroll = 0.0F;
             }
-            if(field_35312_g > 1.0F)
+            if(scroll > 1.0F)
             {
-                field_35312_g = 1.0F;
+                scroll = 1.0F;
             }
-            ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(field_35312_g);
+            ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(scroll);
         }
 
         for (int b=0; b<9; b++)
@@ -104,33 +100,44 @@ public class GuiCTableIV extends GuiContainer {
             if ((Slot)this.inventorySlots.inventorySlots.get(a) instanceof SlotCrafter)
             {
                 SlotCrafter theSlot = (SlotCrafter) this.inventorySlots.inventorySlots.get(a);
-
-                if (theSlot.myIndex > -1 && getIsMouseOverSlot(theSlot, i, j))
+                //inventorySlots.putStackInSlot(theSlot.slotNumber, theSlot.getIRecipe().getRecipeOutput());
+                if (theSlot.getIRecipe() != null && theSlot.getIRecipe().getRecipeOutput() != null)
+                theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput());
+                //renderSlotResult(theSlot);
+                if ( //theSlot.myIndex > -1 &&
+                 getIsMouseOverSlot(theSlot, i, j))
                 {
                     try {
 
 
-                    ArrayList<ItemDetail> theRecipe = CraftingHandler.ValidRecipes.get(theSlot.myIndex);
+                    //ArrayList<ItemStack> theRecipe = CraftingHandler.ValidRecipes.get(theSlot.myIndex);
+                        ArrayList<ItemStack> theRecipe = new ArrayList<ItemStack>();
+                        for (ItemStack stack : CraftingHandler.getRecipeIngredients(theSlot.getIRecipe(), Minecraft.getMinecraft().thePlayer.inventory)){
+                            theRecipe.add(stack);
+                        }
                     int Counter = 0;
                     for (int b=0; b<theRecipe.size(); b++)
                     {
                         if (RecipeType == 1)
                         {
                             if (theRecipe.get(b) != null)
-                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b).toItemStack());
+                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b));
                             else
                                 ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, null);
                         } else if (RecipeType == 0)
                         {
                             if (theRecipe.get(b) != null)
                             {
-                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(Counter, theRecipe.get(b).toItemStack());
+                                ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(Counter, theRecipe.get(b));
                                 Counter++;
                             }
                         }
                     }
                     break; // Exit the loop, no need to waste cycles checking the rest
                 }catch (Throwable throwable){}}
+                //if (theSlot.getIRecipe() != null && theSlot.getIRecipe().getRecipeOutput() != null)
+                    //theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput());
+                    //renderSlotResult(theSlot);
             }
 
         }
@@ -167,7 +174,7 @@ public class GuiCTableIV extends GuiContainer {
         int k1 = i1 + 17;
         int l1 = k1 + 88 + 2;
         //Scrolly bar
-        drawTexturedModalRect(l + 154, i1 + 17 + (int)((float)(l1 - k1 - 17) * field_35312_g), 0, 240, 16, 16);
+        drawTexturedModalRect(l + 154, i1 + 17 + (int)((float)(l1 - k1 - 17) * scroll), 0, 240, 16, 16);
     }
 
     public void handleMouseInput()
@@ -186,22 +193,21 @@ public class GuiCTableIV extends GuiContainer {
             {
                 i = -1;
             }
-            field_35312_g -= (double)i / (double)j;
-            if(field_35312_g < 0.0F)
+            scroll -= (double)i / (double)j;
+            if(scroll < 0.0F)
             {
-                field_35312_g = 0.0F;
+                scroll = 0.0F;
             }
-            if(field_35312_g > 1.0F)
+            if(scroll > 1.0F)
             {
-                field_35312_g = 1.0F;
+                scroll = 1.0F;
             }
-            container.updateVisibleSlots(field_35312_g);
+            container.updateVisibleSlots(scroll);
         }
     }
 
-    public void resetScroll()
-    {
-        field_35312_g = 0.0F;
-        ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(field_35312_g);
+    public void resetScroll() {
+        scroll = 0.0F;
+        ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(scroll);
     }
 }
