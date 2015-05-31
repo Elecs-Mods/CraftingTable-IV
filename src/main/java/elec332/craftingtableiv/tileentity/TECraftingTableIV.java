@@ -15,7 +15,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
     public static final float openspeed = 0.2F;
     private int tablestate;
     private String customName;
-    public ItemStack[] theInventory = new ItemStack[18];
+    //public ItemStack[] theInventory = new ItemStack[18];
     private boolean enableDoor = true;
     private boolean enableNoise = true;
 
@@ -77,7 +77,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
 
     public int FindStack(ItemStack aStack)
     {
-        for (int i=0; i < this.getSizeInventory()-1; i++)
+        for (int i=0; i < this.getSizeInventory(); i++)
         {
             if (getStackInSlot(i) != null)
                 if (getStackInSlot(i).getItem() == aStack.getItem())
@@ -145,7 +145,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
         }
     }
 */
-    private int storePartialItemStack(ItemStack p_70452_1_)
+    /*private int storePartialItemStack(ItemStack p_70452_1_)
     {
         Item item = p_70452_1_.getItem();
         int i = p_70452_1_.stackSize;
@@ -232,7 +232,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
         }
 
         return -1;
-    }
+    }*/
 
     public boolean addItemStackToInventory(ItemStack aStack)
     {
@@ -261,6 +261,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
             {
                 setInventorySlotContents(Index, aStack);
             } else {
+                System.out.println("Cannot add item to TE");
                 return false;
             }
         }
@@ -288,5 +289,10 @@ public class TECraftingTableIV extends BaseTileWithInventory {
                 Clone.setInventorySlotContents(i, null);
         }
         return Clone;
+    }
+
+    @Override
+    protected String standardInventoryName() {
+        return "CraftingTable IV";
     }
 }

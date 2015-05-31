@@ -25,6 +25,12 @@ public class SlotCrafter extends Slot {
         theCont = cont;
     }
 
+    @Override
+    public void onSlotChanged() {
+        super.onSlotChanged();
+        theCont.populateSlotsWithRecipes();
+    }
+
     public void setIRecipe(IRecipe theIRecipe) {
         irecipe = theIRecipe;
     }

@@ -33,9 +33,9 @@ public class CraftingHandler {
 
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
-    {
+    //{
         //return canPlayerCraft(ThePlayer, ((TECraftingTableIV)Internal).getCopy(), TheItem, 0, null, null, ForcedIndex);
-    }
+    //}
     /*
      * Only time this is called with -1 is when we
      * are trying to make an item for a request recipe
@@ -43,7 +43,7 @@ public class CraftingHandler {
      * Otherwise ForcedIndex should always be a value!
      * If not dupe item will show on the table!
      */
-    public static Object[] canPlayerCraft(InventoryPlayer inventoryPlayer, IInventory Internal, ItemStack TheItem, int Level, ItemStack Item1, ItemStack Item2, IRecipe recipe)
+    /*public static Object[] canPlayerCraft(InventoryPlayer inventoryPlayer, IInventory Internal, ItemStack TheItem, int Level, ItemStack Item1, ItemStack Item2, IRecipe recipe)
     {
         int SlotCount = 0;
 
@@ -147,9 +147,9 @@ public class CraftingHandler {
             //ForgeHooks.onTakenFromCrafting(inventoryPlayer.player, TheItem.toItemStack(), TempMatrix);
             handleCraftingMatrix(TempMatrix, inventoryPlayer);
             }
-        }*/
+        }
         return new Object[] {playerHasAllItems, inventoryPlayer, SlotCount, Internal};
-    }
+    }*/
 
 
     public static boolean addItemStackPlayer(InventoryPlayer inventoryPlayer, TECraftingTableIV internal, ItemStack b) {
@@ -177,8 +177,8 @@ public class CraftingHandler {
         //ItemStack output = CraftingManager.getInstance().findMatchingRecipe(craftingMatrix, inventoryPlayer.player.worldObj).copy();
         //PlayerEvent.ItemCraftedEvent thisEvent = new PlayerEvent.ItemCraftedEvent(inventoryPlayer.player, output, craftingMatrix);
         //MinecraftForge.EVENT_BUS.post(thisEvent);
-        if (//!thisEvent.isCanceled()) {
-        true) {
+        //if (//!thisEvent.isCanceled()) {
+        //true) {
             for (int i = 0; i < craftingMatrix.getSizeInventory(); i++) {
                 ItemStack stackInSlot = craftingMatrix.getStackInSlot(i);
                 if (stackInSlot != null) {
@@ -203,7 +203,7 @@ public class CraftingHandler {
                 inventoryPlayer.setItemStack(output);
             else if (ItemHelper.areItemsEqual(output, selectedStack) && selectedStack.stackSize < selectedStack.getMaxStackSize())
                 selectedStack.stackSize++;*/
-        }
+        //}
     }
 
     public static InventoryCrafting generateCraftingMatrix(ItemStack[] items) {
