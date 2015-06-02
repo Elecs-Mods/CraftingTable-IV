@@ -12,6 +12,7 @@ import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.ContainerNull;
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -19,10 +20,12 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -233,6 +236,7 @@ public class CraftingHandler {
     //Validate all recipes, excluding all firework recipes, colouring recipes, ect.
     public static void InitRecipes() {
         validOutputs = new ArrayList<ItemStack>();
+        //validOutputs.add(ForestryItem.gearCopper.getItemStack());
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
@@ -242,8 +246,29 @@ public class CraftingHandler {
         }
     }
 
+    public static IRecipe getCraftingRecipe(ItemStack stack) {
+        for(int i = 0; i < CraftingManager.getInstance().getRecipeList().size(); ++i) {
+            IRecipe recipe = (IRecipe)CraftingManager.getInstance().getRecipeList().get(i);
+            if(recipe != null) {
+                ItemStack output = recipe.getRecipeOutput();
+                if (output == null)
+                    continue;
+                if(output.getItem() == stack.getItem()) {
+                    if(output.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                        return recipe;
+                    }
+                    if(!output.getItem().getHasSubtypes() && !stack.getItem().getHasSubtypes()) {
+                        return recipe;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
-    @Deprecated  //TODO: rewrite to be smarter
+    //@Deprecated  //TODO: rewrite to be smarter
     public static ItemStack[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayer) {
         try {
             if (irecipe == null)
@@ -294,7 +319,7 @@ public class CraftingHandler {
         }
     }
 
-    private static ItemStack getBestItem(ArrayList<ItemStack> itemStacks, InventoryPlayer inventoryPlayer){
+    private static ItemStack getBestItem(List<ItemStack> itemStacks, InventoryPlayer inventoryPlayer){
         for (ItemStack itemStack : itemStacks)
             if (InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, itemStack) >= 0)
                 return itemStack;
