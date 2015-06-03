@@ -1,14 +1,8 @@
 package elec332.craftingtableiv.blocks.container;
 
-import codechicken.nei.PositionedStack;
-import codechicken.nei.recipe.ShapedRecipeHandler;
-import codechicken.nei.recipe.ShapelessRecipeHandler;
 import elec332.core.client.KeyHelper;
-import elec332.core.helper.ItemHelper;
 import elec332.core.helper.RecipeHelper;
-import elec332.core.main.ElecCore;
 import elec332.core.minetweaker.MineTweakerHelper;
-import elec332.core.player.InventoryHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
 import elec332.craftingtableiv.CraftingTableIV;
@@ -18,28 +12,15 @@ import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.blocks.slot.SlotStorage;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.*;
-import net.minecraft.world.World;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
-import org.lwjgl.input.Mouse;
-
-import javax.security.auth.callback.UnsupportedCallbackException;
-import java.awt.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -95,10 +76,8 @@ public class CraftingTableIVContainer extends Container {
         addSlotToContainer(new InterceptSlot(recipeItems, 6, -18, 142, this));
         addSlotToContainer(new InterceptSlot(recipeItems, 7, -18, 160, this));
         addSlotToContainer(new InterceptSlot(recipeItems, 8, -18, 178, this));
-
         CraftingHandler.InitRecipes();
-        populateSlotsWithRecipes();
-        updateVisibleSlots(0.0F);
+        updateRecipes();
     }
 
     public void populateSlotsWithRecipes() {
@@ -109,16 +88,6 @@ public class CraftingTableIVContainer extends Container {
             }
         }
         updateVisibleSlots(ScrollValue);
-        /*System.out.println("//////////////////////////");
-        System.out.println(canPlayerCraft(thePlayer, theTile, new ItemStack(Items.stick)));
-        System.out.println(RecipeHelper.getCraftingRecipe(new ItemStack(Items.stick)).toString());
-        System.out.println(isValidForCrafting(new ItemStack(Blocks.planks, 1, OreDictionary.WILDCARD_VALUE)));
-        System.out.println(canPlayerCraft(thePlayer, theTile, new ItemStack(Blocks.planks, 1, 0)));
-        System.out.println(canPlayerCraft(thePlayer, theTile, new ItemStack(Blocks.planks, 1, 1)));
-        System.out.println(RecipeHelper.getCraftingRecipe(new ItemStack(Blocks.planks)).toString());
-        System.out.println("//////////////////////////");*/
-        //if (thePlayer.worldObj.isRemote)
-        //System.out.println("Synced all slots");
     }
 
     public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV,  ItemStack stack, boolean b){
@@ -287,7 +256,7 @@ public class CraftingTableIVContainer extends Container {
     public void updateRecipes(){
         this.busy = true;
         populateSlotsWithRecipes();
-        updateVisibleSlots(ScrollValue);
+        //updateVisibleSlots(ScrollValue);
         this.busy = false;
     }
 

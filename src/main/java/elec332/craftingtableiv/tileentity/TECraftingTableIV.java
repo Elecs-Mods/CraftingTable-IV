@@ -2,9 +2,7 @@ package elec332.craftingtableiv.tileentity;
 
 import elec332.core.baseclasses.tileentity.BaseTileWithInventory;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * Created by Elec332 on 23-3-2015.

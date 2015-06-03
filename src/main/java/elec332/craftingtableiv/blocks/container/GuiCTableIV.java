@@ -5,7 +5,6 @@ import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -14,10 +13,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.village.MerchantRecipe;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,7 +37,7 @@ public class GuiCTableIV extends GuiContainer {
         field_35313_h = false;
         allowUserInput = true;
         ySize = 234;
-        ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(0.0F);
+        //((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(0.0F);
     }
 
     @Override

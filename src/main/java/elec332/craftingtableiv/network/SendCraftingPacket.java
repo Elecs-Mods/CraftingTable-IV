@@ -3,12 +3,6 @@ package elec332.craftingtableiv.network;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import elec332.core.network.AbstractPacket;
-import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.handler.ItemDetail;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-
-import java.util.ArrayList;
 
 /**
  * Created by Elec332 on 23-3-2015.

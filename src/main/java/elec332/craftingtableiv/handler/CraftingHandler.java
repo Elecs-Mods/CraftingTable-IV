@@ -1,25 +1,16 @@
 package elec332.craftingtableiv.handler;
 
-import codechicken.nei.PositionedStack;
-import codechicken.nei.recipe.ShapedRecipeHandler;
-import codechicken.nei.recipe.ShapelessRecipeHandler;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import elec332.core.helper.ItemHelper;
-import elec332.core.helper.RecipeHelper;
 import elec332.core.main.ElecCore;
 import elec332.core.player.InventoryHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.ContainerNull;
-import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -32,7 +23,8 @@ import java.util.List;
  */
 public class CraftingHandler {
     public static int MaxLevel = 20;
-    public static ArrayList<ItemStack> validOutputs;
+    public static ArrayList<ItemStack> validOutputs = new ArrayList<ItemStack>();
+    public static ArrayList<IRecipe> recipeList = new ArrayList<IRecipe>();
 
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
@@ -235,21 +227,23 @@ public class CraftingHandler {
 
     //Validate all recipes, excluding all firework recipes, colouring recipes, ect.
     public static void InitRecipes() {
-        validOutputs = new ArrayList<ItemStack>();
+        validOutputs.clear();
+        recipeList.clear();
         //validOutputs.add(ForestryItem.gearCopper.getItemStack());
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
-                if (output != null && (object instanceof ShapelessOreRecipe || object instanceof ShapedOreRecipe || object instanceof ShapedRecipes || object instanceof ShapelessRecipes))
+                if (output != null && (object instanceof ShapelessOreRecipe || object instanceof ShapedOreRecipe || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
                     validOutputs.add(output);
+                    recipeList.add((IRecipe) object);
+                }
             }
         }
     }
 
     public static IRecipe getCraftingRecipe(ItemStack stack) {
-        for(int i = 0; i < CraftingManager.getInstance().getRecipeList().size(); ++i) {
-            IRecipe recipe = (IRecipe)CraftingManager.getInstance().getRecipeList().get(i);
-            if(recipe != null) {
+        for(IRecipe recipe : recipeList) {
+            if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
                 if (output == null)
                     continue;

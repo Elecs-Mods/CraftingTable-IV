@@ -5,6 +5,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import elec332.core.helper.FileHelper;
@@ -97,6 +98,11 @@ public class CraftingTableIV extends ModBase {
         //Mod compat stuff
 
         notifyEvent(event);
+    }
+
+    @Mod.EventHandler
+    public void loadRecipes(FMLServerStartedEvent event){
+        CraftingHandler.InitRecipes();
     }
 
     File cfg;
