@@ -234,7 +234,7 @@ public class CraftingHandler {
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
-                if (output != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
+                if (output != null && output.getItem() != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
                     validOutputs.add(output);
                     recipeList.add((IRecipe) object);
                 }
@@ -256,12 +256,12 @@ public class CraftingHandler {
     }
 
     public static IRecipe getCraftingRecipe(ItemStack stack) {
-        if (stack == null)
+        if (isStackValid(stack))
             return null;
         for(IRecipe recipe : recipeList) {
             if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
-                if (output == null)
+                if (!isStackValid(output))
                     continue;
                 if(output.getItem() == stack.getItem()) {
                     if(output.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
@@ -275,6 +275,10 @@ public class CraftingHandler {
         }
 
         return null;
+    }
+
+    private static boolean isStackValid(ItemStack stack){
+        return stack != null && stack.getItem() != null;
     }
 
     @SuppressWarnings("unchecked")
