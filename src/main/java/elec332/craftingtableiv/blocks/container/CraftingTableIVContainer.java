@@ -76,7 +76,7 @@ public class CraftingTableIVContainer extends Container {
         addSlotToContainer(new InterceptSlot(recipeItems, 6, -18, 142, this));
         addSlotToContainer(new InterceptSlot(recipeItems, 7, -18, 160, this));
         addSlotToContainer(new InterceptSlot(recipeItems, 8, -18, 178, this));
-        CraftingHandler.InitRecipes();
+        //CraftingHandler.InitRecipes();
         updateRecipes();
     }
 

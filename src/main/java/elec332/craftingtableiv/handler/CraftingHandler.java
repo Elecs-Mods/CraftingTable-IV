@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.handler;
 
+import com.google.common.collect.Lists;
 import elec332.core.main.ElecCore;
 import elec332.core.player.InventoryHelper;
 import elec332.craftingtableiv.CraftingTableIV;
@@ -233,12 +234,25 @@ public class CraftingHandler {
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
-                if (output != null && (object instanceof ShapelessOreRecipe || object instanceof ShapedOreRecipe || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
+                if (output != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
                     validOutputs.add(output);
                     recipeList.add((IRecipe) object);
                 }
             }
         }
+    }
+
+    private static boolean isOreValid(List list){
+        if (!list.isEmpty()){
+            for (Object o : list){
+                if (o instanceof List){
+                    if (((List) o).isEmpty())
+                        return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public static IRecipe getCraftingRecipe(ItemStack stack) {
