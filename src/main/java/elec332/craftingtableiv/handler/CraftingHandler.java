@@ -256,6 +256,8 @@ public class CraftingHandler {
     }
 
     public static IRecipe getCraftingRecipe(ItemStack stack) {
+        if (stack == null)
+            return null;
         for(IRecipe recipe : recipeList) {
             if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
