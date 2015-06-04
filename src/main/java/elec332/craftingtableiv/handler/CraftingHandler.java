@@ -264,7 +264,7 @@ public class CraftingHandler {
                 if (output == null)
                     continue;
                 if(output.getItem() == stack.getItem()) {
-                    if(output.getItem().getHasSubtypes() && stack.getItem().getHasSubtypes() && output.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                    if(output.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
                         return recipe;
                     }
                     if(!output.getItem().getHasSubtypes() && !stack.getItem().getHasSubtypes()) {
