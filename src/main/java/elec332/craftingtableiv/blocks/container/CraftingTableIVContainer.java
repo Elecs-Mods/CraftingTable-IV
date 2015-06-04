@@ -94,7 +94,7 @@ public class CraftingTableIVContainer extends Container {
         InventoryPlayer fakeInventoryPlayer = new InventoryPlayer(player);
         fakeInventoryPlayer.copyInventory(player.inventory);
         TECraftingTableIV fakeCraftingInventory = craftingTableIV.getCopy();
-        boolean ret = canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, stack, 0);
+        boolean ret = canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, stack, 0, stack);
         if (b && ret){
             player.inventory.copyInventory(fakeInventoryPlayer);
             for (int i = 0; i < craftingTableIV.getSizeInventory(); i++) {
@@ -104,10 +104,10 @@ public class CraftingTableIVContainer extends Container {
         return ret;
     }
 
-    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory,  ItemStack stack, int i){
+    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory,  ItemStack stack, int i, ItemStack no){
         if (i > CraftingTableIV.recursionDepth)
             return false;
-        if (fakeInventoryPlayer != null && stack != null){
+        if (fakeInventoryPlayer != null && stack != null && !(i > 0 && compareStacks(stack, no))){
             IRecipe theRecipe = CraftingHandler.getCraftingRecipe(stack);
             if (theRecipe == null){
                 CraftingTableIV.instance.error("Cannot find recipe for: "+ MineTweakerHelper.getItemRegistryName(stack));
@@ -122,7 +122,7 @@ public class CraftingTableIVContainer extends Container {
                 int slotID = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
                 if (slotID > -1){
                     CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, slotID, 1);
-                } else if (isValidForCrafting(itemStack) && canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, itemStack.copy(), i+1)) {
+                } else if (isValidForCrafting(itemStack) && canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, itemStack.copy(), i+1, no)) {
                     CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack), 1);
                 } else return false;
             }
@@ -139,6 +139,18 @@ public class CraftingTableIVContainer extends Container {
                 if(!itemStack.getItem().getHasSubtypes() && !stack.getItem().getHasSubtypes()) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private static boolean compareStacks(ItemStack s1, ItemStack s2){
+        if(s1.getItem() == s2.getItem()) {
+            if(s1.getItemDamage() == s2.getItemDamage() || s2.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                return true;
+            }
+            if(!s1.getItem().getHasSubtypes() && !s2.getItem().getHasSubtypes()) {
+                return true;
             }
         }
         return false;

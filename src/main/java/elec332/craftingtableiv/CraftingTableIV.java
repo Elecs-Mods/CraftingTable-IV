@@ -10,7 +10,6 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import elec332.core.helper.FileHelper;
 import elec332.core.helper.MCModInfo;
-import elec332.core.helper.RecipeHelper;
 import elec332.core.main.ElecCTab;
 import elec332.core.modBaseUtils.ModBase;
 import elec332.core.modBaseUtils.ModInfo;
@@ -20,14 +19,8 @@ import elec332.craftingtableiv.init.BlockRegister;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -48,7 +41,7 @@ public class CraftingTableIV extends ModBase {
     public static CraftingTableIV instance;
 
     /**Config**/
-    public static int recursionDepth = 10;
+    public static int recursionDepth = 8;
     /**********/
 
     @Mod.EventHandler
@@ -81,20 +74,6 @@ public class CraftingTableIV extends ModBase {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event){
         loadConfiguration();
-        ItemStack stick = new ItemStack(Items.stick);
-        info(RecipeHelper.getCraftingRecipe(stick).getClass().toString());
-        for (Object o : ((ShapedOreRecipe)RecipeHelper.getCraftingRecipe(stick)).getInput()){
-            info(o.toString()+"   "+(o instanceof ItemStack));
-            info(o.toString()+"   "+(o instanceof Item));
-            info(o.toString()+"   "+(o instanceof Block));
-            info(o.toString()+"   "+(o instanceof ItemBlock));
-            info(o.toString()+"   "+(o instanceof String));
-            info(o.toString()+"   "+(o instanceof List));
-            if (o instanceof List){
-                for (Object obj : (List)o)
-                    info(obj.toString());
-            }
-        }
         //Mod compat stuff
 
         notifyEvent(event);
@@ -102,7 +81,9 @@ public class CraftingTableIV extends ModBase {
 
     @Mod.EventHandler
     public void loadRecipes(FMLServerStartedEvent event){
+        Long l = System.currentTimeMillis();
         CraftingHandler.InitRecipes();
+        info("loaded "+CraftingHandler.recipeList.size()+" recipes in "+(System.currentTimeMillis()-l)+" ms");
     }
 
     File cfg;
