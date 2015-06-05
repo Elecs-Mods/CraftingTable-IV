@@ -22,7 +22,7 @@ public class InventoryCraftingTableIV {
     }
 
     public boolean addRecipe(IRecipe irecipe) {
-        return recipes.add(irecipe);
+        return !recipes.contains(irecipe) && recipes.add(irecipe);
     }
 
     public IRecipe getIRecipe(int i) {

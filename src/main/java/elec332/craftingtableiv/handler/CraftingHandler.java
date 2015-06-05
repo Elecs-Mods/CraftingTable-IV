@@ -1,7 +1,9 @@
 package elec332.craftingtableiv.handler;
 
 import com.google.common.collect.Lists;
+import elec332.core.helper.OredictHelper;
 import elec332.core.main.ElecCore;
+import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.player.InventoryHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.ContainerNull;
@@ -23,7 +25,7 @@ import java.util.List;
  * Created by Elec332 on 23-3-2015.
  */
 public class CraftingHandler {
-    public static int MaxLevel = 20;
+    //public static int MaxLevel = 20;
     public static ArrayList<ItemStack> validOutputs = new ArrayList<ItemStack>();
     public static ArrayList<IRecipe> recipeList = new ArrayList<IRecipe>();
 
@@ -235,6 +237,8 @@ public class CraftingHandler {
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
                 if (output != null && output.getItem() != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
+                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output.copy()).contains("nugget") || OredictHelper.getOreName(output.copy()).contains("nugget")))
+                        continue;
                     validOutputs.add(output);
                     recipeList.add((IRecipe) object);
                 }
@@ -255,9 +259,10 @@ public class CraftingHandler {
         return false;
     }
 
-    public static IRecipe getCraftingRecipe(ItemStack stack) {
+    public static List<IRecipe> getCraftingRecipe(ItemStack stack) {
         if (!isStackValid(stack))
             return null;
+        List<IRecipe> ret = Lists.newArrayList();
         for(IRecipe recipe : recipeList) {
             if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
@@ -265,16 +270,17 @@ public class CraftingHandler {
                     continue;
                 if(output.getItem() == stack.getItem()) {
                     if(output.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-                        return recipe;
+                        ret.add(recipe);
+                        continue;
                     }
                     if(!output.getItem().getHasSubtypes() && !stack.getItem().getHasSubtypes()) {
-                        return recipe;
+                        ret.add(recipe);
                     }
                 }
             }
         }
 
-        return null;
+        return ret;
     }
 
     private static boolean isStackValid(ItemStack stack){
@@ -283,7 +289,9 @@ public class CraftingHandler {
 
     @SuppressWarnings("unchecked")
     //@Deprecated  //TODO: rewrite to be smarter
-    public static ItemStack[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayer) {
+    public static ItemStack[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayerNotUse) {
+        InventoryPlayer inventoryPlayer = new InventoryPlayer(inventoryPlayerNotUse.player);
+        inventoryPlayer.copyInventory(inventoryPlayerNotUse);
         try {
             if (irecipe == null)
                 return null;
@@ -296,11 +304,18 @@ public class CraftingHandler {
                 Object[] input= ((ShapedOreRecipe) irecipe).getInput();
                 ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
                 for (Object object : input){
-                    if (object instanceof ItemStack)
+                    if (object instanceof ItemStack) {
                         toRet.add((ItemStack) object);
-                    else if (object instanceof ArrayList)
-                        toRet.add(getBestItem((ArrayList<ItemStack>) object, inventoryPlayer));
-                    else if (object == null)
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, (ItemStack) object);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                    }else if (object instanceof ArrayList) {
+                        ItemStack s = getBestItem((ArrayList<ItemStack>) object, inventoryPlayer);
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, s);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                        toRet.add(s);
+                    }else if (object == null)
                         toRet.add(null);
                 }
                 return toRet.toArray(new ItemStack[toRet.size()]);
@@ -308,10 +323,18 @@ public class CraftingHandler {
                 ArrayList<Object> input= ((ShapelessOreRecipe) irecipe).getInput();
                 ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
                 for (Object object : input){
-                    if (object instanceof ItemStack)
+                    if (object instanceof ItemStack) {
                         toRet.add((ItemStack) object);
-                    else if (object instanceof ArrayList)
-                        toRet.add(getBestItem((ArrayList<ItemStack>) object, inventoryPlayer));
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, (ItemStack) object);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                    }else if (object instanceof ArrayList) {
+                        ItemStack s = getBestItem((ArrayList<ItemStack>) object, inventoryPlayer);
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, s);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                        toRet.add(s);
+                    }
                 }
                 return toRet.toArray(new ItemStack[toRet.size()]);
             } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
