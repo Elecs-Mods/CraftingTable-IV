@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.blocks;
 
+import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.BlockContainer;
@@ -33,12 +34,9 @@ public class BlockCraftingTableIV extends BlockContainer {
     @Override
     public void onBlockPreDestroy(World world, int par2, int par3, int par4, int par5) {
         TECraftingTableIV theTile = (TECraftingTableIV) world.getTileEntity(par2, par3, par4);
-        for (int i=0; i < theTile.getSizeInventory()-1; i++)
-        {
-            if (theTile.getStackInSlot(i) != null)
-            {
-                EntityItem theItem = new EntityItem(world, par2, par3, par4, theTile.getStackInSlot(i));
-                world.spawnEntityInWorld(theItem);
+        for (int i=0; i < theTile.getSizeInventory(); i++) {
+            if (theTile.getStackInSlot(i) != null) {
+                WorldHelper.dropStack(world, par2, par3, par4, theTile.getStackInSlot(i));
             }
 
         }
