@@ -37,48 +37,27 @@ public class SlotCrafter extends Slot {
         return false;
     }
 
-
     public void onPickupFromSlot(EntityPlayer player, ItemStack itemstack) {
         itemstack.onCrafting(player.worldObj, player, 1);
-
-        if(itemstack.getItem() == Item.getItemFromBlock(Blocks.crafting_table))
-        {
+        if(itemstack.getItem() == Item.getItemFromBlock(Blocks.crafting_table)) {
             player.addStat(AchievementList.buildWorkBench, 1);
-        } else
-        if(itemstack.getItem() == Items.wooden_pickaxe)
-        {
+        } else if(itemstack.getItem() == Items.wooden_pickaxe) {
             player.addStat(AchievementList.buildPickaxe, 1);
-        } else
-        if(itemstack.getItem() == Item.getItemFromBlock(Blocks.furnace))
-        {
+        } else if(itemstack.getItem() == Item.getItemFromBlock(Blocks.furnace)) {
             player.addStat(AchievementList.buildFurnace, 1);
-        } else
-        if(itemstack.getItem() == Items.wooden_hoe)
-        {
+        } else if(itemstack.getItem() == Items.wooden_hoe) {
             player.addStat(AchievementList.buildHoe, 1);
-        } else
-        if(itemstack.getItem() == Items.bread)
-        {
+        } else if(itemstack.getItem() == Items.bread) {
             player.addStat(AchievementList.makeBread, 1);
-        } else
-        if(itemstack.getItem() == Items.cake)
-        {
+        } else if(itemstack.getItem() == Items.cake) {
             player.addStat(AchievementList.bakeCake, 1);
-        } else
-        if(itemstack.getItem() == Items.stone_pickaxe)
-        {
+        } else if(itemstack.getItem() == Items.stone_pickaxe) {
             player.addStat(AchievementList.buildBetterPickaxe, 1);
-        } else
-        if(itemstack.getItem() == Items.wooden_sword)
-        {
+        } else if(itemstack.getItem() == Items.wooden_sword) {
             player.addStat(AchievementList.buildSword, 1);
-        } else
-        if(itemstack.getItem() == Item.getItemFromBlock(Blocks.enchanting_table))
-        {
+        } else if(itemstack.getItem() == Item.getItemFromBlock(Blocks.enchanting_table)) {
             player.addStat(AchievementList.enchantments, 1);
-        } else
-        if(itemstack.getItem() == Item.getItemFromBlock(Blocks.bookshelf))
-        {
+        } else if(itemstack.getItem() == Item.getItemFromBlock(Blocks.bookshelf)) {
             player.addStat(AchievementList.bookcase, 1);
         }
     }

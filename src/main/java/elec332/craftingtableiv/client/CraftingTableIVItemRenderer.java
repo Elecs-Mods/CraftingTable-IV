@@ -11,22 +11,16 @@ import org.lwjgl.opengl.GL11;
  * Created by Elec332 on 24-3-2015.
  */
 public class CraftingTableIVItemRenderer implements IItemRenderer {
+
     private ModelCraftingTableIV modelCraftingTableIV;
 
     public CraftingTableIVItemRenderer() {
         modelCraftingTableIV = new ModelCraftingTableIV();
     }
 
-    //@Override
-    //public boolean handleRenderType(ItemStack item, ItemRenderType type) {
-    //return true;
-    //}
-
     @Override
-    public boolean handleRenderType(ItemStack item, ItemRenderType type)
-    {
-        switch (type)
-        {
+    public boolean handleRenderType(ItemStack item, ItemRenderType type) {
+        switch (type) {
             case ENTITY:
                 return true;
             case EQUIPPED:
@@ -41,13 +35,8 @@ public class CraftingTableIVItemRenderer implements IItemRenderer {
     }
 
     private void render(RenderBlocks render, ItemStack item, float x, float y, float z, float scaleq) {
-        //this.renderer.renderTileEntityAt(dummyTE, x, y, z, 0.0F);
-        //float scale = 0.07f;
-        //float rotation = getRotation(engine);
         GL11.glPushMatrix();
         GL11.glTranslatef((float) x + 0.5f, (float) y, (float) z + 0.5f);
-        //GL11.glRotatef(0.0F, 0.0F, 1.0F, 0.0F);
-        //GL11.glScalef(scale, scale, scale);
         ResourceLocation test = new ResourceLocation("craftingtableiv", "blocktextures/ctiv.png");
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(test);
         modelCraftingTableIV.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);

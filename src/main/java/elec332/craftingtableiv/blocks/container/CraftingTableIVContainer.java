@@ -1,8 +1,6 @@
 package elec332.craftingtableiv.blocks.container;
 
 import elec332.core.client.KeyHelper;
-import elec332.core.helper.RecipeHelper;
-import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
 import elec332.craftingtableiv.CraftingTableIV;
@@ -21,8 +19,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.OreDictionary;
-
-import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.

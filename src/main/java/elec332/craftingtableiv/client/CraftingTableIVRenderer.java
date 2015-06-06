@@ -19,7 +19,6 @@ public class CraftingTableIVRenderer extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity tileentity, double d, double d1, double d2, float f) {
-
         TECraftingTableIV craftingtable = (TECraftingTableIV)tileentity;
         float doorRotation = craftingtable.doorAngle;
         int facing = craftingtable.getFacing();
@@ -33,6 +32,5 @@ public class CraftingTableIVRenderer extends TileEntitySpecialRenderer {
         GL11.glScalef(-1F, -1F, 1.0F);
         modelCraftingTable.render(null, doorRotation, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
         GL11.glPopMatrix();
-
     }
 }

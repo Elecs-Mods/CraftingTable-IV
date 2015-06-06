@@ -7,9 +7,8 @@ import net.minecraft.entity.Entity;
 /**
  * Created by Elec332 on 24-3-2015.
  */
-public class ModelCraftingTableIV extends ModelBase
-{
-    //fields
+public class ModelCraftingTableIV extends ModelBase {
+
     ModelRenderer Table;
     ModelRenderer Door;
     ModelRenderer door_side1;
@@ -18,8 +17,7 @@ public class ModelCraftingTableIV extends ModelBase
     ModelRenderer door_topside2;
     ModelRenderer Book;
 
-    public ModelCraftingTableIV()
-    {
+    public ModelCraftingTableIV() {
         textureWidth = 128;
         textureHeight = 64;
 
@@ -67,8 +65,7 @@ public class ModelCraftingTableIV extends ModelBase
         setRotation(Book, 0F, 0.4833219F, 0F);
     }
 
-    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
-    {
+    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
         super.render(entity, 0.0F, f1, f2, f3, f4, f5);
         setRotationAngles(0.0F, f1, f2, f3, f4, f5, entity);
         setRotation(Door, 0.0F, f, 0.0F);
@@ -82,15 +79,13 @@ public class ModelCraftingTableIV extends ModelBase
         Book.render(f5);
     }
 
-    private void setRotation(ModelRenderer model, float x, float y, float z)
-    {
+    private void setRotation(ModelRenderer model, float x, float y, float z) {
         model.rotateAngleX = x;
         model.rotateAngleY = y;
         model.rotateAngleZ = z;
     }
 
-    public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity entity)
-    {
+    public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity entity) {
         super.setRotationAngles(f, f1, f2, f3, f4, f5, entity);
     }
 

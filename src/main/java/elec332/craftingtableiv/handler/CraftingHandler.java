@@ -232,7 +232,6 @@ public class CraftingHandler {
     public static void InitRecipes() {
         validOutputs.clear();
         recipeList.clear();
-        //validOutputs.add(ForestryItem.gearCopper.getItemStack());
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
@@ -288,7 +287,6 @@ public class CraftingHandler {
     }
 
     @SuppressWarnings("unchecked")
-    //@Deprecated  //TODO: rewrite to be smarter
     public static ItemStack[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayerNotUse) {
         InventoryPlayer inventoryPlayer = new InventoryPlayer(inventoryPlayerNotUse.player);
         inventoryPlayer.copyInventory(inventoryPlayerNotUse);

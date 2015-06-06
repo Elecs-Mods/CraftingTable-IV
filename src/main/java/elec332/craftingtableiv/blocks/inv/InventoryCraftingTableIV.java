@@ -1,20 +1,20 @@
 package elec332.craftingtableiv.blocks.inv;
 
+import com.google.common.collect.Lists;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
  */
 public class InventoryCraftingTableIV {
 
-    private ArrayList<IRecipe> recipes;
-
+    private List<IRecipe> recipes;
 
     public InventoryCraftingTableIV() {
-        recipes = new ArrayList<IRecipe>();
+        recipes = Lists.newArrayList();
     }
 
     public int getSize() {
@@ -30,10 +30,7 @@ public class InventoryCraftingTableIV {
     }
 
     public ItemStack getRecipeOutput(int i) {
-        //if(getIRecipe(i) != null)
-            return getIRecipe(i).getRecipeOutput().copy();
-        //else
-           // return null;
+        return getIRecipe(i).getRecipeOutput().copy();
     }
 
     public void clearRecipes() {

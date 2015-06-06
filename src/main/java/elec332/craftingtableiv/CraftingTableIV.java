@@ -43,6 +43,8 @@ public class CraftingTableIV extends ModBase {
     /**Config**/
     public static int recursionDepth = 8;
     public static boolean nuggetFilter = true;
+    public static boolean enableDoor = true;
+    public static boolean enableNoise = true;
     /**********/
 
     @Mod.EventHandler
