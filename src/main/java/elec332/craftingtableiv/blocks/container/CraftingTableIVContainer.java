@@ -2,7 +2,6 @@ package elec332.craftingtableiv.blocks.container;
 
 import elec332.core.client.KeyHelper;
 import elec332.core.player.PlayerHelper;
-import elec332.core.server.ServerHelper;
 import elec332.core.util.Constants;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
@@ -24,6 +23,7 @@ import net.minecraftforge.oredict.OreDictionary;
 /**
  * Created by Elec332 on 23-3-2015.
  */
+
 public class CraftingTableIVContainer extends Container {
 
     public InventoryBasic inventory = new InventoryBasic("tmp",true , 8*5);
@@ -32,6 +32,17 @@ public class CraftingTableIVContainer extends Container {
     public InventoryCrafting craftMatrix;
     public InventoryCraftingTableIV craftableRecipes;
     //private List recipeList;
+    private Runnable getRunnable(){
+        return new Runnable() {
+            @Override
+            public void run() {
+                populateSlotsWithRecipes();
+            }
+        };
+    }
+
+    private Thread currentThread;
+
     private EntityPlayer thePlayer;
     public TECraftingTableIV theTile;
     public float ScrollValue = 0.0F;
@@ -80,7 +91,7 @@ public class CraftingTableIVContainer extends Container {
     }
 
     public void populateSlotsWithRecipes() {
-        if (ServerHelper.isServer(thePlayer.worldObj)) {
+        //if (ServerHelper.isServer(thePlayer.worldObj)) {
             craftableRecipes.clearRecipes();
             for (IRecipe recipe : CraftingHandler.recipeList) {
                 if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
@@ -88,7 +99,7 @@ public class CraftingTableIVContainer extends Container {
                 }
             }
             updateVisibleSlots(ScrollValue);
-        }
+        //}
     }
 
     public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, IRecipe recipe, boolean b){
@@ -232,7 +243,7 @@ public class CraftingTableIVContainer extends Container {
         //PlayerHelper.addPersonalMessageToClient("Clicked slot: "+slotIndex);
         if (this.busy)
             return null;
-        this.busy = true;
+        //this.busy = true;
         if(slotIndex >= 0 && inventorySlots.get(slotIndex) != null && inventorySlots.get(slotIndex) instanceof SlotCrafter) {
 
             // Check if the currently held itemstack is different to the clicked itemstack.
@@ -271,10 +282,16 @@ public class CraftingTableIVContainer extends Container {
     }
 
     public void updateRecipes(){
-        this.busy = true;
-        populateSlotsWithRecipes();
+        //this.busy = true;
+        try {
+            currentThread.stop();
+        } catch (Exception e){
+            //
+        }
+        currentThread = new Thread(getRunnable(), "CraftingHandler");
+        currentThread.start();
         //updateVisibleSlots(ScrollValue);
-        this.busy = false;
+        //this.busy = false;
     }
 
     public ItemStack transferStackInSlot(EntityPlayer p_82846_1_, int p_82846_2_) {
