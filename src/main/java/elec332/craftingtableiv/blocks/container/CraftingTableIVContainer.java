@@ -9,8 +9,10 @@ import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.blocks.slot.SlotStorage;
 import elec332.craftingtableiv.handler.CraftingHandler;
+import elec332.craftingtableiv.network.PacketSyncRecipes;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
@@ -18,6 +20,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
@@ -91,15 +94,24 @@ public class CraftingTableIVContainer extends Container {
     }
 
     public void populateSlotsWithRecipes() {
-        //if (ServerHelper.isServer(thePlayer.worldObj)) {
+        if (!thePlayer.worldObj.isRemote) {
             craftableRecipes.clearRecipes();
+            syncRecipes();
             for (IRecipe recipe : CraftingHandler.recipeList) {
                 if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
                     craftableRecipes.addRecipe(recipe);
+                    syncRecipes();
                 }
             }
             updateVisibleSlots(ScrollValue);
-        //}
+            syncRecipes();
+        }
+    }
+
+    private void syncRecipes(){
+        NBTTagCompound tagCompound = new NBTTagCompound();
+        craftableRecipes.writeToNBT(tagCompound);
+        CraftingTableIV.networkHandler.getNetworkWrapper().sendTo(new PacketSyncRecipes(tagCompound), (EntityPlayerMP)thePlayer);
     }
 
     public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, IRecipe recipe, boolean b){

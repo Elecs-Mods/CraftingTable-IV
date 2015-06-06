@@ -13,9 +13,11 @@ import elec332.core.helper.MCModInfo;
 import elec332.core.main.ElecCTab;
 import elec332.core.modBaseUtils.ModBase;
 import elec332.core.modBaseUtils.ModInfo;
+import elec332.core.network.NetworkHandler;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.init.BlockRegister;
+import elec332.craftingtableiv.network.PacketSyncRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
@@ -39,6 +41,7 @@ public class CraftingTableIV extends ModBase {
 
     @Mod.Instance(ModID)
     public static CraftingTableIV instance;
+    public static NetworkHandler networkHandler;
 
     /**Config**/
     public static int recursionDepth = 8;
@@ -63,12 +66,14 @@ public class CraftingTableIV extends ModBase {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        networkHandler = new NetworkHandler(ModID);
         loadConfiguration();
         BlockRegister.instance.init();
         GameRegistry.registerTileEntity(TECraftingTableIV.class, "test");
         GameRegistry.registerBlock(craftingTableIV = new BlockCraftingTableIV().setCreativeTab(ElecCTab.ElecTab), "ctable");
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
         proxy.registerRenders();
+        networkHandler.registerClientPacket(PacketSyncRecipes.class);
         //register item/block
 
         notifyEvent(event);
