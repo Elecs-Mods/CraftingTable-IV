@@ -2,6 +2,7 @@ package elec332.craftingtableiv.blocks.container;
 
 import elec332.core.client.KeyHelper;
 import elec332.core.player.PlayerHelper;
+import elec332.core.server.ServerHelper;
 import elec332.core.util.Constants;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
@@ -79,13 +80,15 @@ public class CraftingTableIVContainer extends Container {
     }
 
     public void populateSlotsWithRecipes() {
-        craftableRecipes.clearRecipes();
-        for(IRecipe recipe : CraftingHandler.recipeList) {
-            if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
-                craftableRecipes.addRecipe(recipe);
+        if (ServerHelper.isServer(thePlayer.worldObj)) {
+            craftableRecipes.clearRecipes();
+            for (IRecipe recipe : CraftingHandler.recipeList) {
+                if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
+                    craftableRecipes.addRecipe(recipe);
+                }
             }
+            updateVisibleSlots(ScrollValue);
         }
-        updateVisibleSlots(ScrollValue);
     }
 
     public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, IRecipe recipe, boolean b){
