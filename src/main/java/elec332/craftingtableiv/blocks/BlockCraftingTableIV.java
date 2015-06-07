@@ -6,7 +6,6 @@ import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -38,7 +37,6 @@ public class BlockCraftingTableIV extends BlockContainer {
             if (theTile.getStackInSlot(i) != null) {
                 WorldHelper.dropStack(world, par2, par3, par4, theTile.getStackInSlot(i));
             }
-
         }
         super.onBlockPreDestroy(world, par2, par3, par4, par5);
     }

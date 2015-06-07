@@ -1,6 +1,7 @@
 package elec332.craftingtableiv.handler;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import elec332.core.helper.OredictHelper;
 import elec332.core.main.ElecCore;
 import elec332.core.minetweaker.MineTweakerHelper;
@@ -20,15 +21,23 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Elec332 on 23-3-2015.
  */
 public class CraftingHandler {
     //public static int MaxLevel = 20;
-    public static ArrayList<ItemStack> validOutputs = new ArrayList<ItemStack>();
-    public static ArrayList<IRecipe> recipeList = new ArrayList<IRecipe>();
+    public static ArrayList<ItemStack> validOutputs = Lists.newArrayList();
+    public static ArrayList<IRecipe> recipeList = Lists.newArrayList();
+    public static Map<ItemComparator, List<IRecipe>> recipeHash = Maps.newHashMap();
 
+    private static void addToRecipeHash(ItemStack stack, IRecipe recipe){
+        ItemComparator itemComparator = new ItemComparator(stack);
+        if (recipeHash.get(itemComparator) == null)
+            recipeHash.put(itemComparator, new ArrayList<IRecipe>());
+        recipeHash.get(itemComparator).add(recipe);
+    }
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
     //{
@@ -232,14 +241,16 @@ public class CraftingHandler {
     public static void InitRecipes() {
         validOutputs.clear();
         recipeList.clear();
+        recipeHash.clear();
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
                 if (output != null && output.getItem() != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
-                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output.copy()).contains("nugget") || OredictHelper.getOreName(output.copy()).contains("nugget")))
+                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output.copy()).contains("nugget") || OredictHelper.getOreName(output.copy()).contains("nugget")) || recipeList.contains((IRecipe)object))
                         continue;
                     validOutputs.add(output);
                     recipeList.add((IRecipe) object);
+                    addToRecipeHash(output, (IRecipe)object);
                 }
             }
         }
@@ -260,8 +271,20 @@ public class CraftingHandler {
 
     public static List<IRecipe> getCraftingRecipe(ItemStack stack) {
         if (!isStackValid(stack))
-            return null;
+            return Lists.newArrayList();
+        List<IRecipe> possRet = recipeHash.get(new ItemComparator(stack));
+        if (possRet == null || possRet.isEmpty())
+            return Lists.newArrayList();
+        if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            return possRet;
         List<IRecipe> ret = Lists.newArrayList();
+        for (IRecipe recipe : possRet){
+            ItemStack out = recipe.getRecipeOutput();
+            if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes()))
+                ret.add(recipe);
+        }
+        return ret;
+        /*List<IRecipe> ret = Lists.newArrayList();
         for(IRecipe recipe : recipeList) {
             if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
@@ -279,10 +302,10 @@ public class CraftingHandler {
             }
         }
 
-        return ret;
+        return ret;*/
     }
 
-    private static boolean isStackValid(ItemStack stack){
+    public static boolean isStackValid(ItemStack stack){
         return stack != null && stack.getItem() != null;
     }
 

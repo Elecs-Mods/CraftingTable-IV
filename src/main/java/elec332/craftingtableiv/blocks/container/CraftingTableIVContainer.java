@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.blocks.container;
 
+import com.google.common.collect.Lists;
 import elec332.core.client.KeyHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
@@ -22,6 +23,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -49,7 +53,7 @@ public class CraftingTableIVContainer extends Container {
     private EntityPlayer thePlayer;
     public TECraftingTableIV theTile;
     public float ScrollValue = 0.0F;
-    private boolean busy = false;
+    //private boolean busy = false;
 
     public CraftingTableIVContainer(EntityPlayer aPlayer, TECraftingTableIV tile) {
         theTile = tile;
@@ -93,13 +97,23 @@ public class CraftingTableIVContainer extends Container {
         updateRecipes();
     }
 
+    @SuppressWarnings("deprecation")
+    private void stopThread(){
+        try {
+            currentThread.stop();
+        } catch (Exception e){
+            //
+        }
+    }
+
     public void populateSlotsWithRecipes() {
         if (!thePlayer.worldObj.isRemote) {
             craftableRecipes.clearRecipes();
             syncRecipes();
             for (IRecipe recipe : CraftingHandler.recipeList) {
-                if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
-                    craftableRecipes.addRecipe(recipe);
+                if (//craftableRecipes.canAdd(recipe) &&
+                canPlayerCraft(thePlayer, theTile, recipe, false)) {
+                    craftableRecipes.forceAddRecipe(recipe);
                     syncRecipes();
                 }
             }
@@ -114,11 +128,17 @@ public class CraftingTableIVContainer extends Container {
         CraftingTableIV.networkHandler.getNetworkWrapper().sendTo(new PacketSyncRecipes(tagCompound), (EntityPlayerMP)thePlayer);
     }
 
+    @Override
+    public void onContainerClosed(EntityPlayer player) {
+        super.onContainerClosed(player);
+        stopThread();
+    }
+
     public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, IRecipe recipe, boolean b){
         InventoryPlayer fakeInventoryPlayer = new InventoryPlayer(player);
         fakeInventoryPlayer.copyInventory(player.inventory);
         TECraftingTableIV fakeCraftingInventory = craftingTableIV.getCopy();
-        boolean ret = canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, recipe, 0, null);
+        boolean ret = canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, recipe, 0, new ArrayList<ItemStack>());
         if (b && ret){
             player.inventory.copyInventory(fakeInventoryPlayer);
             for (int i = 0; i < craftingTableIV.getSizeInventory(); i++) {
@@ -128,7 +148,7 @@ public class CraftingTableIVContainer extends Container {
         return ret;
     }
 
-    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, IRecipe recipe, int i, ItemStack no){
+    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, IRecipe recipe, int i, List<ItemStack> no){
         if (i > CraftingTableIV.recursionDepth)
             return false;
         if (fakeInventoryPlayer != null && recipe != null && !(i > 0 && compareStacks(recipe, no))) {
@@ -146,13 +166,43 @@ public class CraftingTableIVContainer extends Container {
                     int slotID = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
                     if (slotID > -1) {
                         CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, slotID, 1);
-                    } else if (isValidForCrafting(itemStack) && canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack.copy()).get(0), i + 1, no)) { //TODO: for all recipes
+                    } else if (//isValidForCrafting(itemStack) &&
+                    canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack.copy()), i + 1, addToList(no, recipe.getRecipeOutput().copy()))) { //TODO: for all recipes
                         CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack), 1);
                     } else return false;
                 }
                 return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().copy());
             //}
         } else return false;
+    }
+
+    private boolean canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<IRecipe> recipes, int i, List<ItemStack> no){
+        if (recipes == null || recipes.isEmpty())
+            return false;
+
+        //for (IRecipe recipe : recipes) {
+        IRecipe recipe = recipes.get(0);
+            InventoryPlayer fake = new InventoryPlayer(fakeInventoryPlayer.player);
+            fake.copyInventory(fakeInventoryPlayer);
+            TECraftingTableIV copy = fakeCraftingInventory.getCopy();
+            if (canPlayerCraft(fake, copy, recipe, i, new ArrayList<ItemStack>())){
+                fakeInventoryPlayer.copyInventory(fake);
+                for (int q = 0; q < fakeCraftingInventory.getSizeInventory(); q++) {
+                    fakeCraftingInventory.setInventorySlotContents(q, copy.getStackInSlot(q));
+                }
+                return true;
+            }
+            //return false;
+        //}
+        return false;
+    }
+
+    private <T> List<T> addToList(List<T> list, T t){
+        List<T> newList =Lists.newArrayList();
+        for (T t1 : list)
+            newList.add(t1);
+        newList.add(t);
+        return newList;
     }
 
     private static boolean isValidForCrafting(ItemStack stack){
@@ -165,6 +215,18 @@ public class CraftingTableIVContainer extends Container {
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    private static boolean compareStacks(IRecipe r, ItemStack[] s){
+        return compareStacks(r, Lists.newArrayList(s));
+    }
+
+    private static boolean compareStacks(IRecipe r, Iterable<ItemStack> s){
+        for (ItemStack s1 : s){
+            if (CraftingHandler.isStackValid(s1) && compareStacks(r, s1.copy()))
+                return true;
         }
         return false;
     }
@@ -253,8 +315,8 @@ public class CraftingTableIVContainer extends Container {
     @Override
     public ItemStack slotClick(int slotIndex, int mouseButton, int flag, EntityPlayer entityplayer) {
         //PlayerHelper.addPersonalMessageToClient("Clicked slot: "+slotIndex);
-        if (this.busy)
-            return null;
+        //if (this.busy)
+        //    return null;
         //this.busy = true;
         if(slotIndex >= 0 && inventorySlots.get(slotIndex) != null && inventorySlots.get(slotIndex) instanceof SlotCrafter) {
 
@@ -295,11 +357,7 @@ public class CraftingTableIVContainer extends Container {
 
     public void updateRecipes(){
         //this.busy = true;
-        try {
-            currentThread.stop();
-        } catch (Exception e){
-            //
-        }
+        stopThread();
         currentThread = new Thread(getRunnable(), "CraftingHandler");
         currentThread.start();
         //updateVisibleSlots(ScrollValue);

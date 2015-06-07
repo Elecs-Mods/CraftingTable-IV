@@ -57,10 +57,10 @@ public class CraftingTableIV extends ModBase {
         //setting up mod stuff
 
         loadConfiguration();
-        MCModInfo.CreateMCModInfo(event, "Created by ....",
-                "mod description",
-                "website link", "logo",
-                new String[]{"authorList"});
+        MCModInfo.CreateMCModInfo(event, "Created by Elec332",
+                "The CraftingTableIV mod is the successor of the CraftingTable III mod from the old tekkit days.",
+                "No Link", "path/to/logo.png",
+                new String[]{"Elec332"});
         notifyEvent(event);
     }
 

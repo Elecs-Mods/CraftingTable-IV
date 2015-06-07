@@ -24,12 +24,19 @@ public class InventoryCraftingTableIV {
         return recipes.size();
     }
 
+    public boolean forceAddRecipe(IRecipe irecipe){
+        return recipes.add(irecipe);
+    }
+
     public boolean addRecipe(IRecipe irecipe) {
-        return !recipes.contains(irecipe) && recipes.add(irecipe);
+        return canAdd(irecipe) && recipes.add(irecipe);
     }
 
     public IRecipe getIRecipe(int i) {
         return recipes.get(i);
+    }
+    public boolean canAdd(IRecipe irecipe){
+        return !recipes.contains(irecipe);
     }
 
     public ItemStack getRecipeOutput(int i) {
