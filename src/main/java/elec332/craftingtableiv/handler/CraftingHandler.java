@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.handler;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import elec332.core.helper.OredictHelper;
@@ -30,13 +31,21 @@ public class CraftingHandler {
     //public static int MaxLevel = 20;
     public static ArrayList<ItemStack> validOutputs = Lists.newArrayList();
     public static ArrayList<IRecipe> recipeList = Lists.newArrayList();
+    public static ArrayList<StackComparator> syncedRecipeOutput = Lists.newArrayList();
     public static Map<ItemComparator, List<IRecipe>> recipeHash = Maps.newHashMap();
+    public static Map<String, List<IRecipe>> oreDictRecipeHash = Maps.newHashMap();
 
     private static void addToRecipeHash(ItemStack stack, IRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(stack);
         if (recipeHash.get(itemComparator) == null)
             recipeHash.put(itemComparator, new ArrayList<IRecipe>());
         recipeHash.get(itemComparator).add(recipe);
+    }
+
+    private static void addToOreRecipeHash(String s, IRecipe recipe){
+        if (oreDictRecipeHash.get(s) == null)
+            oreDictRecipeHash.put(s, new ArrayList<IRecipe>());
+        oreDictRecipeHash.get(s).add(recipe);
     }
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
@@ -246,11 +255,16 @@ public class CraftingHandler {
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
                 if (output != null && output.getItem() != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
-                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output.copy()).contains("nugget") || OredictHelper.getOreName(output.copy()).contains("nugget")) || recipeList.contains((IRecipe)object))
+                    output = output.copy();
+                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output).contains("nugget") || OredictHelper.getOreName(output).contains("nugget")) || recipeList.contains((IRecipe)object))
                         continue;
                     validOutputs.add(output);
                     recipeList.add((IRecipe) object);
-                    addToRecipeHash(output, (IRecipe)object);
+                    syncedRecipeOutput.add(new StackComparator(output));
+                    addToRecipeHash(output, (IRecipe) object);
+                    String oreName = OredictHelper.getOreName(output);
+                    if (!Strings.isNullOrEmpty(oreName))
+                        addToOreRecipeHash(oreName, (IRecipe)object);
                 }
             }
         }
@@ -270,7 +284,7 @@ public class CraftingHandler {
     }
 
     public static List<IRecipe> getCraftingRecipe(ItemStack stack) {
-        if (!isStackValid(stack))
+        /*if (!isStackValid(stack))
             return Lists.newArrayList();
         List<IRecipe> possRet = recipeHash.get(new ItemComparator(stack));
         if (possRet == null || possRet.isEmpty())
@@ -283,8 +297,8 @@ public class CraftingHandler {
             if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes()))
                 ret.add(recipe);
         }
-        return ret;
-        /*List<IRecipe> ret = Lists.newArrayList();
+        return ret;*/
+        List<IRecipe> ret = Lists.newArrayList();
         for(IRecipe recipe : recipeList) {
             if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
@@ -302,14 +316,84 @@ public class CraftingHandler {
             }
         }
 
-        return ret;*/
+        return ret;
     }
 
     public static boolean isStackValid(ItemStack stack){
         return stack != null && stack.getItem() != null;
     }
 
-    @SuppressWarnings("unchecked")
+
+    public static Object[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayerNotUse) {
+        /*InventoryPlayer inventoryPlayer = new InventoryPlayer(inventoryPlayerNotUse.player);
+        inventoryPlayer.copyInventory(inventoryPlayerNotUse);*/
+        try {
+            if (irecipe == null)
+                return null;
+            else if (irecipe instanceof ShapelessRecipes) {
+                return (((ShapelessRecipes) irecipe).recipeItems).toArray();
+                //return recipeItems.toArray(new ItemStack[recipeItems.size()]);
+            } else if (irecipe instanceof ShapedRecipes) {
+                return ((ShapedRecipes) irecipe).recipeItems;
+            } else if (irecipe instanceof ShapedOreRecipe) {
+                return ((ShapedOreRecipe) irecipe).getInput();
+                /*Object[] input= ((ShapedOreRecipe) irecipe).getInput();
+                ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
+                for (Object object : input){
+                    if (object instanceof ItemStack) {
+                        toRet.add((ItemStack) object);
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, (ItemStack) object);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                    }else if (object instanceof ArrayList) {
+                        ItemStack s = getBestItem((ArrayList<ItemStack>) object, inventoryPlayer);
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, s);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                        toRet.add(s);
+                    }else if (object == null)
+                        toRet.add(null);
+                }
+                return toRet.toArray(new ItemStack[toRet.size()]);*/
+            } else if (irecipe instanceof ShapelessOreRecipe) {
+                return ((ShapelessOreRecipe) irecipe).getInput().toArray();
+                /*ArrayList<Object> input= ((ShapelessOreRecipe) irecipe).getInput();
+                ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
+                for (Object object : input){
+                    if (object instanceof ItemStack) {
+                        toRet.add((ItemStack) object);
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, (ItemStack) object);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                    }else if (object instanceof ArrayList) {
+                        ItemStack s = getBestItem((ArrayList<ItemStack>) object, inventoryPlayer);
+                        int i = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, s);
+                        if (i >= 0)
+                            inventoryPlayer.decrStackSize(i, 1);
+                        toRet.add(s);
+                    }
+                }
+                return toRet.toArray(new ItemStack[toRet.size()]);*/
+            } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
+                return null;
+            } else {
+                if (irecipe.getRecipeOutput() != null)
+                    CraftingTableIV.instance.error("ERROR FINDING RECIPE CLASS FOR: " + irecipe.getRecipeOutput().getItem().getUnlocalizedName());
+                else CraftingTableIV.instance.error("ERROR: THE OUTPUT FOR THIS RECIPE IS NULL! " + irecipe.toString());
+                return null;
+            }
+        } catch (NullPointerException e) {
+            if (ElecCore.proxy.isClient()) {
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("There was an error loading some recipes, the error will be printed in the game log.");
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("Please report this to Elec332 with the entire gamelog here: https://github.com/Elecs-Mods/CraftingTable-IV/issues");
+            }
+            CraftingTableIV.instance.error("Something went wrong while trying to acquire recipe ingredients!");
+            CraftingTableIV.instance.error(e);
+            return null;
+        }
+    }
+
+    /*@SuppressWarnings("unchecked")
     public static ItemStack[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayerNotUse) {
         InventoryPlayer inventoryPlayer = new InventoryPlayer(inventoryPlayerNotUse.player);
         inventoryPlayer.copyInventory(inventoryPlayerNotUse);
@@ -371,7 +455,7 @@ public class CraftingHandler {
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("There was an error loading some recipes, the error will be printed in the game log.");
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("Please report this to Elec332 with the entire gamelog here: https://github.com/Elecs-Mods/CraftingTable-IV/issues");
             }
-            CraftingTableIV.instance.error("Something went wrong while trying to aquire recipe ingredients!");
+            CraftingTableIV.instance.error("Something went wrong while trying to acquire recipe ingredients!");
             CraftingTableIV.instance.error(e);
             return null;
         }
@@ -381,6 +465,12 @@ public class CraftingHandler {
         for (ItemStack itemStack : itemStacks)
             if (InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, itemStack) >= 0)
                 return itemStack;
+        for (ItemStack itemStack : itemStacks) //Yes, this must be run after the loop above
+            if (itemStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+                return itemStack;
+        Object o = oreDictRecipeHash.get(OredictHelper.getOreName(itemStacks.get(0)));
+        if (o != null && !((List) o).isEmpty())
+            return ((IRecipe)((List) o).get(0)).getRecipeOutput().copy();
         return itemStacks.get(0);
-    }
+    }*/
 }

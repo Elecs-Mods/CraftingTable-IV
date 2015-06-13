@@ -9,11 +9,13 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -82,7 +84,7 @@ public class GuiCTableIV extends GuiContainer {
                 theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput());
                 if (getIsMouseOverSlot(theSlot, i, j)) {
                     try {
-                        ArrayList<ItemStack> theRecipe = Lists.newArrayList(CraftingHandler.getRecipeIngredients(theSlot.getIRecipe(), Minecraft.getMinecraft().thePlayer.inventory));
+                        List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());//Lists.newArrayList(CraftingHandler.getRecipeIngredients(theSlot.getIRecipe(), Minecraft.getMinecraft().thePlayer.inventory));
                         int Counter = 0;
                         for (int b = 0; b < theRecipe.size(); b++) {
                             if (RecipeType == 1) {
@@ -107,6 +109,17 @@ public class GuiCTableIV extends GuiContainer {
         super.drawScreen(i, j, f);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glDisable(2896 /*GL_LIGHTING*/);
+    }
+
+    private List<ItemStack> getIngredients(IRecipe recipe){
+        List<ItemStack> ret = Lists.newArrayList();
+        for (Object obj : CraftingHandler.getRecipeIngredients(recipe, null)){
+            if (obj instanceof ItemStack)
+                ret.add((ItemStack) obj);
+            else if (obj instanceof List && !((List) obj).isEmpty())
+                ret.add((ItemStack) ((List) obj).get(0));
+        }
+        return ret;
     }
 
     private boolean getIsMouseOverSlot(Slot slot, int i, int j) {

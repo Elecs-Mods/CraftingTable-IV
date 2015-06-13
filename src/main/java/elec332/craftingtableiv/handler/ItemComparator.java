@@ -14,10 +14,10 @@ public class ItemComparator {
             throw new IllegalArgumentException("Invalid ItemStack!");
     }
 
-    private ItemStack stack;
+    protected ItemStack stack;
 
     public ItemStack getStack() {
-        return stack;
+        return stack.copy();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ItemComparator {
         return obj instanceof ItemStack ? stacksEqual((ItemStack) obj) : ((obj instanceof ItemComparator) && stacksEqual(((ItemComparator) obj).getStack()));
     }
 
-    private boolean stacksEqual(ItemStack s1){
+    protected boolean stacksEqual(ItemStack s1){
         if(s1.getItem() == stack.getItem()) {
             /*if(s1.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || s1.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
                 return true;

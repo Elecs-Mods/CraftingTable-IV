@@ -2,10 +2,7 @@ package elec332.craftingtableiv;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import elec332.core.helper.FileHelper;
@@ -16,11 +13,15 @@ import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.NetworkHandler;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
+import elec332.craftingtableiv.handler.StackComparator;
 import elec332.craftingtableiv.init.BlockRegister;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 
 import java.io.File;
 
@@ -89,6 +90,7 @@ public class CraftingTableIV extends ModBase {
 
     @Mod.EventHandler
     public void loadRecipes(FMLServerStartedEvent event){
+        OreDictionary.initVanillaEntries();
         Long l = System.currentTimeMillis();
         CraftingHandler.InitRecipes();
         info("loaded "+CraftingHandler.recipeList.size()+" recipes in "+(System.currentTimeMillis()-l)+" ms");
