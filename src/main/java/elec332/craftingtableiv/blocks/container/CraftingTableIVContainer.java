@@ -1,7 +1,9 @@
 package elec332.craftingtableiv.blocks.container;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import elec332.core.client.KeyHelper;
+import elec332.core.helper.OredictHelper;
 import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
@@ -12,6 +14,7 @@ import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.blocks.slot.SlotStorage;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.ItemComparator;
+import elec332.craftingtableiv.handler.RecipeStackComparator;
 import elec332.craftingtableiv.handler.StackComparator;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
@@ -137,8 +140,13 @@ public class CraftingTableIVContainer extends Container {
                 if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
                     craftableRecipes.forceAddRecipe(recipe);
                     syncRecipes();
-                } else cannotCraft.add(new StackComparator(recipe.getRecipeOutput()));
-                //System.out.println("Done with "+i+" out of "+CraftingHandler.recipeList.size());
+                } /*else {
+                    cannotCraft.add(new StackComparator(recipe.getRecipeOutput()));
+                    String s = OredictHelper.getOreName(recipe.getRecipeOutput());
+                    if (!Strings.isNullOrEmpty(s))
+                        canAlsoNotCraft.add(s);
+                }*/
+                //System.out.println("Done with " + i + " out of " + CraftingHandler.recipeList.size());
             }
             updateVisibleSlots(ScrollValue);
             syncRecipes();
@@ -153,6 +161,7 @@ public class CraftingTableIVContainer extends Container {
     }
 
     private List<StackComparator> cannotCraft = Lists.newArrayList();
+    private List<String> canAlsoNotCraft = Lists.newArrayList();
 
     @Override
     public void onContainerClosed(EntityPlayer player) {
@@ -164,7 +173,7 @@ public class CraftingTableIVContainer extends Container {
         InventoryPlayer fakeInventoryPlayer = new InventoryPlayer(player);
         fakeInventoryPlayer.copyInventory(player.inventory);
         TECraftingTableIV fakeCraftingInventory = craftingTableIV.getCopy();
-        boolean ret = canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, recipe, 0, new ArrayList<ItemStack>());
+        boolean ret = canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, recipe, 0, new ArrayList<RecipeStackComparator>());
         if (b && ret){
             player.inventory.copyInventory(fakeInventoryPlayer);
             for (int i = 0; i < craftingTableIV.getSizeInventory(); i++) {
@@ -174,7 +183,7 @@ public class CraftingTableIVContainer extends Container {
         return ret;
     }
 
-    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, IRecipe recipe, int i, List<ItemStack> no){
+    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, IRecipe recipe, int i, List<RecipeStackComparator> no){
         if (i > CraftingTableIV.recursionDepth)
             return false;
         if (i > 0 && compareStacks(recipe, no))
@@ -191,13 +200,15 @@ public class CraftingTableIVContainer extends Container {
                         continue;
                     if (obj instanceof ItemStack) {
                         ItemStack itemStack = (ItemStack) obj;
-                        if (cannotCraft.contains(new StackComparator(itemStack)))
-                            return false;
+                        //if (cannotCraft.contains(new StackComparator(itemStack)) )
+                        //    return false;
+                        //String s = OredictHelper.getOreName(recipe.getRecipeOutput());
+                        //if (!Strings.isNullOrEmpty(s) && canAlsoNotCraft.contains(s))
+                        //    return false;
                         int slotID = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
                         if (slotID > -1) {
                             CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, slotID, 1);
-                        } else if (//isValidForCrafting(itemStack) &&
-                                canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack.copy()), i, addToList(no, recipe.getRecipeOutput().copy()))) { //TODO: for all recipes
+                        } else if (i != CraftingTableIV.recursionDepth && canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack.copy()), i, addToList(no, new RecipeStackComparator(recipe.getRecipeOutput().copy()).setCompareOre(false)))) { //TODO: for all recipes
                             CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack), 1);
                         } else {
                             return false;
@@ -216,7 +227,9 @@ public class CraftingTableIVContainer extends Container {
                         }
                         if (done)
                             continue;
-                        ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, recipe.getRecipeOutput().copy()), i);
+                        if (i == CraftingTableIV.recursionDepth)
+                            return false;
+                        ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, new RecipeStackComparator(recipe.getRecipeOutput().copy())), i);
                         if (stack != null)
                             CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy()), 1);
                         else {
@@ -229,7 +242,7 @@ public class CraftingTableIVContainer extends Container {
         } else return false;
     }
 
-    private ItemStack canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<ItemStack> stacks, List<ItemStack> no, int i){
+    private ItemStack canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<ItemStack> stacks, List<RecipeStackComparator> no, int i){
         /*List<IRecipe> recipes = Lists.newArrayList();
         for (ItemStack stack : stacks){
             recipes.addAll(CraftingHandler.getCraftingRecipe(stack));
@@ -242,12 +255,11 @@ public class CraftingTableIVContainer extends Container {
         return null;
     }
 
-    private boolean canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<IRecipe> recipes, int i, List<ItemStack> no){
+    private boolean canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<IRecipe> recipes, int i, List<RecipeStackComparator> no){
         if (recipes == null || recipes.isEmpty())
             return false;
 
         for (IRecipe recipe : recipes) {
-        //IRecipe recipe = recipes.get(0);
             InventoryPlayer fake = new InventoryPlayer(fakeInventoryPlayer.player);
             fake.copyInventory(fakeInventoryPlayer);
             TECraftingTableIV copy = fakeCraftingInventory.getCopy();
@@ -258,13 +270,12 @@ public class CraftingTableIVContainer extends Container {
                 }
                 return true;
             }
-            //return false;
         }
         return false;
     }
 
     private <T> List<T> addToList(List<T> list, T t){
-        List<T> newList =Lists.newArrayList();
+        List<T> newList = Lists.newArrayList();
         for (T t1 : list)
             newList.add(t1);
         newList.add(t);
@@ -288,34 +299,41 @@ public class CraftingTableIVContainer extends Container {
         return false;
     }
 
-    private static boolean compareStacks(IRecipe r, ItemStack[] s){
+    private static boolean compareStacks(IRecipe r, RecipeStackComparator[] s){
         return compareStacks(r, Lists.newArrayList(s));
     }
 
-    private static boolean compareStacks(IRecipe r, List<ItemStack> s){
+    private static boolean compareStacks(IRecipe r, List<RecipeStackComparator> s){
         if (s.isEmpty())
             return false;
-        for (ItemStack s1 : s){
-            if (CraftingHandler.isStackValid(s1) && compareStacks(r, s1.copy()))
+        for (RecipeStackComparator s1 : s){
+            if (CraftingHandler.isStackValid(s1) && compareStacks(r, s1))
                 return true;
         }
         return false;
     }
 
-    private static boolean compareStacks(IRecipe r, ItemStack s2){
-        if (r == null || r.getRecipeOutput() == null || s2 == null)
+    private static boolean compareStacks(IRecipe r, RecipeStackComparator sc){
+        if (r == null || r.getRecipeOutput() == null || sc == null)
             return false;
+        if (sc.equals(new RecipeStackComparator(r.getRecipeOutput())))
+            return true;
+        /*System.out.println("Not equal");
         ItemStack s1 = r.getRecipeOutput().copy();
+        ItemStack s2 = sc.getStack().copy();
         if(s1.getItem() == s2.getItem()) {
             if(s1.getItemDamage() == s2.getItemDamage() || s2.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-                return true;
+                throw new RuntimeException();
+                //return true;
             }
             if(!s1.getItem().getHasSubtypes() && !s2.getItem().getHasSubtypes()) {
-                return true;
+                throw new RuntimeException();
+                //return true;
             }
             if (s2.getItem() == Items.dye || s2.getItem() == Item.getItemFromBlock(Blocks.wool))
-                return true;
-        }
+                throw new RuntimeException();
+                //return true;
+        }*/
         return false;
     }
 

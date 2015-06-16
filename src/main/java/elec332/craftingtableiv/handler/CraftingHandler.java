@@ -20,9 +20,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -32,6 +30,7 @@ public class CraftingHandler {
     public static ArrayList<ItemStack> validOutputs = Lists.newArrayList();
     public static ArrayList<IRecipe> recipeList = Lists.newArrayList();
     public static ArrayList<StackComparator> syncedRecipeOutput = Lists.newArrayList();
+    public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
     public static Map<ItemComparator, List<IRecipe>> recipeHash = Maps.newHashMap();
     public static Map<String, List<IRecipe>> oreDictRecipeHash = Maps.newHashMap();
 
@@ -251,6 +250,7 @@ public class CraftingHandler {
         validOutputs.clear();
         recipeList.clear();
         recipeHash.clear();
+        stackDataList.clear();
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
@@ -261,6 +261,7 @@ public class CraftingHandler {
                     validOutputs.add(output);
                     recipeList.add((IRecipe) object);
                     syncedRecipeOutput.add(new StackComparator(output));
+                    stackDataList.add(new RecipeStackComparator(output));
                     addToRecipeHash(output, (IRecipe) object);
                     String oreName = OredictHelper.getOreName(output);
                     if (!Strings.isNullOrEmpty(oreName))
@@ -284,7 +285,7 @@ public class CraftingHandler {
     }
 
     public static List<IRecipe> getCraftingRecipe(ItemStack stack) {
-        /*if (!isStackValid(stack))
+        if (!isStackValid(stack))
             return Lists.newArrayList();
         List<IRecipe> possRet = recipeHash.get(new ItemComparator(stack));
         if (possRet == null || possRet.isEmpty())
@@ -297,8 +298,8 @@ public class CraftingHandler {
             if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes()))
                 ret.add(recipe);
         }
-        return ret;*/
-        List<IRecipe> ret = Lists.newArrayList();
+        return ret;
+        /*List<IRecipe> ret = Lists.newArrayList();
         for(IRecipe recipe : recipeList) {
             if(recipe != null && (recipe instanceof ShapelessOreRecipe || recipe instanceof ShapedOreRecipe || recipe instanceof ShapedRecipes || recipe instanceof ShapelessRecipes)) {
                 ItemStack output = recipe.getRecipeOutput();
@@ -316,7 +317,11 @@ public class CraftingHandler {
             }
         }
 
-        return ret;
+        return ret;*/
+    }
+
+    public static boolean isStackValid(RecipeStackComparator rc){
+        return isStackValid(rc.getStack());
     }
 
     public static boolean isStackValid(ItemStack stack){

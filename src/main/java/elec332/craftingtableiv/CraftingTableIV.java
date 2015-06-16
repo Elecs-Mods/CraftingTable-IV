@@ -45,7 +45,7 @@ public class CraftingTableIV extends ModBase {
     public static NetworkHandler networkHandler;
 
     /**Config**/
-    public static int recursionDepth = 8;
+    public static int recursionDepth = 5;
     public static boolean nuggetFilter = true;
     public static boolean enableDoor = true;
     public static boolean enableNoise = true;
@@ -82,6 +82,10 @@ public class CraftingTableIV extends ModBase {
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event){
+        recursionDepth = config.getInt("Recursion depth", "general", 5, 0, 10, "Set to 0 to disable recursion");
+        nuggetFilter = config.getBoolean("NuggetFilter", "general", true, "Filters nuggets out of the recipeList, only disable if you know what you're doing!");
+        enableDoor = config.getBoolean("EnableDoor", "general", true, "Set to false to disable the opening door on the CTIV");
+        enableNoise = config.getBoolean("EnableNoise", "general", true, "Set to false to disable the door noise when opening and closing");
         loadConfiguration();
         //Mod compat stuff
 
