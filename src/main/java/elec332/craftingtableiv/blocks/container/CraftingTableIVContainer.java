@@ -119,6 +119,7 @@ public class CraftingTableIVContainer extends Container {
     }
 
     public void populateSlotsWithRecipes() {
+        long l = System.currentTimeMillis();
         if (!thePlayer.worldObj.isRemote) {
             cannotCraft.clear();
             craftableRecipes.clearRecipes();
@@ -154,6 +155,7 @@ public class CraftingTableIVContainer extends Container {
             syncRecipes();
             //System.out.println("Done with entirely");
         }
+        CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in "+(System.currentTimeMillis()-l)+" ms");
     }
 
     private void syncRecipes(){
