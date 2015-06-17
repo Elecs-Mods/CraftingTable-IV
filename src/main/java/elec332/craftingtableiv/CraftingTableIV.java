@@ -16,6 +16,7 @@ import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.StackComparator;
 import elec332.craftingtableiv.init.BlockRegister;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
+import elec332.craftingtableiv.network.PacketSyncScroll;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
@@ -75,6 +76,7 @@ public class CraftingTableIV extends ModBase {
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketSyncRecipes.class);
+        networkHandler.registerServerPacket(PacketSyncScroll.class);
         //register item/block
 
         notifyEvent(event);

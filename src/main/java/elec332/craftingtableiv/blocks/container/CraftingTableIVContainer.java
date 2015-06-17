@@ -7,6 +7,7 @@ import elec332.core.helper.OredictHelper;
 import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
+import elec332.core.util.NBTHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
 import elec332.craftingtableiv.blocks.slot.InterceptSlot;
@@ -17,6 +18,7 @@ import elec332.craftingtableiv.handler.ItemComparator;
 import elec332.craftingtableiv.handler.RecipeStackComparator;
 import elec332.craftingtableiv.handler.StackComparator;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
+import elec332.craftingtableiv.network.PacketSyncScroll;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -334,6 +336,8 @@ public class CraftingTableIVContainer extends Container {
 
     public void updateVisibleSlots(float f) {
         ScrollValue = f;
+        if (thePlayer.getEntityWorld().isRemote)
+            CraftingTableIV.networkHandler.getNetworkWrapper().sendToServer(new PacketSyncScroll(new NBTHelper().addToTag(ScrollValue, "scroll").toNBT()));
         int numberOfRecipes = craftableRecipes.getSize();
         int i = (numberOfRecipes / 8 - 4) + 1;
         int j = (int)((double)(f * (float)i) + 0.5D);
