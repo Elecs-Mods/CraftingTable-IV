@@ -33,6 +33,7 @@ public class CraftingHandler {
     public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
     public static Map<ItemComparator, List<IRecipe>> recipeHash = Maps.newHashMap();
     public static Map<String, List<IRecipe>> oreDictRecipeHash = Maps.newHashMap();
+    public static Map<StackComparator, RecipeStackComparator> rcMap = Maps.newHashMap();
 
     private static void addToRecipeHash(ItemStack stack, IRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(stack);
@@ -45,6 +46,10 @@ public class CraftingHandler {
         if (oreDictRecipeHash.get(s) == null)
             oreDictRecipeHash.put(s, new ArrayList<IRecipe>());
         oreDictRecipeHash.get(s).add(recipe);
+    }
+
+    public static RecipeStackComparator getStackComparator(ItemStack stack){
+        return rcMap.get(new StackComparator(stack));//new RecipeStackComparator(stack) ; //stackDataList.get(syncedRecipeOutput.indexOf(new StackComparator(stack)));
     }
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
@@ -251,6 +256,8 @@ public class CraftingHandler {
         recipeList.clear();
         recipeHash.clear();
         stackDataList.clear();
+        syncedRecipeOutput.clear();
+        rcMap.clear();
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
@@ -262,6 +269,7 @@ public class CraftingHandler {
                     recipeList.add((IRecipe) object);
                     syncedRecipeOutput.add(new StackComparator(output));
                     stackDataList.add(new RecipeStackComparator(output));
+                    rcMap.put(new StackComparator(output), new RecipeStackComparator(output));
                     addToRecipeHash(output, (IRecipe) object);
                     String oreName = OredictHelper.getOreName(output);
                     if (!Strings.isNullOrEmpty(oreName))

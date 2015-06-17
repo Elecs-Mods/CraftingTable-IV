@@ -189,58 +189,53 @@ public class CraftingTableIVContainer extends Container {
         if (i > 0 && compareStacks(recipe, no))
             return false;
         if (fakeInventoryPlayer != null && recipe != null) {
-            //List<IRecipe> theRecipeList = CraftingHandler.getCraftingRecipe(stack);
-            /*if (theRecipeList == null || theRecipeList.isEmpty()) {
-                CraftingTableIV.instance.error("Cannot find recipe for: " + MineTweakerHelper.getItemRegistryName(stack));
-                return false;
-            }
-            for (IRecipe theRecipe : theRecipeList) {*/
-                for (Object obj : CraftingHandler.getRecipeIngredients(recipe, fakeInventoryPlayer)) {
-                    if (obj == null)
-                        continue;
-                    if (obj instanceof ItemStack) {
-                        ItemStack itemStack = (ItemStack) obj;
-                        //if (cannotCraft.contains(new StackComparator(itemStack)) )
-                        //    return false;
-                        //String s = OredictHelper.getOreName(recipe.getRecipeOutput());
-                        //if (!Strings.isNullOrEmpty(s) && canAlsoNotCraft.contains(s))
-                        //    return false;
-                        int slotID = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
-                        if (slotID > -1) {
-                            CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, slotID, 1);
-                        } else if (i != CraftingTableIV.recursionDepth && canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack.copy()), i, addToList(no, new RecipeStackComparator(recipe.getRecipeOutput().copy()).setCompareOre(false)))) { //TODO: for all recipes
-                            CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack), 1);
-                        } else {
-                            return false;
-                        }
-                    } else if (obj instanceof List && !((List)obj).isEmpty()){
-                        boolean done = false;
-                        @SuppressWarnings("unchecked")
-                        List<ItemStack> stacks = (List<ItemStack>) obj;
-                        for (ItemStack itemStack : stacks) {
-                            int p = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
-                            if (p >= 0) {
-                                CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, p, 1);
-                                done = true;
-                                break;
-                            }
-                        }
-                        if (done)
-                            continue;
-                        if (i == CraftingTableIV.recursionDepth)
-                            return false;
-                        ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, new RecipeStackComparator(recipe.getRecipeOutput().copy())), i);
-                        if (stack != null)
-                            CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy()), 1);
-                        else {
-                            return false;
+            for (Object obj : CraftingHandler.getRecipeIngredients(recipe, fakeInventoryPlayer)) {
+                if (obj == null)
+                    continue;
+                if (obj instanceof ItemStack) {
+                    ItemStack itemStack = (ItemStack) obj;
+                       //if (cannotCraft.contains(new StackComparator(itemStack)) )
+                       //    return false;
+                       //String s = OredictHelper.getOreName(recipe.getRecipeOutput());
+                       //if (!Strings.isNullOrEmpty(s) && canAlsoNotCraft.contains(s))
+                       //    return false;
+                    int slotID = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
+                    if (slotID > -1) {
+                        CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, slotID, 1);
+                    } else if (i != CraftingTableIV.recursionDepth && canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack), i, addToList(no, CraftingHandler.getStackComparator(itemStack)))) {
+                        CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack), 1);
+                    } else {
+                        return false;
+                    }
+                } else if (obj instanceof List && !((List)obj).isEmpty()){
+                    boolean done = false;
+                    @SuppressWarnings("unchecked")
+                    List<ItemStack> stacks = (List<ItemStack>) obj;
+                    for (ItemStack itemStack : stacks) {
+                        int p = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
+                        if (p >= 0) {
+                            CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, p, 1);
+                            done = true;
+                            break;
                         }
                     }
+                    if (done)
+                        continue;
+                    if (i == CraftingTableIV.recursionDepth)
+                        return false;
+                    ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, CraftingHandler.getStackComparator(recipe.getRecipeOutput())), i);
+                    if (stack != null)
+                        CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy()), 1);
+                    else {
+                        return false;
+                    }
                 }
-                return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().copy());
-            //}
+            }
+            return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().copy());
         } else return false;
     }
+
+
 
     private ItemStack canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<ItemStack> stacks, List<RecipeStackComparator> no, int i){
         /*List<IRecipe> recipes = Lists.newArrayList();
