@@ -239,14 +239,29 @@ public class CraftingHandler {
     }
 
     public static int getFirstInventorySlotWithItemStack(InventoryPlayer inventoryPlayer, IInventory internal, ItemStack itemStack) {
-        int i = InventoryHelper.getFirstSlotWithItemStack(internal, itemStack);
+        int i = getFirstSlotWithItemStack(internal, itemStack);
         if (i > -1)
             return i;
 
-        int q = InventoryHelper.getFirstSlotWithItemStack(inventoryPlayer, itemStack);
+        int q = getFirstSlotWithItemStack(inventoryPlayer, itemStack);
         if (q > -1)
             return q + 18;
 
+        return -1;
+    }
+
+    public static int getFirstSlotWithItemStack(IInventory inventory, ItemStack stack){
+        for(int i = 0; i < inventory.getSizeInventory(); ++i) {
+            ItemStack stackInSlot = inventory.getStackInSlot(i);
+            if(stackInSlot != null && stack != null && stackInSlot.getItem() == stack.getItem()) {
+                if(stackInSlot.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                    return i;
+                }
+                if(!stackInSlot.getItem().getHasSubtypes() && !stack.getItem().getHasSubtypes()) {
+                    return i;
+                }
+            }
+        }
         return -1;
     }
 

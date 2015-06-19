@@ -315,7 +315,7 @@ public class CraftingTableIVContainer extends Container {
     private static boolean compareStacks(IRecipe r, RecipeStackComparator sc){
         if (r == null || r.getRecipeOutput() == null || sc == null)
             return false;
-        if (sc.equals(new RecipeStackComparator(r.getRecipeOutput())))
+        if (sc.equals(CraftingHandler.getStackComparator(r.getRecipeOutput())))
             return true;
         /*System.out.println("Not equal");
         ItemStack s1 = r.getRecipeOutput().copy();
