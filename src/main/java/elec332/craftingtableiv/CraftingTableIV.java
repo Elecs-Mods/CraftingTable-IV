@@ -50,7 +50,10 @@ public class CraftingTableIV extends ModBase {
     public static boolean nuggetFilter = true;
     public static boolean enableDoor = true;
     public static boolean enableNoise = true;
+    public static String[] disabledMods;
     /**********/
+
+    private static String[] defaultDisabledMods = {"ztones"};
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -88,6 +91,7 @@ public class CraftingTableIV extends ModBase {
         nuggetFilter = config.getBoolean("NuggetFilter", "general", true, "Filters nuggets out of the recipeList, only disable if you know what you're doing!");
         enableDoor = config.getBoolean("EnableDoor", "general", true, "Set to false to disable the opening door on the CTIV");
         enableNoise = config.getBoolean("EnableNoise", "general", true, "Set to false to disable the door noise when opening and closing");
+        disabledMods = config.getStringList("DisabledMods", "general", defaultDisabledMods, "Every item from the modID's specified here will not show up in the CraftingTable");
         loadConfiguration();
         //Mod compat stuff
 

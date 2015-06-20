@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.handler;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,9 +20,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -274,6 +273,8 @@ public class CraftingHandler {
         stackDataList.clear();
         syncedRecipeOutput.clear();
         rcMap.clear();
+        SortedMap<String, List<IRecipe>> namedList = Maps.newTreeMap();
+        Map<String, List<IRecipe>> entries = Maps.newHashMap();
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
@@ -281,7 +282,25 @@ public class CraftingHandler {
                     output = output.copy();
                     if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output).contains("nugget") || OredictHelper.getOreName(output).contains("nugget")) || recipeList.contains((IRecipe)object))
                         continue;
-                    validOutputs.add(output);
+                    String[] s = MineTweakerHelper.getItemRegistryName(output).split(":");
+                    boolean b = false;
+                    for (String s1 : CraftingTableIV.disabledMods) {
+                        if (s1.equalsIgnoreCase(s[0])) {
+                            b = true;
+                        }
+                    }
+                    if (b)
+                        continue;
+                    if (s[0].contains("minecraft")) {
+                        if (entries.get("minecraft") == null)
+                            entries.put("minecraft", new ArrayList<IRecipe>());
+                        entries.get("minecraft").add((IRecipe)object);
+                    } else {
+                        if (namedList.get(s[0]) == null)
+                            namedList.put(s[0], new ArrayList<IRecipe>());
+                        namedList.get(s[0]).add((IRecipe)object);
+                    }
+                    /*validOutputs.add(output);
                     recipeList.add((IRecipe) object);
                     syncedRecipeOutput.add(new StackComparator(output));
                     stackDataList.add(new RecipeStackComparator(output));
@@ -289,8 +308,23 @@ public class CraftingHandler {
                     addToRecipeHash(output, (IRecipe) object);
                     String oreName = OredictHelper.getOreName(output);
                     if (!Strings.isNullOrEmpty(oreName))
-                        addToOreRecipeHash(oreName, (IRecipe)object);
+                        addToOreRecipeHash(oreName, (IRecipe)object);*/
                 }
+            }
+        }
+        entries.putAll(namedList);
+        for (List<IRecipe> recipes : entries.values()){
+            for (IRecipe recipe : recipes){
+                ItemStack output = recipe.getRecipeOutput().copy();
+                validOutputs.add(output.copy());
+                recipeList.add(recipe);
+                syncedRecipeOutput.add(new StackComparator(output.copy()));
+                stackDataList.add(new RecipeStackComparator(output.copy()));
+                rcMap.put(new StackComparator(output.copy()), new RecipeStackComparator(output.copy()));
+                addToRecipeHash(output.copy(), recipe);
+                String oreName = OredictHelper.getOreName(output.copy());
+                if (!Strings.isNullOrEmpty(oreName))
+                    addToOreRecipeHash(oreName, recipe);
             }
         }
     }
