@@ -1,7 +1,6 @@
 package elec332.craftingtableiv.handler;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 
 /**
  * Created by Elec332 on 7-6-2015.

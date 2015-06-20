@@ -1,10 +1,7 @@
 package elec332.craftingtableiv.blocks.container;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import elec332.core.client.KeyHelper;
-import elec332.core.helper.OredictHelper;
-import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
 import elec332.core.util.NBTHelper;
@@ -14,7 +11,6 @@ import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.blocks.slot.SlotStorage;
 import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.handler.ItemComparator;
 import elec332.craftingtableiv.handler.RecipeStackComparator;
 import elec332.craftingtableiv.handler.StackComparator;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
@@ -23,13 +19,10 @@ import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,7 +30,6 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Elec332 on 23-3-2015.

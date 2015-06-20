@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import elec332.core.helper.OredictHelper;
 import elec332.core.main.ElecCore;
 import elec332.core.minetweaker.MineTweakerHelper;
-import elec332.core.player.InventoryHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.ContainerNull;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
@@ -20,7 +19,9 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Elec332 on 23-3-2015.
