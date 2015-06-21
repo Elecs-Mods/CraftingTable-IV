@@ -22,6 +22,9 @@ import elec332.craftingtableiv.network.PacketSyncScroll;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.io.File;
@@ -80,6 +83,7 @@ public class CraftingTableIV extends ModBase {
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketSyncRecipes.class);
         networkHandler.registerServerPacket(PacketSyncScroll.class);
+        GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.crafting_table, Items.book);
         //register item/block
 
         notifyEvent(event);
