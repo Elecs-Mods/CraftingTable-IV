@@ -1,16 +1,21 @@
 package elec332.craftingtableiv.blocks.container;
 
 import com.google.common.collect.Lists;
+import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.handler.CraftingHandler;
+import elec332.craftingtableiv.handler.WrappedRecipe;
+import elec332.craftingtableiv.network.PacketSyncText;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -25,6 +30,7 @@ public class GuiCTableIV extends GuiContainer {
     private boolean field_35313_h;
     private boolean field_35314_i;
     int RecipeType = 0;
+    private GuiTextField textField;
 
 
     public GuiCTableIV(EntityPlayer entityplayer, TECraftingTableIV tile) {
@@ -43,6 +49,35 @@ public class GuiCTableIV extends GuiContainer {
         //inventorySlots.slotClick(i, j, flag, mc.thePlayer);
     }
 
+    @Override
+    public void initGui() {
+        super.initGui();
+        Keyboard.enableRepeatEvents(true);
+        int i = (this.width - this.xSize) / 2;
+        int j = (this.height - this.ySize) / 2;
+        this.textField = new GuiTextField(this.fontRendererObj, i + 102, j + 5, 103/2, 10);
+        this.textField.setTextColor(-1);
+        this.textField.setDisabledTextColour(-1);
+        this.textField.setEnableBackgroundDrawing(true);
+        this.textField.setMaxStringLength(12);
+    }
+
+    @Override
+    protected void keyTyped(char c, int i) {
+        if (textField.textboxKeyTyped(c, i)){
+            syncText();
+        } else super.keyTyped(c, i);
+    }
+
+    @Override
+    protected void mouseClicked(int i1, int i2, int i3) {
+        super.mouseClicked(i1, i2, i3);
+        textField.mouseClicked(i1, i2, i3);
+    }
+
+    private void syncText(){
+        CraftingTableIV.networkHandler.getNetworkWrapper().sendToServer(new PacketSyncText(textField.getText()));
+    }
 
     @Override
     public void drawScreen(int i, int j, float f) {
@@ -80,7 +115,7 @@ public class GuiCTableIV extends GuiContainer {
             if (this.inventorySlots.inventorySlots.get(a) instanceof SlotCrafter) {
                 SlotCrafter theSlot = (SlotCrafter) this.inventorySlots.inventorySlots.get(a);
                 if (theSlot.getIRecipe() != null){
-                theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput());
+                theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput().getStack());
                 if (getIsMouseOverSlot(theSlot, i, j)) {
                     try {
                         List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());//Lists.newArrayList(CraftingHandler.getRecipeIngredients(theSlot.getIRecipe(), Minecraft.getMinecraft().thePlayer.inventory));
@@ -108,11 +143,13 @@ public class GuiCTableIV extends GuiContainer {
         super.drawScreen(i, j, f);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glDisable(2896 /*GL_LIGHTING*/);
+        GL11.glDisable(GL11.GL_BLEND);
+        this.textField.drawTextBox();
     }
 
-    private List<ItemStack> getIngredients(IRecipe recipe){
+    private List<ItemStack> getIngredients(WrappedRecipe recipe){
         List<ItemStack> ret = Lists.newArrayList();
-        for (Object obj : CraftingHandler.getRecipeIngredients(recipe, null)){
+        for (Object obj : recipe.getInput()){
             if (obj instanceof ItemStack)
                 ret.add((ItemStack) obj);
             else if (obj instanceof List && !((List) obj).isEmpty())

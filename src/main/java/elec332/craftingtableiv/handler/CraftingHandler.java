@@ -1,6 +1,5 @@
 package elec332.craftingtableiv.handler;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,23 +27,23 @@ import java.util.*;
 public class CraftingHandler {
     //public static int MaxLevel = 20;
     public static ArrayList<ItemStack> validOutputs = Lists.newArrayList();
-    public static ArrayList<IRecipe> recipeList = Lists.newArrayList();
+    public static ArrayList<WrappedRecipe> recipeList = Lists.newArrayList();
     public static ArrayList<StackComparator> syncedRecipeOutput = Lists.newArrayList();
     public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
-    public static Map<ItemComparator, List<IRecipe>> recipeHash = Maps.newHashMap();
-    public static Map<String, List<IRecipe>> oreDictRecipeHash = Maps.newHashMap();
+    public static Map<ItemComparator, List<WrappedRecipe>> recipeHash = Maps.newHashMap();
+    public static Map<String, List<WrappedRecipe>> oreDictRecipeHash = Maps.newHashMap();
     public static Map<StackComparator, RecipeStackComparator> rcMap = Maps.newHashMap();
 
-    private static void addToRecipeHash(ItemStack stack, IRecipe recipe){
+    private static void addToRecipeHash(ItemStack stack, WrappedRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(stack);
         if (recipeHash.get(itemComparator) == null)
-            recipeHash.put(itemComparator, new ArrayList<IRecipe>());
+            recipeHash.put(itemComparator, new ArrayList<WrappedRecipe>());
         recipeHash.get(itemComparator).add(recipe);
     }
 
-    private static void addToOreRecipeHash(String s, IRecipe recipe){
+    private static void addToOreRecipeHash(String s, WrappedRecipe recipe){
         if (oreDictRecipeHash.get(s) == null)
-            oreDictRecipeHash.put(s, new ArrayList<IRecipe>());
+            oreDictRecipeHash.put(s, new ArrayList<WrappedRecipe>());
         oreDictRecipeHash.get(s).add(recipe);
     }
 
@@ -314,17 +313,20 @@ public class CraftingHandler {
         }
         entries.putAll(namedList);
         for (List<IRecipe> recipes : entries.values()){
-            for (IRecipe recipe : recipes){
-                ItemStack output = recipe.getRecipeOutput().copy();
-                validOutputs.add(output.copy());
-                recipeList.add(recipe);
-                syncedRecipeOutput.add(new StackComparator(output.copy()));
-                stackDataList.add(new RecipeStackComparator(output.copy()));
-                rcMap.put(new StackComparator(output.copy()), new RecipeStackComparator(output.copy()));
-                addToRecipeHash(output.copy(), recipe);
-                String oreName = OredictHelper.getOreName(output.copy());
-                if (!Strings.isNullOrEmpty(oreName))
-                    addToOreRecipeHash(oreName, recipe);
+            for (IRecipe iRecipe : recipes){
+                WrappedRecipe recipe = createWrappedRecipe(iRecipe);
+                if (recipe != null) {
+                    ItemStack output = recipe.getRecipeOutput().getStack();
+                    validOutputs.add(output.copy());
+                    recipeList.add(recipe);
+                    syncedRecipeOutput.add(new StackComparator(output.copy()));
+                    stackDataList.add(new RecipeStackComparator(output.copy()));
+                    rcMap.put(new StackComparator(output.copy()), new RecipeStackComparator(output.copy()));
+                    addToRecipeHash(output.copy(), recipe);
+                    String oreName = OredictHelper.getOreName(output.copy());
+                    if (!Strings.isNullOrEmpty(oreName))
+                        addToOreRecipeHash(oreName, recipe);
+                }
             }
         }
     }
@@ -342,17 +344,17 @@ public class CraftingHandler {
         return false;
     }
 
-    public static List<IRecipe> getCraftingRecipe(ItemStack stack) {
+    public static List<WrappedRecipe> getCraftingRecipe(ItemStack stack) {
         if (!isStackValid(stack))
             return Lists.newArrayList();
-        List<IRecipe> possRet = recipeHash.get(new ItemComparator(stack));
+        List<WrappedRecipe> possRet = recipeHash.get(new ItemComparator(stack));
         if (possRet == null || possRet.isEmpty())
             return Lists.newArrayList();
         if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
             return possRet;
-        List<IRecipe> ret = Lists.newArrayList();
-        for (IRecipe recipe : possRet){
-            ItemStack out = recipe.getRecipeOutput();
+        List<WrappedRecipe> ret = Lists.newArrayList();
+        for (WrappedRecipe recipe : possRet){
+            ItemStack out = recipe.getRecipeOutput().getStack();
             if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes()))
                 ret.add(recipe);
         }
@@ -387,19 +389,19 @@ public class CraftingHandler {
     }
 
 
-    public static Object[] getRecipeIngredients(IRecipe irecipe, InventoryPlayer inventoryPlayerNotUse) {
+    public static WrappedRecipe createWrappedRecipe(IRecipe irecipe) {
         /*InventoryPlayer inventoryPlayer = new InventoryPlayer(inventoryPlayerNotUse.player);
         inventoryPlayer.copyInventory(inventoryPlayerNotUse);*/
         try {
             if (irecipe == null)
                 return null;
             else if (irecipe instanceof ShapelessRecipes) {
-                return (((ShapelessRecipes) irecipe).recipeItems).toArray();
+                return new WrappedRecipe((ShapelessRecipes)irecipe);
                 //return recipeItems.toArray(new ItemStack[recipeItems.size()]);
             } else if (irecipe instanceof ShapedRecipes) {
-                return ((ShapedRecipes) irecipe).recipeItems;
+                return new WrappedRecipe((ShapedRecipes)irecipe);
             } else if (irecipe instanceof ShapedOreRecipe) {
-                return ((ShapedOreRecipe) irecipe).getInput();
+                return new WrappedRecipe((ShapedOreRecipe) irecipe);
                 /*Object[] input= ((ShapedOreRecipe) irecipe).getInput();
                 ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
                 for (Object object : input){
@@ -419,7 +421,7 @@ public class CraftingHandler {
                 }
                 return toRet.toArray(new ItemStack[toRet.size()]);*/
             } else if (irecipe instanceof ShapelessOreRecipe) {
-                return ((ShapelessOreRecipe) irecipe).getInput().toArray();
+                return new WrappedRecipe((ShapelessOreRecipe) irecipe);
                 /*ArrayList<Object> input= ((ShapelessOreRecipe) irecipe).getInput();
                 ArrayList<ItemStack> toRet = new ArrayList<ItemStack>();
                 for (Object object : input){

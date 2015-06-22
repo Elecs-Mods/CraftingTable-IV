@@ -1,7 +1,6 @@
 package elec332.craftingtableiv.blocks.container;
 
 import com.google.common.collect.Lists;
-import elec332.core.client.KeyHelper;
 import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
 import elec332.core.util.NBTHelper;
@@ -13,6 +12,7 @@ import elec332.craftingtableiv.blocks.slot.SlotStorage;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.RecipeStackComparator;
 import elec332.craftingtableiv.handler.StackComparator;
+import elec332.craftingtableiv.handler.WrappedRecipe;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
 import elec332.craftingtableiv.network.PacketSyncScroll;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
@@ -42,6 +42,9 @@ public class CraftingTableIVContainer extends Container {
 
     public InventoryCrafting craftMatrix;
     public InventoryCraftingTableIV craftableRecipes;
+
+    private String textField = "";
+
     //private List recipeList;
     private Runnable getRunnable(){
         return new Runnable() {
@@ -52,7 +55,7 @@ public class CraftingTableIVContainer extends Container {
         };
     }
 
-    private Thread currentThread;
+    private CTIVThread currentThread;
 
     private EntityPlayer thePlayer;
     public TECraftingTableIV theTile;
@@ -101,13 +104,15 @@ public class CraftingTableIVContainer extends Container {
         updateRecipes();
     }
 
-    @SuppressWarnings("deprecation")
+
     private void stopThread(){
-        try {
-            currentThread.stop();
-        } catch (Exception e){
-            //
-        }
+        if (currentThread != null)
+            currentThread.killSafe();
+    }
+
+    public void setText(String text){
+        this.textField = text;
+        updateRecipes();
     }
 
     public void populateSlotsWithRecipes() {
@@ -129,10 +134,10 @@ public class CraftingTableIVContainer extends Container {
                     System.out.println("Done with "+i+" out of "+CraftingHandler.recipeList.size());
                 }
             }*/
-            for (IRecipe recipe : CraftingHandler.recipeList) {
+            for (WrappedRecipe recipe : CraftingHandler.recipeList) {
                 //i++;
                 //System.out.println("Starting for "+ MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput()));
-                if (canPlayerCraft(thePlayer, theTile, recipe, false)) {
+                if (recipe.getOutputItemName().contains(textField) && canPlayerCraft(thePlayer, theTile, recipe, false)) {
                     craftableRecipes.forceAddRecipe(recipe);
                     syncRecipes();
                 } /*else {
@@ -157,7 +162,7 @@ public class CraftingTableIVContainer extends Container {
     }
 
     private List<StackComparator> cannotCraft = Lists.newArrayList();
-    private List<String> canAlsoNotCraft = Lists.newArrayList();
+    //private List<String> canAlsoNotCraft = Lists.newArrayList();
 
     @Override
     public void onContainerClosed(EntityPlayer player) {
@@ -165,7 +170,7 @@ public class CraftingTableIVContainer extends Container {
         stopThread();
     }
 
-    public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, IRecipe recipe, boolean b){
+    public boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, WrappedRecipe recipe, boolean b){
         InventoryPlayer fakeInventoryPlayer = new InventoryPlayer(player);
         fakeInventoryPlayer.copyInventory(player.inventory);
         TECraftingTableIV fakeCraftingInventory = craftingTableIV.getCopy();
@@ -179,13 +184,13 @@ public class CraftingTableIVContainer extends Container {
         return ret;
     }
 
-    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, IRecipe recipe, int i, List<RecipeStackComparator> no){
+    public boolean canPlayerCraft(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, WrappedRecipe recipe, int i, List<RecipeStackComparator> no){
         if (i > CraftingTableIV.recursionDepth)
             return false;
-        if (i > 0 && compareStacks(recipe, no))
+        if (i > 0 && compareStacks(recipe.getRecipe(), no))
             return false;
         if (fakeInventoryPlayer != null && recipe != null) {
-            for (Object obj : CraftingHandler.getRecipeIngredients(recipe, fakeInventoryPlayer)) {
+            for (Object obj : recipe.getInput()) {
                 if (obj == null)
                     continue;
                 if (obj instanceof ItemStack) {
@@ -219,7 +224,7 @@ public class CraftingTableIVContainer extends Container {
                         continue;
                     if (i == CraftingTableIV.recursionDepth)
                         return false;
-                    ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, CraftingHandler.getStackComparator(recipe.getRecipeOutput())), i);
+                    ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, recipe.getRecipeOutput()), i);
                     if (stack != null)
                         CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy()), 1);
                     else {
@@ -227,7 +232,7 @@ public class CraftingTableIVContainer extends Container {
                     }
                 }
             }
-            return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().copy());
+            return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().getStack().copy());
         } else return false;
     }
 
@@ -246,11 +251,11 @@ public class CraftingTableIVContainer extends Container {
         return null;
     }
 
-    private boolean canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<IRecipe> recipes, int i, List<RecipeStackComparator> no){
+    private boolean canPlayerCraftAnyOf(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, List<WrappedRecipe> recipes, int i, List<RecipeStackComparator> no){
         if (recipes == null || recipes.isEmpty())
             return false;
 
-        for (IRecipe recipe : recipes) {
+        for (WrappedRecipe recipe : recipes) {
             InventoryPlayer fake = new InventoryPlayer(fakeInventoryPlayer.player);
             fake.copyInventory(fakeInventoryPlayer);
             TECraftingTableIV copy = fakeCraftingInventory.getCopy();
@@ -412,7 +417,7 @@ public class CraftingTableIVContainer extends Container {
             if(mouseButton == Constants.Mouse.MOUSE_RIGHT) {
                 updateRecipes();
                 return null;
-            } else if(KeyHelper.isShiftDown()) {
+            } else if(flag == 1) {
                 onRequestMaximumRecipeOutput((SlotCrafter) inventorySlots.get(slotIndex));
                 updateRecipes();
                 return null;
@@ -442,7 +447,7 @@ public class CraftingTableIVContainer extends Container {
     public void updateRecipes(){
         //this.busy = true;
         stopThread();
-        currentThread = new Thread(getRunnable(), "CraftingHandler");
+        currentThread = new CTIVThread();
         currentThread.start();
         //updateVisibleSlots(ScrollValue);
         //this.busy = false;
@@ -453,8 +458,8 @@ public class CraftingTableIVContainer extends Container {
     }
 
     public boolean onRequestSingleRecipeOutput(SlotCrafter slot) {
-        IRecipe irecipe = slot.getIRecipe();
-        return irecipe != null && canPlayerCraft(thePlayer, theTile, irecipe, true); //onRequestSingleRecipeOutput(thePlayer.inventory, irecipe, theTile, true);
+        WrappedRecipe recipe = slot.getIRecipe();
+        return recipe != null && canPlayerCraft(thePlayer, theTile, recipe, true); //onRequestSingleRecipeOutput(thePlayer.inventory, irecipe, theTile, true);
     }
 
     public boolean onRequestSingleRecipeOutput(InventoryPlayer thePlayerInventory, IRecipe irecipe, TECraftingTableIV internal, boolean b) {
@@ -490,20 +495,20 @@ public class CraftingTableIVContainer extends Container {
     }
 
     private void onRequestMaximumRecipeOutput(SlotCrafter slot) {
-        IRecipe irecipe = slot.getIRecipe();
-        if(irecipe == null)
+        WrappedRecipe recipe = slot.getIRecipe();
+        if(recipe == null)
             return;
-        onRequestMaximumRecipeOutput(thePlayer, irecipe, theTile, slot.getIRecipe());
+        onRequestMaximumRecipeOutput(thePlayer, recipe, theTile);
     }
 
-    public static void onRequestMaximumRecipeOutput(EntityPlayer thePlayer, IRecipe irecipe, TECraftingTableIV Internal, IRecipe RecipeIndex) {
+    public static void onRequestMaximumRecipeOutput(EntityPlayer thePlayer, WrappedRecipe irecipe, TECraftingTableIV Internal) {
         InventoryPlayer Temp = new InventoryPlayer( thePlayer );
         Temp.copyInventory(thePlayer.inventory);
 
         InventoryPlayer inventoryPlayer = thePlayer.inventory;
         int GoTo = 64;
-        if (irecipe.getRecipeOutput().getMaxStackSize() > 1) {
-            GoTo = irecipe.getRecipeOutput().getMaxStackSize() / irecipe.getRecipeOutput().stackSize ;
+        if (irecipe.getRecipeOutput().getStack().getMaxStackSize() > 1) {
+            GoTo = irecipe.getRecipeOutput().getStack().getMaxStackSize() / irecipe.getRecipeOutput().getStack().stackSize ;
         }
         for (int i=0; i<GoTo; i++) {
             Temp.copyInventory(thePlayer.inventory);
@@ -520,5 +525,65 @@ public class CraftingTableIVContainer extends Container {
     @Override
     public boolean canInteractWith(EntityPlayer entityplayer) {
         return this.theTile.isUseableByPlayer(entityplayer);
+    }
+
+    @SuppressWarnings("deprecation")
+    private class CTIVThread extends Thread{
+
+        public CTIVThread(){
+            super("CraftingHandler");
+        }
+
+        @Override
+        public void run() {
+            long l = System.currentTimeMillis();
+            if (!thePlayer.worldObj.isRemote) {
+                cannotCraft.clear();
+                craftableRecipes.clearRecipes();
+                syncRecipes();
+                //int i = 0;
+            /*for (Map.Entry<ItemComparator, List<IRecipe>> entry : CraftingHandler.recipeHash.entrySet()) {
+                for (IRecipe recipe : entry.getValue()) {
+                    i++;
+                    System.out.println("Starting for "+ MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput()));
+                    if (//craftableRecipes.canAdd(recipe) &&
+                            canPlayerCraft(thePlayer, theTile, recipe, false)) {
+                        craftableRecipes.forceAddRecipe(recipe);
+                        syncRecipes();
+                    }
+                    System.out.println("Done with "+i+" out of "+CraftingHandler.recipeList.size());
+                }
+            }*/
+                for (WrappedRecipe recipe : CraftingHandler.recipeList) {
+                    //i++;
+                    //System.out.println("Starting for "+ MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput()));
+                    if (recipe.getOutputItemName().contains(CraftingTableIVContainer.this.textField) && canPlayerCraft(thePlayer, theTile, recipe, false)) {
+                        craftableRecipes.forceAddRecipe(recipe);
+                        syncRecipes();
+                    } /*else {
+                    cannotCraft.add(new StackComparator(recipe.getRecipeOutput()));
+                    String s = OredictHelper.getOreName(recipe.getRecipeOutput());
+                    if (!Strings.isNullOrEmpty(s))
+                        canAlsoNotCraft.add(s);
+
+                }*/
+                    //System.out.println("Done with " + i + " out of " + CraftingHandler.recipeList.size());
+                    if (stopThread)
+                        stop();
+                }
+                updateVisibleSlots(ScrollValue);
+                syncRecipes();
+                //System.out.println("Done with entirely");
+                CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
+
+            }
+        }
+
+        public void killSafe(){
+            stopThread = true;
+        }
+
+        private boolean stopThread = false;
+
     }
 }

@@ -1,6 +1,7 @@
 package elec332.craftingtableiv.blocks.slot;
 
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
+import elec332.craftingtableiv.handler.WrappedRecipe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -8,7 +9,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.AchievementList;
 
 /**
@@ -17,7 +17,7 @@ import net.minecraft.stats.AchievementList;
 public class SlotCrafter extends Slot {
 
     private IInventory craftMatrix;
-    private IRecipe irecipe;
+    private WrappedRecipe recipe;
     private CraftingTableIVContainer theCont;
     public SlotCrafter(IInventory craftableRecipes, IInventory matrix, int i, int j, int k, CraftingTableIVContainer cont) {
         super(craftableRecipes, i, j, k);
@@ -25,12 +25,12 @@ public class SlotCrafter extends Slot {
         theCont = cont;
     }
 
-    public void setIRecipe(IRecipe theIRecipe) {
-        irecipe = theIRecipe;
+    public void setIRecipe(WrappedRecipe theIRecipe) {
+        recipe = theIRecipe;
     }
 
-    public IRecipe getIRecipe() {
-        return irecipe;
+    public WrappedRecipe getIRecipe() {
+        return recipe;
     }
 
     public boolean isItemValid(ItemStack itemstack) {

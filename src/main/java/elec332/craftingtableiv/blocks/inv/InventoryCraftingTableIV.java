@@ -3,6 +3,7 @@ package elec332.craftingtableiv.blocks.inv;
 import com.google.common.collect.Lists;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.StackComparator;
+import elec332.craftingtableiv.handler.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class InventoryCraftingTableIV {
 
-    private List<IRecipe> recipes;
+    private List<WrappedRecipe> recipes;
     private List<StackComparator> outputs;
 
     public InventoryCraftingTableIV() {
@@ -27,21 +28,21 @@ public class InventoryCraftingTableIV {
         return recipes.size();
     }
 
-    public boolean forceAddRecipe(IRecipe irecipe){
-        outputs.add(new StackComparator(irecipe.getRecipeOutput().copy()));
-        return recipes.add(irecipe);
+    public boolean forceAddRecipe(WrappedRecipe recipe){
+        outputs.add(new StackComparator(recipe.getRecipeOutput().getStack().copy()));
+        return recipes.add(recipe);
     }
 
-    public boolean addRecipe(IRecipe irecipe) {
-        return canAdd(irecipe) && forceAddRecipe(irecipe);
+    public boolean addRecipe(WrappedRecipe recipe) {
+        return canAdd(recipe) && forceAddRecipe(recipe);
     }
 
-    public IRecipe getIRecipe(int i) {
+    public WrappedRecipe getIRecipe(int i) {
         return recipes.get(i);
     }
 
-    public boolean canAdd(IRecipe irecipe){
-        return !recipes.contains(irecipe);
+    public boolean canAdd(WrappedRecipe recipe){
+        return !recipes.contains(recipe);
     }
 
     public ItemStack getRecipeOutput(int i) {
@@ -55,7 +56,7 @@ public class InventoryCraftingTableIV {
     public void writeToNBT(NBTTagCompound tagCompound){
         NBTTagList list = new NBTTagList();
         NBTTagCompound tag;
-        for (IRecipe recipe : recipes) {
+        for (WrappedRecipe recipe : recipes) {
             tag = new NBTTagCompound();
             tag.setInteger("index", CraftingHandler.recipeList.indexOf(recipe));
             list.appendTag(tag);

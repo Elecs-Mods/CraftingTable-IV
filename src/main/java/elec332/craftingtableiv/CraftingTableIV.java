@@ -6,22 +6,30 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import elec332.core.helper.FileHelper;
 import elec332.core.helper.MCModInfo;
 import elec332.core.main.ElecCTab;
 import elec332.core.modBaseUtils.ModBase;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.NetworkHandler;
+import elec332.core.util.EventHelper;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.init.BlockRegister;
+import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.network.PacketSyncRecipes;
 import elec332.craftingtableiv.network.PacketSyncScroll;
+import elec332.craftingtableiv.network.PacketSyncText;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -54,6 +62,7 @@ public class CraftingTableIV extends ModBase {
     public static boolean enableDoor = true;
     public static boolean enableNoise = true;
     public static String[] disabledMods;
+    public static boolean debugTimings = true;
     /**********/
 
     private static String[] defaultDisabledMods = {"ztones"};
@@ -83,6 +92,8 @@ public class CraftingTableIV extends ModBase {
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketSyncRecipes.class);
         networkHandler.registerServerPacket(PacketSyncScroll.class);
+        networkHandler.registerServerPacket(PacketSyncText.class);
+        networkHandler.registerClientPacket(PacketInitRecipes.class);
         GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.crafting_table, Items.book);
         //register item/block
 
@@ -96,6 +107,7 @@ public class CraftingTableIV extends ModBase {
         enableDoor = config.getBoolean("EnableDoor", "general", true, "Set to false to disable the opening door on the CTIV");
         enableNoise = config.getBoolean("EnableNoise", "general", true, "Set to false to disable the door noise when opening and closing");
         disabledMods = config.getStringList("DisabledMods", "general", defaultDisabledMods, "Every item from the modID's specified here will not show up in the CraftingTable");
+        debugTimings = config.getBoolean("DebugTimings","debug", true, "When true, will print messages to the log regarding how long it took to load all recipes in de CTIV bench (when opened)");
         loadConfiguration();
         //Mod compat stuff
 
@@ -103,11 +115,23 @@ public class CraftingTableIV extends ModBase {
     }
 
     @Mod.EventHandler
-    public void loadRecipes(FMLServerStartedEvent event){
+    @SideOnly(Side.SERVER)
+    public void serverStarted(FMLServerStartedEvent event){
+        EventHelper.registerHandlerFML(this);
+        loadRecipes();
+    }
+
+    @SubscribeEvent
+    @SideOnly(Side.SERVER)
+    public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event){
+        networkHandler.getNetworkWrapper().sendTo(new PacketInitRecipes(), (EntityPlayerMP)event.player);
+    }
+
+    public static void loadRecipes(){
         OreDictionary.initVanillaEntries();
         Long l = System.currentTimeMillis();
         CraftingHandler.InitRecipes();
-        info("loaded "+CraftingHandler.recipeList.size()+" recipes in "+(System.currentTimeMillis()-l)+" ms");
+        instance.info("loaded " + CraftingHandler.recipeList.size() + " recipes in " + (System.currentTimeMillis() - l) + " ms");
     }
 
     File cfg;
