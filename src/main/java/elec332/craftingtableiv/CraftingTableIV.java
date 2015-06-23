@@ -115,14 +115,12 @@ public class CraftingTableIV extends ModBase {
     }
 
     @Mod.EventHandler
-    @SideOnly(Side.SERVER)
     public void serverStarted(FMLServerStartedEvent event){
         EventHelper.registerHandlerFML(this);
         loadRecipes();
     }
 
     @SubscribeEvent
-    @SideOnly(Side.SERVER)
     public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event){
         networkHandler.getNetworkWrapper().sendTo(new PacketInitRecipes(), (EntityPlayerMP)event.player);
     }
