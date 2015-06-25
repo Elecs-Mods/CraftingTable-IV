@@ -457,7 +457,7 @@ public class CraftingHandler {
                 return Compat.getCompatHandler().getHandler(irecipe).getWrappedRecipe(irecipe);
             } else {
                 if (irecipe.getRecipeOutput() != null)
-                    CraftingTableIV.instance.error("ERROR FINDING RECIPE CLASS FOR: " + irecipe.getRecipeOutput().getItem().getUnlocalizedName());
+                    CraftingTableIV.instance.error("ERROR FINDING HANDLER FOR RECIPE CLASS: " + irecipe.toString());
                 else CraftingTableIV.instance.error("ERROR: THE OUTPUT FOR THIS RECIPE IS NULL! " + irecipe.toString());
                 return null;
             }

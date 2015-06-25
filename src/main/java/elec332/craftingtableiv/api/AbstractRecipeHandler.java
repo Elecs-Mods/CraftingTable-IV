@@ -10,7 +10,10 @@ public abstract class AbstractRecipeHandler<R extends IRecipe> implements IRecip
 
     @Override
     public WrappedRecipe getWrappedRecipe(R recipe) {
-        return new WrappedRecipe(recipe, getIngredients(recipe));
+        Object[] ingredients = getIngredients(recipe);
+        if (ingredients == null || ingredients.length == 0)
+            return null;
+        return new WrappedRecipe(recipe, ingredients);
     }
 
 }
