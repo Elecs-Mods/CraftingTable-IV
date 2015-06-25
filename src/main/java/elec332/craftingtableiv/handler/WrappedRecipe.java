@@ -1,11 +1,14 @@
 package elec332.craftingtableiv.handler;
 
 import elec332.core.minetweaker.MineTweakerHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+
+import java.util.List;
 
 /**
  * Created by Elec332 on 21-6-2015.
@@ -28,7 +31,26 @@ public class WrappedRecipe {
         this(shapedOreRecipe.getInput(), shapedOreRecipe);
     }
 
+    public WrappedRecipe(IRecipe recipe, Object[] input){
+        this(input, recipe, true);
+    }
+
     private WrappedRecipe(Object[] input, IRecipe recipe){
+        this(input, recipe, false);
+    }
+
+    private WrappedRecipe(Object[] input, IRecipe recipe, boolean b){
+        if (b){
+            for (Object obj : input){
+                if (obj instanceof ItemStack || obj == null)
+                    continue;
+                if (obj instanceof List){
+                    if (!((List) obj).isEmpty() && ((List) obj).get(0) instanceof ItemStack)
+                        continue;
+                }
+                System.out.println("ERROR: "+recipe.getRecipeOutput().toString()+" ... "+recipe.toString());
+            }
+        }
         this.input = input;
         this.outPut = new RecipeStackComparator(recipe.getRecipeOutput().copy());
         this.outputItemName = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput());

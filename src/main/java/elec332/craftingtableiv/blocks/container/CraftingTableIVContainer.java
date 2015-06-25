@@ -202,9 +202,12 @@ public class CraftingTableIVContainer extends Container {
                        //    return false;
                     int slotID = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
                     if (slotID > -1) {
+                        if (itemStack.getItem().hasContainerItem(itemStack) && !CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, itemStack.getItem().getContainerItem(itemStack)))
+                            return false;
                         CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, slotID, 1);
                     } else if (i != CraftingTableIV.recursionDepth && canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getCraftingRecipe(itemStack), i, addToList(no, CraftingHandler.getStackComparator(itemStack)))) {
-                        CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack), 1);
+                        if (!handleStuff(fakeInventoryPlayer, fakeCraftingInventory, itemStack))
+                            return false;
                     } else {
                         return false;
                     }
@@ -215,7 +218,8 @@ public class CraftingTableIVContainer extends Container {
                     for (ItemStack itemStack : stacks) {
                         int p = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, itemStack);
                         if (p >= 0) {
-                            CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, p, 1);
+                            if (!handleStuff(fakeInventoryPlayer, fakeCraftingInventory, itemStack))
+                                return false;
                             done = true;
                             break;
                         }
@@ -225,15 +229,29 @@ public class CraftingTableIVContainer extends Container {
                     if (i == CraftingTableIV.recursionDepth)
                         return false;
                     ItemStack stack = canPlayerCraftAnyOf(fakeInventoryPlayer, fakeCraftingInventory, stacks, addToList(no, recipe.getRecipeOutput()), i);
-                    if (stack != null)
-                        CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy()), 1);
-                    else {
+                    if (stack != null){
+                       if (!handleStuff(fakeInventoryPlayer, fakeCraftingInventory, stack))
+                           return false;
+                    } else {
                         return false;
                     }
                 }
             }
             return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().getStack().copy());
         } else return false;
+    }
+
+    private boolean handleStuff(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, ItemStack stack){
+        int s = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy());
+        if (stack.getItem().hasContainerItem(stack)){
+            ItemStack itemStack = stack.getItem().getContainerItem(CraftingHandler.getStackInSlot(fakeInventoryPlayer, fakeCraftingInventory, s));
+            if (itemStack != null && itemStack.isItemStackDamageable() && itemStack.getItemDamage() > itemStack.getMaxDamage())
+                itemStack = null;
+            if (itemStack != null && !CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, itemStack))
+                return false;
+        }
+        CraftingHandler.decrStackSize(fakeInventoryPlayer, fakeCraftingInventory, s, 1);
+        return true;
     }
 
 

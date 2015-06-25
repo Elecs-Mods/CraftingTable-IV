@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import elec332.core.helper.OredictHelper;
 import elec332.core.main.ElecCore;
 import elec332.core.minetweaker.MineTweakerHelper;
+import elec332.core.util.IRunOnce;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.ContainerNull;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
@@ -192,6 +193,13 @@ public class CraftingHandler {
             inventoryPlayer.decrStackSize(slot-18, amount);
     }
 
+    public static ItemStack getStackInSlot(InventoryPlayer inventoryPlayer, IInventory internal, int slot) {
+        if (slot < 18)
+            return internal.getStackInSlot(slot);
+        else
+            return inventoryPlayer.getStackInSlot(slot-18);
+    }
+
     public static void handleCraftingMatrix(InventoryCrafting craftingMatrix, InventoryPlayer inventoryPlayer) {
         //ItemStack output = CraftingManager.getInstance().findMatchingRecipe(craftingMatrix, inventoryPlayer.player.worldObj).copy();
         //PlayerEvent.ItemCraftedEvent thisEvent = new PlayerEvent.ItemCraftedEvent(inventoryPlayer.player, output, craftingMatrix);
@@ -277,7 +285,11 @@ public class CraftingHandler {
         for (Object object : CraftingManager.getInstance().getRecipeList()){
             if (object instanceof IRecipe){
                 ItemStack output = ((IRecipe) object).getRecipeOutput();
-                if (output != null && output.getItem() != null && ((object instanceof ShapelessOreRecipe && isOreValid(((ShapelessOreRecipe)object).getInput())) || (object instanceof ShapedOreRecipe && isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput()))) || object instanceof ShapedRecipes || object instanceof ShapelessRecipes)) {
+                if (output != null && output.getItem() != null) {
+                    if (object instanceof ShapelessOreRecipe && !isOreValid(((ShapelessOreRecipe)object).getInput()))
+                        continue;
+                    if (object instanceof ShapedOreRecipe && !isOreValid(Lists.newArrayList(((ShapedOreRecipe)object).getInput())))
+                        continue;
                     output = output.copy();
                     if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output).contains("nugget") || OredictHelper.getOreName(output).contains("nugget")) || recipeList.contains((IRecipe)object))
                         continue;
@@ -314,7 +326,7 @@ public class CraftingHandler {
         entries.putAll(namedList);
         for (List<IRecipe> recipes : entries.values()){
             for (IRecipe iRecipe : recipes){
-                WrappedRecipe recipe = createWrappedRecipe(iRecipe);
+                WrappedRecipe recipe = getWrappedRecipe(iRecipe);
                 if (recipe != null) {
                     ItemStack output = recipe.getRecipeOutput().getStack();
                     validOutputs.add(output.copy());
@@ -389,7 +401,7 @@ public class CraftingHandler {
     }
 
 
-    public static WrappedRecipe createWrappedRecipe(IRecipe irecipe) {
+    public static WrappedRecipe getWrappedRecipe(IRecipe irecipe) {
         /*InventoryPlayer inventoryPlayer = new InventoryPlayer(inventoryPlayerNotUse.player);
         inventoryPlayer.copyInventory(inventoryPlayerNotUse);*/
         try {
@@ -441,6 +453,8 @@ public class CraftingHandler {
                 return toRet.toArray(new ItemStack[toRet.size()]);*/
             } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
                 return null;
+            } else if (Compat.getCompatHandler().hasHandler(irecipe.getClass())){
+                return Compat.getCompatHandler().getHandler(irecipe).getWrappedRecipe(irecipe);
             } else {
                 if (irecipe.getRecipeOutput() != null)
                     CraftingTableIV.instance.error("ERROR FINDING RECIPE CLASS FOR: " + irecipe.getRecipeOutput().getItem().getUnlocalizedName());
@@ -448,11 +462,17 @@ public class CraftingHandler {
                 return null;
             }
         } catch (NullPointerException e) {
-            if (ElecCore.proxy.isClient()) {
-                Minecraft.getMinecraft().thePlayer.sendChatMessage("There was an error loading some recipes, the error will be printed in the game log.");
-                Minecraft.getMinecraft().thePlayer.sendChatMessage("Please report this to Elec332 with the entire gamelog here: https://github.com/Elecs-Mods/CraftingTable-IV/issues");
-            }
+            /*if (ElecCore.proxy.isClient()) {
+                ElecCore.tickHandler.registerCall(new IRunOnce() {
+                    @Override
+                    public void run() {
+                        Minecraft.getMinecraft().thePlayer.sendChatMessage("There was an error loading some recipes, the error will be printed in the game log.");
+                        Minecraft.getMinecraft().thePlayer.sendChatMessage("Please report this to Elec332 with the entire gamelog here: https://github.com/Elecs-Mods/CraftingTable-IV/issues");
+                    }
+                });
+            }*/
             CraftingTableIV.instance.error("Something went wrong while trying to acquire recipe ingredients!");
+            CraftingTableIV.instance.error(irecipe.toString()+" with output "+irecipe.getRecipeOutput().toString());
             CraftingTableIV.instance.error(e);
             return null;
         }
