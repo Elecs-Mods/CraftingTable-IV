@@ -23,7 +23,11 @@ repositories {
     maven {
         name 'ForgeFS'
         url 'http://files.minecraftforge.net/maven'
-     }
+    }
+	maven {
+		name = "ic2"
+		url = "http://maven.ic2.player.to/"
+	}
 }
 
 apply plugin: 'forge'
@@ -60,6 +64,8 @@ dependencies {
 	compile "codechicken:CodeChickenLib:"+config.minecraft_version + "-" + config.ccl_version + ":dev"
     compile "codechicken:CodeChickenCore:"+config.minecraft_version + "-" + config.ccc_version + ":dev"
     compile "codechicken:NotEnoughItems:"+config.minecraft_version + "-" + config.nei_version + ":dev"
+	compile "net.industrial-craft:industrialcraft-2:2.2.718-experimental:dev"
+	compile "net.sengir.forestry:forestry_"+config.minecraft_version+":3.5.7.16:dev"
 }
 
 processResources
