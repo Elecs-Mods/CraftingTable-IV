@@ -197,7 +197,7 @@ public class CraftingHandler {
         if (slot < 18)
             return internal.getStackInSlot(slot);
         else
-            return inventoryPlayer.getStackInSlot(slot-18);
+            return inventoryPlayer.getStackInSlot(slot - 18);
     }
 
     public static void handleCraftingMatrix(InventoryCrafting craftingMatrix, InventoryPlayer inventoryPlayer) {
@@ -453,7 +453,9 @@ public class CraftingHandler {
                 return toRet.toArray(new ItemStack[toRet.size()]);*/
             } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
                 return null;
-            } else if (Compat.getCompatHandler().hasHandler(irecipe.getClass())){
+            } else if (Compat.getCompatHandler().isDisabled(irecipe)) {
+                return null;
+            }else if (Compat.getCompatHandler().hasHandler(irecipe.getClass())){
                 return Compat.getCompatHandler().getHandler(irecipe).getWrappedRecipe(irecipe);
             } else {
                 if (irecipe.getRecipeOutput() != null)

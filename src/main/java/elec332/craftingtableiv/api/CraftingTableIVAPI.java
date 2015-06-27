@@ -8,7 +8,7 @@ import net.minecraft.item.crafting.IRecipe;
 public class CraftingTableIVAPI {
 
     protected static final String owner = "CraftingTableIV";
-    protected static final String version = "1.0.0Alpha";
+    protected static final String version = "1.0.1Beta";
     protected static final String provides = "CraftingTableIV-API";
 
     public static <R extends IRecipe> void registerHandler(Class<R> clazz, IRecipeHandler<R> recipeHandler){
@@ -18,6 +18,14 @@ public class CraftingTableIVAPI {
             throw new RuntimeException(e);
         } catch (Exception e){
             System.out.println("[CTIV-API] CraftingTableIV mod not loaded, not registering handler for ");
+        }
+    }
+
+    public static void registerRecipeSkip(Class<? extends IRecipe> clazz){
+        try {
+            ((ICTIVCompatRegistry)Class.forName("elec332.craftingtableiv.handler.Compat").getDeclaredMethod("getCompatHandler").invoke(null)).registerDisabledRecipe(clazz);
+        } catch (Exception e){
+            System.out.println("[CTIV-API] CraftingTableIV mod not loaded, not disabling: "+clazz.toString());
         }
     }
 

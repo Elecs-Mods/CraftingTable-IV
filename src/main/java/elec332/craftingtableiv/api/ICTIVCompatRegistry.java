@@ -9,4 +9,6 @@ public interface ICTIVCompatRegistry {
 
     public <C extends IRecipe> void registerHandler(Class<C> clazz, IRecipeHandler<C> handler);
 
+    public void registerDisabledRecipe(Class<? extends IRecipe> recipe);
+
 }
