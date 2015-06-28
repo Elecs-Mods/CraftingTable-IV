@@ -33,7 +33,7 @@ public class CraftingHandler {
     public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
     public static Map<ItemComparator, List<WrappedRecipe>> recipeHash = Maps.newHashMap();
     public static Map<String, List<WrappedRecipe>> oreDictRecipeHash = Maps.newHashMap();
-    public static Map<StackComparator, RecipeStackComparator> rcMap = Maps.newHashMap();
+    public static Map<String, Map<StackComparator, RecipeStackComparator>> rcMap = Maps.newHashMap();
 
     private static void addToRecipeHash(ItemStack stack, WrappedRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(stack);
@@ -48,8 +48,31 @@ public class CraftingHandler {
         oreDictRecipeHash.get(s).add(recipe);
     }
 
+    private static void addToRCMap(StackComparator stackComparator, RecipeStackComparator recipeStackComparator){
+        String s = identifier(stackComparator.getStack());
+        if (rcMap.get(s) == null)
+            rcMap.put(s, new HashMap<StackComparator, RecipeStackComparator>());
+        rcMap.get(s).put(stackComparator, recipeStackComparator);
+    }
+
+    public static RecipeStackComparator g(StackComparator s){
+        try {
+            return get(identifier(s.getStack())).get(s);
+        } catch (Exception e){
+            return null;
+        }
+    }
+
     public static RecipeStackComparator getStackComparator(ItemStack stack){
-        return rcMap.get(new StackComparator(stack));//new RecipeStackComparator(stack) ; //stackDataList.get(syncedRecipeOutput.indexOf(new StackComparator(stack)));
+       return g(new StackComparator(stack)); //null;//rcMap.get(stack);//new RecipeStackComparator(stack) ; //stackDataList.get(syncedRecipeOutput.indexOf(new StackComparator(stack)));
+    }
+
+    private static Map<StackComparator, RecipeStackComparator> get(String s){
+        return rcMap.get(s);
+    }
+
+    private static String identifier(ItemStack stack){
+        return MineTweakerHelper.getItemRegistryName(stack).split(":")[0];
     }
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
@@ -333,7 +356,7 @@ public class CraftingHandler {
                     recipeList.add(recipe);
                     syncedRecipeOutput.add(new StackComparator(output.copy()));
                     stackDataList.add(new RecipeStackComparator(output.copy()));
-                    rcMap.put(new StackComparator(output.copy()), new RecipeStackComparator(output.copy()));
+                    addToRCMap(new StackComparator(output.copy()), new RecipeStackComparator(output.copy()));
                     addToRecipeHash(output.copy(), recipe);
                     String oreName = OredictHelper.getOreName(output.copy());
                     if (!Strings.isNullOrEmpty(oreName))
