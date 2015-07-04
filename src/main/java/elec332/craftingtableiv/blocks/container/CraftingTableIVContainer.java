@@ -60,6 +60,7 @@ public class CraftingTableIVContainer extends Container {
     private EntityPlayer thePlayer;
     public TECraftingTableIV theTile;
     public float ScrollValue = 0.0F;
+    private boolean playerHasWood = false;
     //private boolean busy = false;
 
     public CraftingTableIVContainer(EntityPlayer aPlayer, TECraftingTableIV tile) {
@@ -558,42 +559,31 @@ public class CraftingTableIVContainer extends Container {
             if (!thePlayer.worldObj.isRemote) {
                 cannotCraft.clear();
                 craftableRecipes.clearRecipes();
-                syncRecipes();
-                //int i = 0;
-            /*for (Map.Entry<ItemComparator, List<IRecipe>> entry : CraftingHandler.recipeHash.entrySet()) {
-                for (IRecipe recipe : entry.getValue()) {
-                    i++;
-                    System.out.println("Starting for "+ MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput()));
-                    if (//craftableRecipes.canAdd(recipe) &&
-                            canPlayerCraft(thePlayer, theTile, recipe, false)) {
-                        craftableRecipes.forceAddRecipe(recipe);
-                        syncRecipes();
+                List<ItemStack> checkWood = Lists.newArrayList(OreDictionary.getOres("logWood"));
+                checkWood.addAll(OreDictionary.getOres("plankWood"));
+                InventoryPlayer check = new InventoryPlayer(thePlayer);
+                check.copyInventory(thePlayer.inventory);
+                for (ItemStack stack : checkWood){
+                    if (CraftingHandler.getFirstInventorySlotWithItemStack(check, theTile.getCopy(), stack) >= 0){
+                        CraftingTableIVContainer.this.playerHasWood = true;
+                        break;
                     }
-                    System.out.println("Done with "+i+" out of "+CraftingHandler.recipeList.size());
                 }
-            }*/
+                syncRecipes();
                 for (WrappedRecipe recipe : CraftingHandler.recipeList) {
-                    //i++;
-                    //System.out.println("Starting for "+ MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput()));
+                    if (stopThread)
+                        stop();
+                    if (!CraftingTableIVContainer.this.playerHasWood && recipe.hasWood())
+                        continue;
                     if (recipe.getOutputItemName().contains(CraftingTableIVContainer.this.textField) && canPlayerCraft(thePlayer, theTile, recipe, false)) {
                         craftableRecipes.forceAddRecipe(recipe);
                         syncRecipes();
-                    } /*else {
-                    cannotCraft.add(new StackComparator(recipe.getRecipeOutput()));
-                    String s = OredictHelper.getOreName(recipe.getRecipeOutput());
-                    if (!Strings.isNullOrEmpty(s))
-                        canAlsoNotCraft.add(s);
+                    }
 
-                }*/
-                    //System.out.println("Done with " + i + " out of " + CraftingHandler.recipeList.size());
-                    if (stopThread)
-                        stop();
                 }
                 updateVisibleSlots(ScrollValue);
                 syncRecipes();
-                //System.out.println("Done with entirely");
                 CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
-
             }
         }
 

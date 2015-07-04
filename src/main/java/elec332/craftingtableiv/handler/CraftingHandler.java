@@ -3,6 +3,7 @@ package elec332.craftingtableiv.handler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import cpw.mods.fml.common.registry.GameData;
 import elec332.core.helper.OredictHelper;
 import elec332.core.main.ElecCore;
 import elec332.core.minetweaker.MineTweakerHelper;
@@ -31,15 +32,18 @@ public class CraftingHandler {
     public static ArrayList<WrappedRecipe> recipeList = Lists.newArrayList();
     public static ArrayList<StackComparator> syncedRecipeOutput = Lists.newArrayList();
     public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
-    public static Map<ItemComparator, List<WrappedRecipe>> recipeHash = Maps.newHashMap();
+    public static Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash = Maps.newHashMap();
     public static Map<String, List<WrappedRecipe>> oreDictRecipeHash = Maps.newHashMap();
     public static Map<String, Map<StackComparator, RecipeStackComparator>> rcMap = Maps.newHashMap();
 
     private static void addToRecipeHash(ItemStack stack, WrappedRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(stack);
-        if (recipeHash.get(itemComparator) == null)
-            recipeHash.put(itemComparator, new ArrayList<WrappedRecipe>());
-        recipeHash.get(itemComparator).add(recipe);
+        String s = identifier(stack);
+        if (recipeHash.get(s) == null)
+            recipeHash.put(s, Maps.<ItemComparator, List<WrappedRecipe>>newHashMap());
+        if (recipeHash.get(s).get(itemComparator) == null)
+            recipeHash.get(s).put(itemComparator, new ArrayList<WrappedRecipe>());
+        recipeHash.get(s).get(itemComparator).add(recipe);
     }
 
     private static void addToOreRecipeHash(String s, WrappedRecipe recipe){
@@ -72,7 +76,7 @@ public class CraftingHandler {
     }
 
     private static String identifier(ItemStack stack){
-        return MineTweakerHelper.getItemRegistryName(stack).split(":")[0];
+        return MineTweakerHelper.getItemRegistryName(stack).replace(":", " ").split(" ")[0];
     }
 
     //public static Object[] canPlayerCraft(InventoryPlayer ThePlayer, ItemStack TheItem, IInventory Internal, IRecipe ForcedIndex)
@@ -316,7 +320,7 @@ public class CraftingHandler {
                     output = output.copy();
                     if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output).contains("nugget") || OredictHelper.getOreName(output).contains("nugget")) || recipeList.contains((IRecipe)object))
                         continue;
-                    String[] s = MineTweakerHelper.getItemRegistryName(output).split(":");
+                    String[] s = MineTweakerHelper.getItemRegistryName(output).replace(":", " ").split(" ");
                     boolean b = false;
                     for (String s1 : CraftingTableIV.disabledMods) {
                         if (s1.equalsIgnoreCase(s[0])) {
@@ -382,7 +386,12 @@ public class CraftingHandler {
     public static List<WrappedRecipe> getCraftingRecipe(ItemStack stack) {
         if (!isStackValid(stack))
             return Lists.newArrayList();
-        List<WrappedRecipe> possRet = recipeHash.get(new ItemComparator(stack));
+        List<WrappedRecipe> possRet;
+        try {
+            possRet = recipeHash.get(identifier(stack)).get(new ItemComparator(stack));
+        } catch (Exception e){
+            return Lists.newArrayList();
+        }
         if (possRet == null || possRet.isEmpty())
             return Lists.newArrayList();
         if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
