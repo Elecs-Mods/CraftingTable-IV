@@ -17,11 +17,15 @@ import java.util.List;
 public class InventoryCraftingTableIV {
 
     private List<WrappedRecipe> recipes;
-    private List<StackComparator> outputs;
+    private List<RecipeData> synced;
 
     public InventoryCraftingTableIV() {
         recipes = Lists.newArrayList();
-        outputs = Lists.newArrayList();
+        synced = Lists.newArrayList();
+    }
+
+    public List<WrappedRecipe> getAllRecipes(){
+        return Lists.newArrayList(recipes);
     }
 
     public int getSize() {
@@ -29,7 +33,7 @@ public class InventoryCraftingTableIV {
     }
 
     public boolean forceAddRecipe(WrappedRecipe recipe){
-        outputs.add(new StackComparator(recipe.getRecipeOutput().getStack().copy()));
+        synced.add(new RecipeData(recipe));
         return recipes.add(recipe);
     }
 
@@ -46,7 +50,7 @@ public class InventoryCraftingTableIV {
     }
 
     public ItemStack getRecipeOutput(int i) {
-        return outputs.get(i).getStack();//getIRecipe(i).getRecipeOutput().copy();
+        return synced.get(i).getOutput();//getIRecipe(i).getRecipeOutput().copy();
     }
 
     public void clearRecipes() {
@@ -55,11 +59,8 @@ public class InventoryCraftingTableIV {
 
     public void writeToNBT(NBTTagCompound tagCompound){
         NBTTagList list = new NBTTagList();
-        NBTTagCompound tag;
-        for (WrappedRecipe recipe : recipes) {
-            tag = new NBTTagCompound();
-            tag.setInteger("index", CraftingHandler.recipeList.indexOf(recipe));
-            list.appendTag(tag);
+        for (RecipeData data : synced) {
+            list.appendTag(data.writeToNBT());
         }
         tagCompound.setTag("data", list);
     }
@@ -68,11 +69,9 @@ public class InventoryCraftingTableIV {
         if (tagCompound == null)
             return;
         NBTTagList tagList = tagCompound.getTagList("data", 10);
-        recipes.clear();
+        synced.clear();
         for (int i = 0; i < tagList.tagCount(); i++) {
-            int j = tagList.getCompoundTagAt(i).getInteger("index");
-            recipes.add(CraftingHandler.recipeList.get(j));
-            outputs.add(CraftingHandler.syncedRecipeOutput.get(j));
+            synced.add(RecipeData.fromNBT(tagList.getCompoundTagAt(i)));
         }
     }
 }

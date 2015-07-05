@@ -11,7 +11,7 @@ public class StackComparator extends ItemComparator{
         super(stack);
     }
 
-    protected boolean stacksEqual(ItemStack s1){
+    public boolean stacksEqual(ItemStack s1){
         if(s1.getItem() == stack.getItem()) {
             if(s1.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || s1.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
                 return true;

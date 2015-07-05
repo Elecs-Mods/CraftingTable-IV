@@ -33,7 +33,7 @@ public class CraftingHandler {
     public static ArrayList<StackComparator> syncedRecipeOutput = Lists.newArrayList();
     public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
     public static Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash = Maps.newHashMap();
-    public static Map<String, List<WrappedRecipe>> oreDictRecipeHash = Maps.newHashMap();
+    //public static Map<String, List<WrappedRecipe>> oreDictRecipeHash = Maps.newHashMap();
     public static Map<String, Map<StackComparator, RecipeStackComparator>> rcMap = Maps.newHashMap();
 
     private static void addToRecipeHash(ItemStack stack, WrappedRecipe recipe){
@@ -46,11 +46,11 @@ public class CraftingHandler {
         recipeHash.get(s).get(itemComparator).add(recipe);
     }
 
-    private static void addToOreRecipeHash(String s, WrappedRecipe recipe){
+    /*private static void addToOreRecipeHash(String s, WrappedRecipe recipe){
         if (oreDictRecipeHash.get(s) == null)
             oreDictRecipeHash.put(s, new ArrayList<WrappedRecipe>());
         oreDictRecipeHash.get(s).add(recipe);
-    }
+    }*/
 
     private static void addToRCMap(StackComparator stackComparator, RecipeStackComparator recipeStackComparator){
         String s = identifier(stackComparator.getStack());
@@ -213,11 +213,11 @@ public class CraftingHandler {
     }*/
 
 
-    public static void decrStackSize(InventoryPlayer inventoryPlayer, IInventory internal, int slot, int amount) {
+    public static boolean decrStackSize(InventoryPlayer inventoryPlayer, IInventory internal, int slot, int amount) {
         if (slot < 18)
-            internal.decrStackSize(slot, amount);
+            return internal.decrStackSize(slot, amount) != null;
         else
-            inventoryPlayer.decrStackSize(slot-18, amount);
+            return inventoryPlayer.decrStackSize(slot-18, amount) != null;
     }
 
     public static ItemStack getStackInSlot(InventoryPlayer inventoryPlayer, IInventory internal, int slot) {
@@ -363,8 +363,8 @@ public class CraftingHandler {
                     addToRCMap(new StackComparator(output.copy()), new RecipeStackComparator(output.copy()));
                     addToRecipeHash(output.copy(), recipe);
                     String oreName = OredictHelper.getOreName(output.copy());
-                    if (!Strings.isNullOrEmpty(oreName))
-                        addToOreRecipeHash(oreName, recipe);
+                    //if (!Strings.isNullOrEmpty(oreName))
+                        //addToOreRecipeHash(oreName, recipe);
                 }
             }
         }
