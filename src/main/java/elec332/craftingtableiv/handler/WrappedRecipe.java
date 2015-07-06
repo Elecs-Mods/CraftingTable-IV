@@ -9,6 +9,8 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * Created by Elec332 on 21-6-2015.
@@ -55,35 +57,18 @@ public class WrappedRecipe {
         this.outPut = new RecipeStackComparator(recipe.getRecipeOutput().copy());
         this.outputItemName = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput());
         this.recipe = recipe;
-        for (Object obj : input) {
-            if (obj != null) {
-                if (obj instanceof ItemStack){
-                    if (isWood((ItemStack) obj)) {
-                        hasWood = true;
-                        break;
-                    }
-                }
-                if (obj instanceof List){
-                    if (!((List) obj).isEmpty() && ((List) obj).get(0) instanceof ItemStack && isWood((ItemStack) ((List) obj).get(0))) {
-                        hasWood = true;
-                        break;
-                    }
-                }
-            }
-        }
+        this.identifier = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ")[0];
+        this.hash = new Random().nextInt(999999);
+        this.key = UUID.randomUUID();
     }
 
-    private boolean isWood(ItemStack stack){
-        String s = MineTweakerHelper.getItemRegistryName(stack);
-        String o = MineTweakerHelper.getItemRegistryName(stack);
-        return o.contains("wood") || s.contains("wood") || o.contains("Wood") || s.contains("Wood");
-    }
-
-    IRecipe recipe;
-    Object[] input;
-    RecipeStackComparator outPut;
-    String outputItemName;
-    boolean hasWood;
+    final int hash;
+    final UUID key;
+    final IRecipe recipe;
+    final Object[] input;
+    final RecipeStackComparator outPut;
+    final String outputItemName;
+    final String identifier;
 
     public Object[] getInput() {
         return input;
@@ -97,21 +82,21 @@ public class WrappedRecipe {
         return outputItemName;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
     public IRecipe getRecipe() {
         return recipe;
     }
 
-    public boolean hasWood(){
-        return hasWood;
-    }
-
     @Override
     public int hashCode() {
-        return 0;
+        return hash;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof WrappedRecipe && ((WrappedRecipe) obj).recipe.equals(recipe);
+        return obj instanceof WrappedRecipe && ((WrappedRecipe) obj).key.equals(key);//((WrappedRecipe) obj).recipe.equals(recipe);
     }
 }

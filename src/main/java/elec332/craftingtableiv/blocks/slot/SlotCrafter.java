@@ -16,13 +16,9 @@ import net.minecraft.stats.AchievementList;
  */
 public class SlotCrafter extends Slot {
 
-    private IInventory craftMatrix;
     private WrappedRecipe recipe;
-    private CraftingTableIVContainer theCont;
-    public SlotCrafter(IInventory craftableRecipes, IInventory matrix, int i, int j, int k, CraftingTableIVContainer cont) {
+    public SlotCrafter(IInventory craftableRecipes, int i, int j, int k) {
         super(craftableRecipes, i, j, k);
-        craftMatrix = matrix;
-        theCont = cont;
     }
 
     public void setIRecipe(WrappedRecipe theIRecipe) {

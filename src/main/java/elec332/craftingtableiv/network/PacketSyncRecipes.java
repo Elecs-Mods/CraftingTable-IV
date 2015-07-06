@@ -22,11 +22,11 @@ public class PacketSyncRecipes extends AbstractPacket {
 
     @Override
     public IMessage onMessage(AbstractPacket abstractPacket, MessageContext messageContext) {
-        Container openContainer = Minecraft.getMinecraft().thePlayer.openContainer;
+        /*Container openContainer = Minecraft.getMinecraft().thePlayer.openContainer;
         if (openContainer instanceof CraftingTableIVContainer){
             ((CraftingTableIVContainer) openContainer).craftableRecipes.readFromNBT(abstractPacket.networkPackageObject);
             ((CraftingTableIVContainer) openContainer).updateVisibleSlots(((CraftingTableIVContainer) openContainer).ScrollValue);
-        }
+        }*/
         return null;
     }
 }

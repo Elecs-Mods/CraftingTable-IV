@@ -60,6 +60,12 @@ public class TECraftingTableIV extends BaseTileWithInventory {
         }
     }
 
+    @Override
+    public boolean onBlockActivated(EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        player.openGui(CraftingTableIV.instance, CraftingTableIV.guiID, worldObj, xCoord, yCoord, zCoord);
+        return true;
+    }
+
     public int findStack(ItemStack aStack) {
         for (int i=0; i < this.getSizeInventory(); i++) {
             if (getStackInSlot(i) != null)
