@@ -8,7 +8,7 @@ import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
 import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
-import elec332.craftingtableiv.blocks.slot.SlotStorage;
+//import elec332.craftingtableiv.blocks.slot.SlotStorage;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.FastRecipeList;
 import elec332.craftingtableiv.handler.RecipeStackComparator;
@@ -39,7 +39,12 @@ public class CraftingTableIVContainer extends Container {
     public InventoryBasic inventory = new InventoryBasic("tmp",true , 8*5);
     public InventoryBasic recipeItems = new InventoryBasic("tmp2",true, 9);
 
-    public InventoryCrafting craftMatrix;
+
+    public List getSlots(){
+        return inventorySlots;
+    }
+
+    /*public InventoryCrafting craftMatrix;
     public InventoryCraftingTableIV craftableRecipes;
 
     private String textField = "";
@@ -52,32 +57,32 @@ public class CraftingTableIVContainer extends Container {
                 populateSlotsWithRecipes();
             }
         };
-    }*/
+    }
 
     private CTIVThread currentThread;
-
-    private EntityPlayer thePlayer;
+*/
+    public EntityPlayer thePlayer;
     public TECraftingTableIV theTile;
-    public float ScrollValue = 0.0F;
+    //public float ScrollValue = 0.0F;*/
     //private boolean playerHasWood = false;
     //private boolean busy = false;
 
     public CraftingTableIVContainer(EntityPlayer aPlayer, TECraftingTableIV tile) {
         theTile = tile;
-        thePlayer = aPlayer;
+        thePlayer = aPlayer;/*
         craftMatrix = new InventoryCrafting(this, 3, 3);
         craftableRecipes = new InventoryCraftingTableIV();
         //recipeList = Collections.unmodifiableList(CraftingManager.getInstance().getRecipeList());
-
+*/
         for(int l2 = 0; l2 < 5; l2++) {
             for(int j3 = 0; j3 < 8; j3++) {
-                addSlotToContainer(new SlotCrafter(inventory, craftMatrix, j3 + l2 * 8, 8 + j3 * 18, 18 + l2 * 18, this));
+                addSlotToContainer(new SlotCrafter(inventory,  j3 + l2 * 8, 8 + j3 * 18, 18 + l2 * 18));
             }
         }
 
         for(int a = 0; a < 2; a++) {
             for(int i = 0; i < 9; i++) {
-                addSlotToContainer(new SlotStorage(theTile, i + (a * 9), 8 + i * 18, 112 + (18 * a)));
+                addSlotToContainer(new Slot(theTile, i + (a * 9), 8 + i * 18, 112 + (18 * a)));
             }
         }
 
@@ -91,19 +96,19 @@ public class CraftingTableIVContainer extends Container {
             addSlotToContainer(new Slot(thePlayer.inventory, i3, 8 + i3 * 18, 211));
         }
 
-        addSlotToContainer(new InterceptSlot(recipeItems, 0, -18, 34, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 1, -18, 52, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 2, -18, 70, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 3, -18, 88, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 4, -18, 106, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 5, -18, 124, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 6, -18, 142, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 7, -18, 160, this));
-        addSlotToContainer(new InterceptSlot(recipeItems, 8, -18, 178, this));
-        //CraftingHandler.InitRecipes();
-        updateRecipes();
+        addSlotToContainer(new InterceptSlot(recipeItems, 0, -18, 34));
+        addSlotToContainer(new InterceptSlot(recipeItems, 1, -18, 52));
+        addSlotToContainer(new InterceptSlot(recipeItems, 2, -18, 70));
+        addSlotToContainer(new InterceptSlot(recipeItems, 3, -18, 88));
+        addSlotToContainer(new InterceptSlot(recipeItems, 4, -18, 106));
+        addSlotToContainer(new InterceptSlot(recipeItems, 5, -18, 124));
+        addSlotToContainer(new InterceptSlot(recipeItems, 6, -18, 142));
+        addSlotToContainer(new InterceptSlot(recipeItems, 7, -18, 160));
+        addSlotToContainer(new InterceptSlot(recipeItems, 8, -18, 178));
+        //updateRecipes();
     }
-
+/////////////////////////
+/*
 
     private void stopThread(){
         if (currentThread != null)
@@ -154,7 +159,7 @@ public class CraftingTableIVContainer extends Container {
         }
         CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in "+(System.currentTimeMillis()-l)+" ms");
     }*/
-
+/*
     private void syncRecipes(){
         NBTTagCompound tagCompound = new NBTTagCompound();
         craftableRecipes.writeToNBT(tagCompound);
@@ -239,7 +244,7 @@ public class CraftingTableIVContainer extends Container {
                             return false;
                     } else {
                         return false;
-                    }*/
+                    }
                 }
             }
             return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().getStack().copy());
@@ -331,7 +336,7 @@ public class CraftingTableIVContainer extends Container {
             }
             return CraftingHandler.addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().getStack().copy());
         } else return false;
-    }*/
+    }
 
     private boolean handleStuff(InventoryPlayer fakeInventoryPlayer, TECraftingTableIV fakeCraftingInventory, ItemStack stack){
         int s = CraftingHandler.getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy());
@@ -391,7 +396,7 @@ public class CraftingTableIVContainer extends Container {
       /*
         list.add(t);
         return list;
-    }*/
+    }
 
     private static boolean isValidForCrafting(ItemStack stack){
         for (ItemStack itemStack : CraftingHandler.validOutputs){
@@ -441,7 +446,7 @@ public class CraftingTableIVContainer extends Container {
             if (s2.getItem() == Items.dye || s2.getItem() == Item.getItemFromBlock(Blocks.wool))
                 throw new RuntimeException();
                 //return true;
-        }*/
+        }
         return false;
     }
 
@@ -483,7 +488,7 @@ public class CraftingTableIVContainer extends Container {
             }
         }
         //System.out.println("Updated visible slots");
-    }
+    }*/
 
     public ItemStack transferStackInSlot(int par1) {
         ItemStack var2 = null;
@@ -526,6 +531,7 @@ public class CraftingTableIVContainer extends Container {
                 //return null;
 
             // Ignore right click.
+            /*
             if(mouseButton == Constants.Mouse.MOUSE_RIGHT) {
                 updateRecipes();
                 return null;
@@ -538,8 +544,8 @@ public class CraftingTableIVContainer extends Container {
                 updateRecipes();
                 return null;
             } else CraftingTableIV.instance.info("Received mouse event with ID: "+mouseButton+" I cannot process this button");
-        }
-        /*if(KeyHelper.isShiftDown()) {
+        }/*
+        if(KeyHelper.isShiftDown()) {
             //transferStackInSlot(slotIndex);
             ItemStack itemstack = super.slotClick(slotIndex, mouseButton, flag, entityplayer);
             populateSlotsWithRecipes();
@@ -549,12 +555,14 @@ public class CraftingTableIVContainer extends Container {
             ItemStack itemstack = super.slotClick(slotIndex, mouseButton, flag, entityplayer);
             populateSlotsWithRecipes();
             updateVisibleSlots(ScrollValue);
-            return itemstack;
-        }*/
-        ItemStack itemstack = super.slotClick(slotIndex, mouseButton, flag, entityplayer);
-        updateRecipes();
-        return itemstack;
-    }
+            return itemstack;*/
+            return null;
+        }
+        //ItemStack itemstack =
+        return super.slotClick(slotIndex, mouseButton, flag, entityplayer);
+        //updateRecipes();
+       // return itemstack;
+    }/*
 
     public void updateRecipes(){
         //this.busy = true;
@@ -564,11 +572,11 @@ public class CraftingTableIVContainer extends Container {
         //updateVisibleSlots(ScrollValue);
         //this.busy = false;
     }
-
+*/
     public ItemStack transferStackInSlot(EntityPlayer p_82846_1_, int p_82846_2_) {
         return transferStackInSlot(p_82846_2_);
     }
-
+/*
     public boolean onRequestSingleRecipeOutput(SlotCrafter slot) {
         WrappedRecipe recipe = slot.getIRecipe();
         return recipe != null && canPlayerCraft(thePlayer, theTile, recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true); //onRequestSingleRecipeOutput(thePlayer.inventory, irecipe, theTile, true);
@@ -603,7 +611,7 @@ public class CraftingTableIVContainer extends Container {
         if (!CraftingHandler.addItemStackPlayer(inventoryPlayer, internalInventory, recipe.getRecipeOutput().copy())) {
             PlayerHelper.addPersonalMessageToClient("Something went wrong while trying to process your crafting request");
             throw new RuntimeException("EY!");
-        }*/
+        }
     }
 
     private void onRequestMaximumRecipeOutput(SlotCrafter slot) {
@@ -633,12 +641,12 @@ public class CraftingTableIVContainer extends Container {
             //}
         }
     }
-
+*/
     @Override
     public boolean canInteractWith(EntityPlayer entityplayer) {
         return this.theTile.isUseableByPlayer(entityplayer);
     }
-
+/*
     @SuppressWarnings("deprecation")
     private class CTIVThread extends Thread{
 
@@ -662,7 +670,7 @@ public class CraftingTableIVContainer extends Container {
                     if (recipe.getOutputItemName().contains(CraftingTableIVContainer.this.textField) && canPlayerCraft(thePlayer, theTile, recipe, false)) {
                         craftableRecipes.forceAddRecipe(recipe);
                         syncRecipes();
-                    }*/
+                    }
                 }
                 for (WrappedRecipe recipe : validRecipes){
                     checkStopThread();
@@ -708,5 +716,5 @@ public class CraftingTableIVContainer extends Container {
                 stop();
         }
 
-    }
+    }*/
 }

@@ -9,7 +9,9 @@ import elec332.core.main.ElecCore;
 import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.util.IRunOnce;
 import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.blocks.container.ContainerNull;
+//import elec332.craftingtableiv.blocks.container.ContainerNull;
+import elec332.craftingtableiv.network.PacketAddStack;
+import elec332.craftingtableiv.network.PacketDecrStackSize;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -75,7 +77,7 @@ public class CraftingHandler {
         return rcMap.get(s);
     }
 
-    private static String identifier(ItemStack stack){
+    public static String identifier(ItemStack stack){
         return MineTweakerHelper.getItemRegistryName(stack).replace(":", " ").split(" ")[0];
     }
 
@@ -198,22 +200,21 @@ public class CraftingHandler {
         return new Object[] {playerHasAllItems, inventoryPlayer, SlotCount, Internal};
     }*/
 
-
-    public static boolean addItemStackPlayer(InventoryPlayer inventoryPlayer, TECraftingTableIV internal, ItemStack b) {
+//TODO
+    public static boolean addItemStackPlayer(InventoryPlayer inventoryPlayer, TECraftingTableIV internal, ItemStack b, boolean r) {
+        if (r) {
+            //CraftingTableIV.networkHandler.getNetworkWrapper().sendToServer(new PacketAddStack(b));
+            return true;
+        }
         return internal.addItemStackToInventory(b.copy()) || inventoryPlayer.addItemStackToInventory(b.copy());
     }
-/*
-    public static Object[] addItemStackPlayer(InventoryPlayer a, IInventory Internal, ItemStack b) {
-        TECraftingTableIV TheInternal = (TECraftingTableIV) Internal;
-        if (TheInternal.addItemStackToInventory(b.copy())) {
-            return new Object[]{true, TheInternal};
-        } else {
-            return new Object[]{a.addItemStackToInventory(b.copy()), TheInternal};
+
+//TODO
+    public static boolean decrStackSize(InventoryPlayer inventoryPlayer, IInventory internal, int slot, int amount, boolean r) {
+        if (r) {
+            //CraftingTableIV.networkHandler.getNetworkWrapper().sendToServer(new PacketDecrStackSize(slot));
+            return true;
         }
-    }*/
-
-
-    public static boolean decrStackSize(InventoryPlayer inventoryPlayer, IInventory internal, int slot, int amount) {
         if (slot < 18)
             return internal.decrStackSize(slot, amount) != null;
         else
@@ -226,7 +227,7 @@ public class CraftingHandler {
         else
             return inventoryPlayer.getStackInSlot(slot - 18);
     }
-
+/*
     public static void handleCraftingMatrix(InventoryCrafting craftingMatrix, InventoryPlayer inventoryPlayer) {
         //ItemStack output = CraftingManager.getInstance().findMatchingRecipe(craftingMatrix, inventoryPlayer.player.worldObj).copy();
         //PlayerEvent.ItemCraftedEvent thisEvent = new PlayerEvent.ItemCraftedEvent(inventoryPlayer.player, output, craftingMatrix);
@@ -258,9 +259,9 @@ public class CraftingHandler {
             else if (ItemHelper.areItemsEqual(output, selectedStack) && selectedStack.stackSize < selectedStack.getMaxStackSize())
                 selectedStack.stackSize++;*/
         //}
-    }
+    //}
 
-    public static InventoryCrafting generateCraftingMatrix(ItemStack[] items) {
+    /*public static InventoryCrafting generateCraftingMatrix(ItemStack[] items) {
         InventoryCrafting ret = new InventoryCrafting(new ContainerNull(), 3, 3);
         for (int i=0; i < items.length; i++) {
             ItemStack item = items[i];
@@ -271,7 +272,7 @@ public class CraftingHandler {
         }
         return ret;
     }
-
+*/
     public static int getFirstInventorySlotWithItemStack(InventoryPlayer inventoryPlayer, IInventory internal, ItemStack itemStack) {
         int i = getFirstSlotWithItemStack(internal, itemStack);
         if (i > -1)

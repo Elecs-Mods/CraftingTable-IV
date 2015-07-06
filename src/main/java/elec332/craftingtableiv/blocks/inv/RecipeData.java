@@ -17,7 +17,7 @@ public class RecipeData{
         for (int i = 0; i < recipe.getInput().length; i++) {
             if (recipe.getInput()[i] instanceof ItemStack) {
                 input[i] = (ItemStack) recipe.getInput()[i];
-            } else {
+            } else if (recipe.getInput()[i] != null){
                 input[i] = (ItemStack) ((List) recipe.getInput()[i]).get(0);
             }
         }

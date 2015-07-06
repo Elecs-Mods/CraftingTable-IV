@@ -18,11 +18,8 @@ import elec332.core.network.NetworkHandler;
 import elec332.core.util.EventHelper;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.init.BlockRegister;
-import elec332.craftingtableiv.network.PacketInitRecipes;
-import elec332.craftingtableiv.network.PacketSyncRecipes;
-import elec332.craftingtableiv.network.PacketSyncScroll;
-import elec332.craftingtableiv.network.PacketSyncText;
+//import elec332.craftingtableiv.init.BlockRegister;
+import elec332.craftingtableiv.network.*;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
@@ -82,15 +79,17 @@ public class CraftingTableIV extends ModBase {
     public void init(FMLInitializationEvent event) {
         networkHandler = new NetworkHandler(ModID);
         loadConfiguration();
-        BlockRegister.instance.init();
         GameRegistry.registerTileEntity(TECraftingTableIV.class, "test");
         GameRegistry.registerBlock(craftingTableIV = new BlockCraftingTableIV().setCreativeTab(ElecCTab.ElecTab), "ctable");
-        NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketSyncRecipes.class);
         networkHandler.registerServerPacket(PacketSyncScroll.class);
         networkHandler.registerServerPacket(PacketSyncText.class);
         networkHandler.registerClientPacket(PacketInitRecipes.class);
+        networkHandler.registerServerPacket(PacketAddStack.class);
+        networkHandler.registerServerPacket(PacketDecrStackSize.class);
+        networkHandler.registerServerPacket(PacketCraft.class);
         GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.crafting_table, Items.book);
         //register item/block
 

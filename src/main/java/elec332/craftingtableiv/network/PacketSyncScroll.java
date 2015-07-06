@@ -21,10 +21,10 @@ public class PacketSyncScroll extends AbstractPacket {
 
     @Override
     public IMessage onMessage(AbstractPacket abstractPacket, MessageContext messageContext) {
-        Container openContainer = messageContext.getServerHandler().playerEntity.openContainer;
+        /*Container openContainer = messageContext.getServerHandler().playerEntity.openContainer;
         if (openContainer instanceof CraftingTableIVContainer){
             ((CraftingTableIVContainer) openContainer).updateVisibleSlots(abstractPacket.networkPackageObject.getFloat("scroll"));
-        }
+        }*/
         return null;
     }
 }
