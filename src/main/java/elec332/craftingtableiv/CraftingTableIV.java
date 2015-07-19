@@ -24,6 +24,7 @@ import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TECraftingTableIV;
 import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -81,8 +82,7 @@ public class CraftingTableIV extends ModBase {
         networkHandler = new NetworkHandler(ModID);
         loadConfiguration();
         GameRegistry.registerTileEntity(TECraftingTableIV.class, "test");
-        //GameRegistry.registerBlock(craftingTableIV = new BlockCraftingTableIV(), "ctable");
-        craftingTableIV = new BlockCraftingTableIV().register();
+        craftingTableIV = new BlockCraftingTableIV().register().setCreativeTab(CreativeTabs.tabDecorations);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketInitRecipes.class);

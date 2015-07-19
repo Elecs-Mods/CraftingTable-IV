@@ -64,23 +64,23 @@ public class WrappedRecipe {
         this.identifier = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ")[0];
         this.hash = new Random().nextInt(999999);
         this.key = UUID.randomUUID();
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-            StringBuilder stringBuilder = new StringBuilder();
-            try {
-                List tooltip = recipe.getRecipeOutput().getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
-                boolean appendH = false;
-                for (Object o : tooltip){
-                    stringBuilder.append(o);
-                    if (appendH){
-                        stringBuilder.append("#");
-                    } else appendH = true;
-                }
-                this.itemName = stringBuilder.toString().toLowerCase();
-            } catch (Throwable t) {
-                //
-            }
-            //this.itemName = LanguageRegistry.instance().getStringLocalization(recipe.getRecipeOutput().getUnlocalizedName());
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+            registerItemName();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void registerItemName(){
+        StringBuilder stringBuilder = new StringBuilder();
+        List tooltip = recipe.getRecipeOutput().getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+        boolean appendH = false;
+        for (Object o : tooltip){
+            stringBuilder.append(o);
+            if (appendH){
+                stringBuilder.append("#");
+            } else appendH = true;
+        }
+        this.itemName = stringBuilder.toString().toLowerCase();
     }
 
     final int hash;

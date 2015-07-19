@@ -70,8 +70,8 @@ public class CraftingHandler {
 
     @SuppressWarnings("all")
     public static boolean canPlayerCraft(DoubleInventory<InventoryPlayer, IInventory> inventory, WrappedRecipe recipe, int i, FastRecipeList check, boolean executeCrafting){
-        if (executeCrafting)
-            System.out.println("Executing crafting for "+recipe.getOutputItemName());
+        //if (executeCrafting)
+        //    System.out.println("Executing crafting for "+recipe.getOutputItemName());
         if (i > CraftingTableIV.recursionDepth)
             return false;
 
@@ -248,7 +248,7 @@ public class CraftingHandler {
                 IRecipe recipe = (IRecipe) object;
                 ItemStack output = recipe.getRecipeOutput();
                 if (output != null && output.getItem() != null) {
-                    if (!Strings.isNullOrEmpty(MineTweakerHelper.getItemRegistryName(output))){
+                    if (Strings.isNullOrEmpty(MineTweakerHelper.getItemRegistryName(output))){
                         CraftingTableIV.instance.error("A mod has registered an invalid recipe, this is a severe error.");
                         continue;
                     }

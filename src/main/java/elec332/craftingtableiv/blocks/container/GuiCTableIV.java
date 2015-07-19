@@ -410,7 +410,8 @@ public class GuiCTableIV extends GuiContainer {
                         break;
                 }
                 updateVisibleSlots(ScrollValue);
-                CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
+                if (CraftingTableIV.debugTimings)
+                    CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
             }
         }
 
