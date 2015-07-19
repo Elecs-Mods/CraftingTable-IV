@@ -1,11 +1,8 @@
 package elec332.craftingtableiv.blocks.inv;
 
 import com.google.common.collect.Lists;
-import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.handler.StackComparator;
 import elec332.craftingtableiv.handler.WrappedRecipe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -17,11 +14,11 @@ import java.util.List;
 public class InventoryCraftingTableIV {
 
     private List<WrappedRecipe> recipes;
-    private List<RecipeData> synced;
+    //private List<RecipeData> synced;
 
     public InventoryCraftingTableIV() {
         recipes = Lists.newArrayList();
-        synced = Lists.newArrayList();
+        //synced = Lists.newArrayList();
     }
 
     public List<WrappedRecipe> getAllRecipes(){
@@ -33,7 +30,7 @@ public class InventoryCraftingTableIV {
     }
 
     public boolean forceAddRecipe(WrappedRecipe recipe){
-        synced.add(new RecipeData(recipe));
+        //synced.add(new RecipeData(recipe));
         return recipes.add(recipe);
     }
 
@@ -50,13 +47,13 @@ public class InventoryCraftingTableIV {
     }
 
     public ItemStack getRecipeOutput(int i) {
-        return synced.get(i).getOutput();//getIRecipe(i).getRecipeOutput().copy();
+        return recipes.get(i).getRecipeOutput().getStack().copy();//return synced.get(i).getOutput();//getIRecipe(i).getRecipeOutput().copy();
     }
 
     public void clearRecipes() {
         recipes.clear();
     }
-
+/*
     public void writeToNBT(NBTTagCompound tagCompound){
         NBTTagList list = new NBTTagList();
         for (RecipeData data : synced) {
@@ -73,5 +70,5 @@ public class InventoryCraftingTableIV {
         for (int i = 0; i < tagList.tagCount(); i++) {
             synced.add(RecipeData.fromNBT(tagList.getCompoundTagAt(i)));
         }
-    }
+    }*/
 }

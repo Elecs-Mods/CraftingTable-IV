@@ -34,9 +34,10 @@ public class CraftingTableIVItemRenderer implements IItemRenderer {
         }
     }
 
+    //TODO: args?
     private void render(RenderBlocks render, ItemStack item, float x, float y, float z, float scaleq) {
         GL11.glPushMatrix();
-        GL11.glTranslatef((float) x + 0.5f, (float) y, (float) z + 0.5f);
+        GL11.glTranslatef(x + 0.5f, y, z + 0.5f);
         ResourceLocation test = new ResourceLocation("craftingtableiv", "blocktextures/ctiv.png");
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(test);
         modelCraftingTableIV.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);

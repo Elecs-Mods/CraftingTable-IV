@@ -14,11 +14,11 @@ import net.minecraft.stats.AchievementList;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class SlotCrafter extends Slot {
+public class SlotCrafter extends CTIVSlot {
 
     private WrappedRecipe recipe;
-    public SlotCrafter(IInventory craftableRecipes, int i, int j, int k) {
-        super(craftableRecipes, i, j, k);
+    public SlotCrafter(IInventory craftableRecipes, int i, int j, int k, CraftingTableIVContainer container) {
+        super(craftableRecipes, i, j, k, container);
     }
 
     public void setIRecipe(WrappedRecipe theIRecipe) {

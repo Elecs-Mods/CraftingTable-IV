@@ -1,6 +1,5 @@
 package elec332.craftingtableiv.blocks.slot;
 
-import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -10,8 +9,8 @@ import net.minecraft.item.ItemStack;
  */
 public class InterceptSlot extends Slot {
 
-    public InterceptSlot(IInventory par1iInventory, int par2, int par3, int par4) {
-        super(par1iInventory, par2, par3, par4);
+    public InterceptSlot(IInventory inventory, int i1, int i2, int i3) {
+        super(inventory, i1, i2, i3);
     }
 
     @Override

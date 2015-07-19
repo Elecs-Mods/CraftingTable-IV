@@ -1,5 +1,7 @@
 package elec332.craftingtableiv.blocks;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import elec332.core.baseclasses.tileentity.BlockTileBase;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
@@ -31,6 +33,7 @@ public class BlockCraftingTableIV extends BlockTileBase {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister iconRegister) {
         //Nope
     }

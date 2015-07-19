@@ -3,7 +3,6 @@ package elec332.craftingtableiv.tileentity;
 import elec332.core.baseclasses.tileentity.BaseTileWithInventory;
 import elec332.craftingtableiv.CraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -65,7 +64,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
         player.openGui(CraftingTableIV.instance, CraftingTableIV.guiID, worldObj, xCoord, yCoord, zCoord);
         return true;
     }
-
+/*
     public int findStack(ItemStack aStack) {
         for (int i=0; i < this.getSizeInventory(); i++) {
             if (getStackInSlot(i) != null)
@@ -119,7 +118,7 @@ public class TECraftingTableIV extends BaseTileWithInventory {
                 return i;
         }
         return -1;
-    }
+    }*/
 
     public TECraftingTableIV getCopy() {
         TECraftingTableIV clone = new TECraftingTableIV();

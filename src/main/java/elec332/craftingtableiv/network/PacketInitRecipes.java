@@ -9,6 +9,7 @@ import elec332.craftingtableiv.CraftingTableIV;
  * Created by Elec332 on 22-6-2015.
  */
 public class PacketInitRecipes extends AbstractPacket {
+
     @Override
     public IMessage onMessage(AbstractPacket abstractPacket, MessageContext messageContext) {
         CraftingTableIV.loadRecipes();

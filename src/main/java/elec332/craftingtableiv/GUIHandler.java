@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class GUIHandler implements IGuiHandler {
+public class GUIHandler {/*implements IGuiHandler {
 
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
@@ -24,5 +24,5 @@ public class GUIHandler implements IGuiHandler {
         if (ID == CraftingTableIV.guiID)
             return new GuiCTableIV(player, (TECraftingTableIV)world.getTileEntity(x,y,z));
         return null;
-    }
+    }*/
 }

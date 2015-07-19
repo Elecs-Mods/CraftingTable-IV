@@ -1,6 +1,10 @@
 package elec332.craftingtableiv.handler;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import elec332.core.minetweaker.MineTweakerHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
@@ -60,6 +64,23 @@ public class WrappedRecipe {
         this.identifier = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ")[0];
         this.hash = new Random().nextInt(999999);
         this.key = UUID.randomUUID();
+        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+            StringBuilder stringBuilder = new StringBuilder();
+            try {
+                List tooltip = recipe.getRecipeOutput().getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+                boolean appendH = false;
+                for (Object o : tooltip){
+                    stringBuilder.append(o);
+                    if (appendH){
+                        stringBuilder.append("#");
+                    } else appendH = true;
+                }
+                this.itemName = stringBuilder.toString().toLowerCase();
+            } catch (Throwable t) {
+                //
+            }
+            //this.itemName = LanguageRegistry.instance().getStringLocalization(recipe.getRecipeOutput().getUnlocalizedName());
+        }
     }
 
     final int hash;
@@ -69,6 +90,12 @@ public class WrappedRecipe {
     final RecipeStackComparator outPut;
     final String outputItemName;
     final String identifier;
+    private String itemName;
+
+    @SideOnly(Side.CLIENT)
+    public String itemIdentifierClientName(){
+        return itemName;
+    }
 
     public Object[] getInput() {
         return input;
@@ -95,6 +122,7 @@ public class WrappedRecipe {
         return hash;
     }
 
+    //TODO: keep at UUID or switch back to recipe.equals()?
     @Override
     public boolean equals(Object obj) {
         return obj instanceof WrappedRecipe && ((WrappedRecipe) obj).key.equals(key);//((WrappedRecipe) obj).recipe.equals(recipe);
