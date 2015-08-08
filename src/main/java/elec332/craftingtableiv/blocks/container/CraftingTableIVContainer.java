@@ -20,7 +20,7 @@ public class CraftingTableIVContainer extends Container {
     public InventoryBasic recipeItems = new InventoryBasic("tmp2",true, 9);
     public EntityPlayer thePlayer;
     public TECraftingTableIV theTile;
-    public Runnable runnable;
+    private ISlotChangeableGUI slotChangeableGUI;
 
     public CraftingTableIVContainer(EntityPlayer aPlayer, TECraftingTableIV tile) {
         theTile = tile;
@@ -58,9 +58,13 @@ public class CraftingTableIVContainer extends Container {
         addSlotToContainer(new InterceptSlot(recipeItems, 8, -18, 178));
     }
 
+    public void setGui(ISlotChangeableGUI gui){
+        this.slotChangeableGUI = gui;
+    }
+
     public void onSlotChanged(){
-        if (runnable != null) {
-            runnable.run();
+        if (slotChangeableGUI != null) {
+            slotChangeableGUI.onSlotChanged();
             detectAndSendChanges();
         }
     }
@@ -76,20 +80,19 @@ public class CraftingTableIVContainer extends Container {
     public ItemStack transferStackInSlot(EntityPlayer player, int i) {
         ItemStack stack = null;
         Slot slot = (Slot)this.inventorySlots.get(i);
-
         if (slot != null && slot.getHasStack()) {
             ItemStack stackInSlot = slot.getStack();
             stack = stackInSlot.copy();
 
-            if (windowId < 58 && windowId > 39) {
+            if (i < 58 && i > 39) {
                 if (!this.mergeItemStack(stackInSlot, 58, 94, true)) {
                     return null;
                 }
-            } else if (windowId > 57)
+            } else if (i > 57) {
                 if (!this.mergeItemStack(stackInSlot, 40, 58, false)) {
                     return null;
                 }
-
+            }
             if (stackInSlot.stackSize == 0) {
                 slot.putStack(null);
             } else {

@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class GuiCTableIV extends GuiContainer {
+public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
 
     private float scroll;
     private boolean field_35313_h;  //???
@@ -56,12 +56,7 @@ public class GuiCTableIV extends GuiContainer {
         craftableRecipes = new InventoryCraftingTableIV();
         container = (CraftingTableIVContainer) inventorySlots;
         inventory = container.inventory;
-        container.runnable = new Runnable() {
-            @Override
-            public void run() {
-                updateRecipes();
-            }
-        };
+        updateRecipes();
     }
 
     private void stopThread(){
@@ -355,6 +350,11 @@ public class GuiCTableIV extends GuiContainer {
             updateVisibleSlots(scroll);
         }
         super.handleMouseInput();
+    }
+
+    @Override
+    public void onSlotChanged() {
+        updateRecipes();
     }
 
     /*public void resetScroll() {
