@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import cpw.mods.fml.common.Loader;
 import elec332.craftingtableiv.api.AbstractRecipeHandler;
+import elec332.craftingtableiv.api.ICraftingTableIVAPI;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import forestry.core.utils.ShapedRecipeCustom;
 import forestry.lepidopterology.MatingRecipe;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * Created by Elec332 on 24-6-2015.
  */
-public class Compat {
+public class Compat implements ICraftingTableIVAPI {
 
     private static final Compat instance = new Compat();
 
