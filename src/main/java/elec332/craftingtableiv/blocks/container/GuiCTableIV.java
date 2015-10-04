@@ -1,7 +1,6 @@
 package elec332.craftingtableiv.blocks.container;
 
 import com.google.common.collect.Lists;
-import elec332.core.player.PlayerHelper;
 import elec332.core.util.Constants;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
@@ -14,11 +13,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;

@@ -3,8 +3,6 @@ package elec332.craftingtableiv.blocks.inv;
 import com.google.common.collect.Lists;
 import elec332.craftingtableiv.handler.WrappedRecipe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 
 import java.util.List;
 

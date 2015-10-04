@@ -2,14 +2,8 @@ package elec332.craftingtableiv.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import cpw.mods.fml.common.Loader;
-import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.api.ICraftingTableIVAPI;
 import elec332.craftingtableiv.api.IRecipeHandler;
-import forestry.core.utils.ShapedRecipeCustom;
-import forestry.lepidopterology.MatingRecipe;
-import ic2.core.AdvRecipe;
-import ic2.core.AdvShapelessRecipe;
 import net.minecraft.item.crafting.IRecipe;
 
 import java.util.List;
