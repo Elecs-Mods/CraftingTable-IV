@@ -57,7 +57,18 @@ public class IC2 extends AbstractCompatModule {
                 }
             });
         } else if (classic){
-            //TODO
+            registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
+                @Override
+                public Object[] getIngredients(AdvRecipe recipe) {
+                    return recipe.input;
+                }
+            });
+            registerHandler(AdvShapelessRecipe.class, new AbstractRecipeHandler<AdvShapelessRecipe>() {
+                @Override
+                public Object[] getIngredients(AdvShapelessRecipe recipe) {
+                    return recipe.input;
+                }
+            });
         }
     }
 
