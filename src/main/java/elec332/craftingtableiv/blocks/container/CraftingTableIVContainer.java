@@ -1,10 +1,12 @@
 package elec332.craftingtableiv.blocks.container;
 
+import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.slot.CTIVSlot;
 import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
@@ -65,7 +67,6 @@ public class CraftingTableIVContainer extends Container {
     public void onSlotChanged(){
         if (slotChangeableGUI != null) {
             slotChangeableGUI.onSlotChanged();
-            detectAndSendChanges();
         }
     }
 
@@ -100,6 +101,18 @@ public class CraftingTableIVContainer extends Container {
             }
         }
         return stack;
+    }
+
+    @Override
+    public void putStackInSlot(int slot, ItemStack stack) {
+        super.putStackInSlot(slot, stack);
+        onSlotChanged();
+    }
+
+    @Override
+    public void putStacksInSlots(ItemStack[] stacks) {
+        super.putStacksInSlots(stacks);
+        onSlotChanged();
     }
 
     @Override

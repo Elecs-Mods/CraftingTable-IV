@@ -82,7 +82,7 @@ public class CraftingTableIV extends ModBase {
                     compatHandler.addHandler((AbstractCompatModule) clazz.newInstance());
             }
         } catch (Exception e){
-            throw new RuntimeException("[DeepResonance] Error fetching packets!", e);
+            throw new RuntimeException("[CraftingTableIV] Error fetching compat handlers!", e);
         }
 
         loadConfiguration();
@@ -139,7 +139,7 @@ public class CraftingTableIV extends ModBase {
         OreDictionary.initVanillaEntries();
         Long l = System.currentTimeMillis();
         CraftingHandler.InitRecipes();
-        instance.info("loaded " + CraftingHandler.recipeList.size() + " recipes in " + (System.currentTimeMillis() - l) + " ms");
+        instance.info("Initialised " + CraftingHandler.recipeList.size() + " recipes in " + (System.currentTimeMillis() - l) + " ms");
     }
 
     File cfg;

@@ -98,14 +98,6 @@ public class CraftingHandler {
                         } else {
                             return false;
                         }
-                        /*for (WrappedRecipe wrappedRecipe : valid){
-                            if (canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, wrappedRecipe, i+1, check, executeCrafting)) {
-                                if (!handleStuff(fakeInventoryPlayer, fakeCraftingInventory, itemStack, executeCrafting))
-                                    return false;
-                                continue inputLoop;
-                            }
-                        }
-                        return false;*/
                     } else return false;
                 } else if (obj instanceof List && !((List)obj).isEmpty()){
                     @SuppressWarnings("unchecked")
@@ -130,22 +122,13 @@ public class CraftingHandler {
                         } else {
                             return false;
                         }
-                        /*for (WrappedRecipe wrappedRecipe : valid){
-                            WrappedRecipe
-                            if (canPlayerCraft(fakeInventoryPlayer, fakeCraftingInventory, wrappedRecipe, i+1, check, executeCrafting)) {
-                                if (!handleStuff(fakeInventoryPlayer, fakeCraftingInventory, wrappedRecipe.getRecipeOutput().getStack(), executeCrafting))
-                                    return false;
-                                continue inputLoop;
-                            }
-                        }*/
-                        //return false;
                     } else return false;
                 }
             }
             if (executeCrafting && inventory.getFirstInventory().player.getEntityWorld().isRemote) {
                 CraftingTableIV.networkHandler.getNetworkWrapper().sendToServer(new PacketCraft(recipe));
             }
-            return inventory.addItemToInventory(recipe.getRecipeOutput().getStack().copy());//addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, recipe.getRecipeOutput().getStack().copy());
+            return inventory.addItemToInventory(recipe.getRecipeOutput().getStack().copy());
         } else return false;
     }
 
@@ -161,77 +144,23 @@ public class CraftingHandler {
     }
 
     private static boolean handleStuff(DoubleInventory inventory, ItemStack stack){
-        int s = inventory.getFirstSlotWithItemStackNoNBT(stack.copy());//getFirstInventorySlotWithItemStack(fakeInventoryPlayer, fakeCraftingInventory, stack.copy());
+        int s = inventory.getFirstSlotWithItemStackNoNBT(stack.copy());
         if (s == -1)
             return false;
         if (stack.getItem().hasContainerItem(stack)){
             ItemStack itemStack = stack.getItem().getContainerItem(inventory.getStackInSlot(s));
             if (itemStack != null && itemStack.isItemStackDamageable() && itemStack.getItemDamage() > itemStack.getMaxDamage())
                 itemStack = null;
-            if (itemStack != null && !inventory.addItemToInventory(itemStack))//addItemStackPlayer(fakeInventoryPlayer, fakeCraftingInventory, itemStack))
+            if (itemStack != null && !inventory.addItemToInventory(itemStack))
                 return false;
         }
-        return inventory.decrStackSize(s, 1) != null;//decreaseStackSize(fakeInventoryPlayer, fakeCraftingInventory, s);
+        return inventory.decrStackSize(s, 1) != null;
     }
 
     public static boolean isServer(EntityPlayer player){
         return !player.worldObj.isRemote;
     }
-/*
-    public static void dropItemOnTheGround(InventoryPlayer inventoryPlayer, ItemStack stack){
-        if (!inventoryPlayer.player.worldObj.isRemote){
-            WorldHelper.dropStack(inventoryPlayer.player.worldObj, (int)inventoryPlayer.player.posX, (int)inventoryPlayer.player.posY, (int)inventoryPlayer.player.posZ, stack);
-            System.out.println("dropped");
-        }
-    }
 
-    //public static boolean addItemStackPlayer(InventoryPlayer inventoryPlayer, TECraftingTableIV internal, ItemStack b) {
-    //    return PacketCraft.addItemToInventory(inventoryPlayer, b.copy()) || PacketCraft.addItemToInventory(internal, b.copy());//internal.addItemStackToInventory(b.copy()) || inventoryPlayer.addItemStackToInventory(b.copy());
-    //}
-
-    //public static boolean decreaseStackSize(InventoryPlayer inventoryPlayer, IInventory internal, int slot) {
-     //   if (slot < 18) {
-     //       return internal.decrStackSize(slot, 1) != null;
-     //   } else {
-    //       return inventoryPlayer.decrStackSize(slot - 18, 1) != null;
-    //    }
-    //}
-
-
-
-    public static ItemStack getStackInSlot(InventoryPlayer inventoryPlayer, IInventory internal, int slot) {
-        if (slot < 18)
-            return internal.getStackInSlot(slot);
-        else
-            return inventoryPlayer.getStackInSlot(slot - 18);
-    }
-
-    public static int getFirstInventorySlotWithItemStack(InventoryPlayer inventoryPlayer, IInventory internal, ItemStack itemStack) {
-        int i = getFirstSlotWithItemStack(internal, itemStack);
-        if (i > -1)
-            return i;
-
-        int q = getFirstSlotWithItemStack(inventoryPlayer, itemStack);
-        if (q > -1)
-            return q + 18;
-
-        return -1;
-    }
-
-    public static int getFirstSlotWithItemStack(IInventory inventory, ItemStack stack){
-        for(int i = 0; i < inventory.getSizeInventory(); ++i) {
-            ItemStack stackInSlot = inventory.getStackInSlot(i);
-            if(stackInSlot != null && stack != null && stackInSlot.getItem() == stack.getItem()) {
-                if(stackInSlot.getItemDamage() == stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-                    return i;
-                }
-                if(!stackInSlot.getItem().getHasSubtypes() && !stack.getItem().getHasSubtypes()) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }*/
 
     //Validate all recipes, excluding all firework recipes, colouring recipes, ect.
     public static void InitRecipes() {
@@ -367,7 +296,7 @@ public class CraftingHandler {
                 });
             }*/
             CraftingTableIV.instance.error("Something went wrong while trying to acquire recipe ingredients!");
-            CraftingTableIV.instance.error(irecipe.toString()+" with output "+irecipe.getRecipeOutput().toString());
+            CraftingTableIV.instance.error(irecipe.toString()+" with output "+irecipe.getRecipeOutput());
             CraftingTableIV.instance.error(e);
             return null;
         }

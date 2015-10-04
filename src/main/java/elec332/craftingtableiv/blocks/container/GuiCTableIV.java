@@ -56,6 +56,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         craftableRecipes = new InventoryCraftingTableIV();
         container = (CraftingTableIVContainer) inventorySlots;
         inventory = container.inventory;
+        container.setGui(this);
         updateRecipes();
     }
 
@@ -127,14 +128,15 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             updateRecipes();
         }
     }
-//TODO START
 
     public boolean onRequestSingleRecipeOutput(SlotCrafter slot) {
         WrappedRecipe recipe = slot.getIRecipe();
-        return recipe != null && CraftingHandler.canPlayerCraft(thePlayer, theTile, recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true); //onRequestSingleRecipeOutput(thePlayer.inventory, irecipe, theTile, true);
+        return recipe != null && CraftingHandler.canPlayerCraft(thePlayer, theTile, recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true);
     }
 
-    public boolean onRequestSingleRecipeOutput(InventoryPlayer thePlayerInventory, IRecipe irecipe, TileEntityCraftingTableIV internal, boolean b) {
+    //TODO START
+
+    /*public boolean onRequestSingleRecipeOutput(InventoryPlayer thePlayerInventory, IRecipe irecipe, TileEntityCraftingTableIV internal, boolean b) {
         TileEntityCraftingTableIV internalCopy = internal.getCopy();
         InventoryPlayer fakeInventory = new InventoryPlayer(thePlayerInventory.player);
         fakeInventory.copyInventory(thePlayerInventory);
@@ -154,7 +156,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     public void craftRecipe(IRecipe recipe, InventoryPlayer inventoryPlayer, TileEntityCraftingTableIV internalInventory) {
-        /*ItemStack[] ingredients = CraftingHandler.getRecipeIngredients(recipe, inventoryPlayer);
+        ItemStack[] ingredients = CraftingHandler.getRecipeIngredients(recipe, inventoryPlayer);
         for (ItemStack itemStack : ingredients) {
             CraftingHandler.decreaseStackSize(inventoryPlayer, internalInventory, CraftingHandler.getFirstInventorySlotWithItemStack(inventoryPlayer, internalInventory, itemStack), 1);
         }
@@ -163,16 +165,16 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         if (!CraftingHandler.addItemStackPlayer(inventoryPlayer, internalInventory, recipe.getRecipeOutput().copy())) {
             PlayerHelper.addPersonalMessageToClient("Something went wrong while trying to process your crafting request");
             throw new RuntimeException("EY!");
-        }*/
-    }
+        }
+    }*/
 
     private void onRequestMaximumRecipeOutput(SlotCrafter slot) {
-        WrappedRecipe recipe = slot.getIRecipe();
+        /*WrappedRecipe recipe = slot.getIRecipe();
         if(recipe == null)
             return;
-        onRequestMaximumRecipeOutput(thePlayer, recipe, theTile);
+        onRequestMaximumRecipeOutput(thePlayer, recipe, theTile);*/
     }
-
+/*
     public static void onRequestMaximumRecipeOutput(EntityPlayer thePlayer, WrappedRecipe irecipe, TileEntityCraftingTableIV Internal) {
         InventoryPlayer Temp = new InventoryPlayer( thePlayer );
         Temp.copyInventory(thePlayer.inventory);
@@ -192,8 +194,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             break;
             //}
         }
-    }
-//TODO END
+    }*/
+    //TODO END
+
 
     /**
      * Actual GUI stuff
@@ -263,7 +266,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                 theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput().getStack());
                 if (getIsMouseOverSlot(theSlot, i, j)) {
                     try {
-                        List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());//Lists.newArrayList(CraftingHandler.getRecipeIngredients(theSlot.getIRecipe(), Minecraft.getMinecraft().thePlayer.inventory));
+                        List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());
                         int Counter = 0;
                         for (int b = 0; b < theRecipe.size(); b++) {
                             if (RecipeType == 1) {
@@ -311,10 +314,12 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         return i >= slot.xDisplayPosition - 1 && i < slot.xDisplayPosition + 16 + 1 && j >= slot.yDisplayPosition - 1 && j < slot.yDisplayPosition + 16 + 1;
     }
 
+    @Override
     protected void drawGuiContainerForegroundLayer(int i, int i1) {
         Minecraft.getMinecraft().fontRenderer.drawString("Crafting Table IV", 8, 6, 0x404040);
     }
 
+    @Override
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.renderEngine.bindTexture(new ResourceLocation("craftingtableiv", "gui/crafttableii.png"));
@@ -357,11 +362,6 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         updateRecipes();
     }
 
-    /*public void resetScroll() {
-        scroll = 0.0F;
-        ((CraftingTableIVContainer)inventorySlots).updateVisibleSlots(scroll);
-    }*/
-
     @SuppressWarnings("deprecation")
     private class CTIVThread extends Thread{
 
@@ -378,7 +378,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                 List<WrappedRecipe> canCraft = Lists.newArrayList();
                 StackMatcher matcher = toPattern(textField);
                 for (WrappedRecipe recipe : CraftingHandler.recipeList) {
-                    if (matcher.canAdd(recipe)){//recipe.getOutputItemName().contains(GuiCTableIV.this.textField.getText()==null?"":GuiCTableIV.this.textField.getText())){
+                    if (matcher.canAdd(recipe)){
                         validRecipes.add(recipe);
                     }
                 }

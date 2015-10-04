@@ -38,18 +38,6 @@ public class BlockCraftingTableIV extends BlockTileBase {
         //Nope
     }
 
-    /*@Override
-    public void onBlockPlacedBy(World world, int i, int j, int k, EntityLivingBase entityLiving, ItemStack p_149689_6_) {
-        int i1 = MathHelper.floor_double((double) ((entityLiving.rotationYaw * 4F) / 360F) + 0.5D) & 3;
-        world.setBlockMetadataWithNotify(i, j, k, i1, 2);
-        super.onBlockPlacedBy(world, i, j, k, entityLiving, p_149689_6_);
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(World p_149915_1_, int p_149915_2_) {
-        return new TECraftingTableIV();
-    }*/
-
     @Override
     public boolean renderAsNormalBlock() {
         return false;
