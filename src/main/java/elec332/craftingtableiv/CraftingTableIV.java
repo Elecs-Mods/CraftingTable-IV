@@ -1,5 +1,6 @@
 package elec332.craftingtableiv;
 
+import com.google.common.reflect.ClassPath;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -12,17 +13,18 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import elec332.core.helper.FileHelper;
 import elec332.core.helper.MCModInfo;
-import elec332.core.main.ElecCTab;
 import elec332.core.modBaseUtils.ModBase;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.NetworkHandler;
 import elec332.core.util.EventHelper;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
+import elec332.craftingtableiv.compat.AbstractCompatModule;
+import elec332.craftingtableiv.compat.CraftingTableIVCompatHandler;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.network.PacketCraft;
 import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -30,6 +32,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
@@ -51,6 +54,8 @@ public class CraftingTableIV extends ModBase {
     @Mod.Instance(ModID)
     public static CraftingTableIV instance;
     public static NetworkHandler networkHandler;
+    public static Logger logger;
+    public static CraftingTableIVCompatHandler compatHandler;
 
     /**Config**/
     public static int recursionDepth = 5;
@@ -66,8 +71,19 @@ public class CraftingTableIV extends ModBase {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         this.cfg = FileHelper.getConfigFileElec(event);
+        logger = event.getModLog();
         loadConfiguration();
         //setting up mod stuff
+        compatHandler = new CraftingTableIVCompatHandler();
+        try {
+            for (ClassPath.ClassInfo classInfo : ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClasses("elec332.craftingtableiv.compat.handlers")) {
+                Class clazz = Class.forName(classInfo.getName());
+                if (AbstractCompatModule.class.isAssignableFrom(clazz))
+                    compatHandler.addHandler((AbstractCompatModule) clazz.newInstance());
+            }
+        } catch (Exception e){
+            throw new RuntimeException("[DeepResonance] Error fetching packets!", e);
+        }
 
         loadConfiguration();
         MCModInfo.CreateMCModInfo(event, "Created by Elec332",
@@ -81,13 +97,14 @@ public class CraftingTableIV extends ModBase {
     public void init(FMLInitializationEvent event) {
         networkHandler = new NetworkHandler(ModID);
         loadConfiguration();
-        GameRegistry.registerTileEntity(TECraftingTableIV.class, "test");
+        GameRegistry.registerTileEntity(TileEntityCraftingTableIV.class, "test");
         craftingTableIV = new BlockCraftingTableIV().register().setCreativeTab(CreativeTabs.tabDecorations);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketInitRecipes.class);
         networkHandler.registerServerPacket(PacketCraft.class);
         GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.crafting_table, Items.book);
+        compatHandler.init();
         //register item/block
 
         notifyEvent(event);
