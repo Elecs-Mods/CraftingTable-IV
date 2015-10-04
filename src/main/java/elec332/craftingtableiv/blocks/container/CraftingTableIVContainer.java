@@ -3,7 +3,7 @@ package elec332.craftingtableiv.blocks.container;
 import elec332.craftingtableiv.blocks.slot.CTIVSlot;
 import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
@@ -19,10 +19,10 @@ public class CraftingTableIVContainer extends Container {
     public InventoryBasic inventory = new InventoryBasic("tmp",true , 8*5);
     public InventoryBasic recipeItems = new InventoryBasic("tmp2",true, 9);
     public EntityPlayer thePlayer;
-    public TECraftingTableIV theTile;
+    public TileEntityCraftingTableIV theTile;
     private ISlotChangeableGUI slotChangeableGUI;
 
-    public CraftingTableIVContainer(EntityPlayer aPlayer, TECraftingTableIV tile) {
+    public CraftingTableIVContainer(EntityPlayer aPlayer, TileEntityCraftingTableIV tile) {
         theTile = tile;
         thePlayer = aPlayer;
         for(int l2 = 0; l2 < 5; l2++) {

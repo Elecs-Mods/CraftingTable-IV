@@ -7,13 +7,13 @@ import net.minecraft.entity.player.EntityPlayer;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class TECraftingTableIV extends BaseTileWithInventory {
+public class TileEntityCraftingTableIV extends BaseTileWithInventory {
     public double playerDistance;
     public float doorAngle;
     public static final float openspeed = 0.2F;
     private int tablestate;
 
-    public TECraftingTableIV() {
+    public TileEntityCraftingTableIV() {
         super(18);
         this.playerDistance = 7F;
         this.doorAngle = 0F;
@@ -120,8 +120,8 @@ public class TECraftingTableIV extends BaseTileWithInventory {
         return -1;
     }*/
 
-    public TECraftingTableIV getCopy() {
-        TECraftingTableIV clone = new TECraftingTableIV();
+    public TileEntityCraftingTableIV getCopy() {
+        TileEntityCraftingTableIV clone = new TileEntityCraftingTableIV();
         for (int i=0; i < this.getSizeInventory(); i++) {
             if (getStackInSlot(i) != null)
                 clone.setInventorySlotContents(i, getStackInSlot(i).copy());

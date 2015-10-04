@@ -1,6 +1,6 @@
 package elec332.craftingtableiv.client;
 
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -19,7 +19,7 @@ public class CraftingTableIVRenderer extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity tileentity, double d, double d1, double d2, float f) {
-        TECraftingTableIV craftingtable = (TECraftingTableIV)tileentity;
+        TileEntityCraftingTableIV craftingtable = (TileEntityCraftingTableIV)tileentity;
         float doorRotation = craftingtable.doorAngle;
         int facing = craftingtable.getFacing();
         float r = facing * 90F;

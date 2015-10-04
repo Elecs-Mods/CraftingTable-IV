@@ -8,7 +8,7 @@ import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.core.util.DoubleInventory;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.network.PacketCraft;
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -54,10 +54,10 @@ public class CraftingHandler {
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean canPlayerCraft(EntityPlayer player, TECraftingTableIV craftingTableIV, WrappedRecipe recipe, FastRecipeList canCraft, boolean executeCrafting){
+    public static boolean canPlayerCraft(EntityPlayer player, TileEntityCraftingTableIV craftingTableIV, WrappedRecipe recipe, FastRecipeList canCraft, boolean executeCrafting){
         InventoryPlayer fakeInventoryPlayer = new InventoryPlayer(player);
         fakeInventoryPlayer.copyInventory(player.inventory);
-        TECraftingTableIV fakeCraftingInventory = craftingTableIV.getCopy();
+        TileEntityCraftingTableIV fakeCraftingInventory = craftingTableIV.getCopy();
         boolean ret = canPlayerCraft(new DoubleInventory(fakeInventoryPlayer, fakeCraftingInventory), recipe, 0, canCraft, executeCrafting);
         if (executeCrafting && ret && isServer(player)){
             player.inventory.copyInventory(fakeInventoryPlayer);
@@ -151,7 +151,7 @@ public class CraftingHandler {
 
     private static WrappedRecipe canPlayerCraftAnyOf(DoubleInventory<InventoryPlayer, IInventory> inventory, FastRecipeList check, int i, boolean execute, List<WrappedRecipe> recipes){
         for (WrappedRecipe recipe : recipes){
-            DoubleInventory<InventoryPlayer, IInventory> copy = DoubleInventory.fromInventory(new InventoryPlayer(inventory.getFirstInventory().player), new TECraftingTableIV(), inventory);
+            DoubleInventory<InventoryPlayer, IInventory> copy = DoubleInventory.fromInventory(new InventoryPlayer(inventory.getFirstInventory().player), new TileEntityCraftingTableIV(), inventory);
             if (canPlayerCraft(copy, recipe, i+1, check, execute)){
                 inventory.copyFrom(copy);
                 return recipe;
@@ -346,10 +346,10 @@ public class CraftingHandler {
                 return new WrappedRecipe((ShapelessOreRecipe) irecipe);
             } else if (irecipe instanceof RecipesArmorDyes || irecipe instanceof RecipeFireworks || irecipe instanceof RecipeBookCloning || irecipe instanceof RecipesMapCloning) {
                 return null;
-            } else if (Compat.getCompatHandler().isDisabled(irecipe)) {
+            } else if (RecipeHandler.getCompatHandler().isDisabled(irecipe)) {
                 return null;
-            }else if (Compat.getCompatHandler().hasHandler(irecipe.getClass())){
-                return Compat.getCompatHandler().getHandler(irecipe).getWrappedRecipe(irecipe);
+            }else if (RecipeHandler.getCompatHandler().hasHandler(irecipe.getClass())){
+                return RecipeHandler.getCompatHandler().getHandler(irecipe).getWrappedRecipe(irecipe);
             } else {
                 if (irecipe.getRecipeOutput() != null)
                     CraftingTableIV.instance.error("ERROR FINDING HANDLER FOR RECIPE CLASS: " + irecipe.toString());

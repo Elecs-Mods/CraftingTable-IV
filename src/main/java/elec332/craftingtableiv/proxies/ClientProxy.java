@@ -5,7 +5,7 @@ import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.GuiCTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVItemRenderer;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
@@ -19,14 +19,14 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void registerRenders() {
         CraftingTableIVRenderer craftingTableIVRenderer = new CraftingTableIVRenderer();
-        ClientRegistry.bindTileEntitySpecialRenderer(TECraftingTableIV.class, craftingTableIVRenderer);
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCraftingTableIV.class, craftingTableIVRenderer);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(CraftingTableIV.craftingTableIV), new CraftingTableIVItemRenderer());
     }
 
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         if (ID == CraftingTableIV.guiID)
-            return new GuiCTableIV(player, (TECraftingTableIV)world.getTileEntity(x,y,z));
+            return new GuiCTableIV(player, (TileEntityCraftingTableIV)world.getTileEntity(x,y,z));
         return null;
     }
 

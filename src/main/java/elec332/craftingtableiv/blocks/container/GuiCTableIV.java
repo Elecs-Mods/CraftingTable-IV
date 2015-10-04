@@ -9,7 +9,7 @@ import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.handler.FastRecipeList;
 import elec332.craftingtableiv.handler.WrappedRecipe;
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -41,11 +41,11 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     private CTIVThread currentThread;
     public float ScrollValue = 0.0F;
     private EntityPlayer thePlayer;
-    private TECraftingTableIV theTile;
+    private TileEntityCraftingTableIV theTile;
     public InventoryCraftingTableIV craftableRecipes;
     private InventoryBasic inventory;
 
-    public GuiCTableIV(EntityPlayer entityplayer, TECraftingTableIV tile) {
+    public GuiCTableIV(EntityPlayer entityplayer, TileEntityCraftingTableIV tile) {
         super(new CraftingTableIVContainer(entityplayer, tile));
         scroll = 0.0F;
         field_35313_h = false;
@@ -134,8 +134,8 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         return recipe != null && CraftingHandler.canPlayerCraft(thePlayer, theTile, recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true); //onRequestSingleRecipeOutput(thePlayer.inventory, irecipe, theTile, true);
     }
 
-    public boolean onRequestSingleRecipeOutput(InventoryPlayer thePlayerInventory, IRecipe irecipe, TECraftingTableIV internal, boolean b) {
-        TECraftingTableIV internalCopy = internal.getCopy();
+    public boolean onRequestSingleRecipeOutput(InventoryPlayer thePlayerInventory, IRecipe irecipe, TileEntityCraftingTableIV internal, boolean b) {
+        TileEntityCraftingTableIV internalCopy = internal.getCopy();
         InventoryPlayer fakeInventory = new InventoryPlayer(thePlayerInventory.player);
         fakeInventory.copyInventory(thePlayerInventory);
         try {
@@ -153,7 +153,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         }
     }
 
-    public void craftRecipe(IRecipe recipe, InventoryPlayer inventoryPlayer, TECraftingTableIV internalInventory) {
+    public void craftRecipe(IRecipe recipe, InventoryPlayer inventoryPlayer, TileEntityCraftingTableIV internalInventory) {
         /*ItemStack[] ingredients = CraftingHandler.getRecipeIngredients(recipe, inventoryPlayer);
         for (ItemStack itemStack : ingredients) {
             CraftingHandler.decreaseStackSize(inventoryPlayer, internalInventory, CraftingHandler.getFirstInventorySlotWithItemStack(inventoryPlayer, internalInventory, itemStack), 1);
@@ -173,7 +173,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         onRequestMaximumRecipeOutput(thePlayer, recipe, theTile);
     }
 
-    public static void onRequestMaximumRecipeOutput(EntityPlayer thePlayer, WrappedRecipe irecipe, TECraftingTableIV Internal) {
+    public static void onRequestMaximumRecipeOutput(EntityPlayer thePlayer, WrappedRecipe irecipe, TileEntityCraftingTableIV Internal) {
         InventoryPlayer Temp = new InventoryPlayer( thePlayer );
         Temp.copyInventory(thePlayer.inventory);
 
@@ -429,7 +429,10 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     private static StackMatcher toPattern(GuiTextField textField){
-        String txt = textField.getText();
+        String txt = null;
+        if (textField != null){
+            txt = textField.getText();
+        }
         if (txt == null)
             txt = "";
         txt = txt.toLowerCase().replace(".", "").replace("?", ".").replace("*", ".+?");

@@ -5,7 +5,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import elec332.core.baseclasses.tileentity.BlockTileBase;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.tileentity.TECraftingTableIV;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.world.World;
@@ -16,14 +16,14 @@ import net.minecraft.world.World;
 public class BlockCraftingTableIV extends BlockTileBase {
 
     public BlockCraftingTableIV() {
-        super(Material.wood, TECraftingTableIV.class, "craftingtableiv", CraftingTableIV.ModID);
+        super(Material.wood, TileEntityCraftingTableIV.class, "craftingtableiv", CraftingTableIV.ModID);
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1F, 1.0F);
         setLightOpacity(0);
     }
 
     @Override
     public void onBlockPreDestroy(World world, int par2, int par3, int par4, int par5) {
-        TECraftingTableIV theTile = (TECraftingTableIV) world.getTileEntity(par2, par3, par4);
+        TileEntityCraftingTableIV theTile = (TileEntityCraftingTableIV) world.getTileEntity(par2, par3, par4);
         for (int i=0; i < theTile.getSizeInventory(); i++) {
             if (theTile.getStackInSlot(i) != null) {
                 WorldHelper.dropStack(world, par2, par3, par4, theTile.getStackInSlot(i));
