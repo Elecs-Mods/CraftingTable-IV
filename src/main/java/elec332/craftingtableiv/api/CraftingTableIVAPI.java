@@ -37,7 +37,7 @@ public class CraftingTableIVAPI {
     static {
         ICraftingTableIVAPI a;
         try {
-            a = (ICraftingTableIVAPI) Class.forName("elec332.craftingtableiv.handler.Compat").getDeclaredMethod("getCompatHandler").invoke(null);
+            a = (ICraftingTableIVAPI) Class.forName("elec332.craftingtableiv.handler.RecipeHandler").getDeclaredMethod("getCompatHandler").invoke(null);
         } catch (Exception e){
             System.out.println("CraftingTableIV mod not found, registering handlers will not work!");
             a = new NullAPI();
