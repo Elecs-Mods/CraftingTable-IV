@@ -104,18 +104,6 @@ public class CraftingTableIVContainer extends Container {
     }
 
     @Override
-    public void putStackInSlot(int slot, ItemStack stack) {
-        super.putStackInSlot(slot, stack);
-        onSlotChanged();
-    }
-
-    @Override
-    public void putStacksInSlots(ItemStack[] stacks) {
-        super.putStacksInSlots(stacks);
-        onSlotChanged();
-    }
-
-    @Override
     public boolean canInteractWith(EntityPlayer entityplayer) {
         return this.theTile.isUseableByPlayer(entityplayer);
     }
