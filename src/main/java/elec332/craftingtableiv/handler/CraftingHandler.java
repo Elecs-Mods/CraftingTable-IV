@@ -31,6 +31,7 @@ public class CraftingHandler {
     public static ArrayList<RecipeStackComparator> stackDataList = Lists.newArrayList();
     public static Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash = Maps.newHashMap();
     public static Map<String, Map<StackComparator, RecipeStackComparator>> rcMap = Maps.newHashMap();
+    private static List<String> noHandlerClasses = Lists.newArrayList();
 
     private static void addToRecipeHash(ItemStack stack, WrappedRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(stack);
@@ -266,9 +267,9 @@ public class CraftingHandler {
             if (irecipe == null)
                 return null;
             else if (irecipe instanceof ShapelessRecipes) {
-                return new WrappedRecipe((ShapelessRecipes)irecipe);
+                return new WrappedRecipe((ShapelessRecipes) irecipe);
             } else if (irecipe instanceof ShapedRecipes) {
-                return new WrappedRecipe((ShapedRecipes)irecipe);
+                return new WrappedRecipe((ShapedRecipes) irecipe);
             } else if (irecipe instanceof ShapedOreRecipe) {
                 return new WrappedRecipe((ShapedOreRecipe) irecipe);
             } else if (irecipe instanceof ShapelessOreRecipe) {
@@ -277,11 +278,11 @@ public class CraftingHandler {
                 return null;
             } else if (RecipeHandler.getCompatHandler().isDisabled(irecipe)) {
                 return null;
-            }else if (RecipeHandler.getCompatHandler().hasHandler(irecipe.getClass())){
+            } else if (RecipeHandler.getCompatHandler().hasHandler(irecipe.getClass())) {
                 return RecipeHandler.getCompatHandler().getHandler(irecipe).getWrappedRecipe(irecipe);
             } else {
                 if (irecipe.getRecipeOutput() != null)
-                    CraftingTableIV.instance.error("ERROR FINDING HANDLER FOR RECIPE CLASS: " + irecipe.toString());
+                    messageMissingHandler(irecipe);
                 else CraftingTableIV.instance.error("ERROR: THE OUTPUT FOR THIS RECIPE IS NULL! " + irecipe.toString());
                 return null;
             }
@@ -296,9 +297,17 @@ public class CraftingHandler {
                 });
             }*/
             CraftingTableIV.instance.error("Something went wrong while trying to acquire recipe ingredients!");
-            CraftingTableIV.instance.error(irecipe.toString()+" with output "+irecipe.getRecipeOutput());
+            CraftingTableIV.instance.error(irecipe.toString() + " with output " + irecipe.getRecipeOutput());
             CraftingTableIV.instance.error(e);
             return null;
+        }
+    }
+
+    private static void messageMissingHandler(IRecipe recipe){
+        String clazz = recipe.getClass().getCanonicalName();
+        if (!noHandlerClasses.contains(clazz)){
+            CraftingTableIV.instance.error("ERROR FINDING HANDLER FOR RECIPE CLASS: " + clazz);
+            noHandlerClasses.add(clazz);
         }
     }
 
