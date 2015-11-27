@@ -2,7 +2,7 @@ package elec332.craftingtableiv.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import elec332.core.minetweaker.MineTweakerHelper;
+import elec332.core.util.MineTweakerHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 

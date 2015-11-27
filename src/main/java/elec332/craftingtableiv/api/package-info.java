@@ -4,4 +4,4 @@
 @API(owner = CraftingTableIVAPI.owner, apiVersion = CraftingTableIVAPI.version, provides = CraftingTableIVAPI.provides)
 package elec332.craftingtableiv.api;
 
-import cpw.mods.fml.common.API;
+import net.minecraftforge.fml.common.API;

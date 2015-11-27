@@ -7,7 +7,7 @@ import net.minecraft.item.crafting.IRecipe;
  */
 public class CraftingTableIVAPI {
 
-    protected static final String owner = "CraftingTableIV";
+    protected static final String owner = "CraftingTableI";//V";
     protected static final String version = "1.0.2";
     protected static final String provides = "CraftingTableIV-API";
 

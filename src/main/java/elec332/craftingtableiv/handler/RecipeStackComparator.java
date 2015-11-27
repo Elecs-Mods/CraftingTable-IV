@@ -1,7 +1,10 @@
 package elec332.craftingtableiv.handler;
 
-import elec332.core.helper.OredictHelper;
+import elec332.core.java.JavaHelper;
+import elec332.core.util.OredictHelper;
 import net.minecraft.item.ItemStack;
+
+import java.util.List;
 
 /**
  * Created by Elec332 on 16-6-2015.
@@ -10,7 +13,7 @@ public class RecipeStackComparator extends StackComparator {
 
     public RecipeStackComparator(ItemStack stack) {
         super(stack);
-        string = OredictHelper.getOreName(stack);
+        string = OredictHelper.getOreNames(stack);
         b = true;
     }
 
@@ -19,11 +22,11 @@ public class RecipeStackComparator extends StackComparator {
         return this;
     }
 
-    private String string;
+    private List<String> string;
     private boolean b;
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof RecipeStackComparator && ((b && ((RecipeStackComparator) obj).b) && string.equals(((RecipeStackComparator) obj).string))) || super.equals(obj);
+        return (obj instanceof RecipeStackComparator && ((b && ((RecipeStackComparator) obj).b) && JavaHelper.hasAtLeastOneMatch(string, ((RecipeStackComparator) obj).string))) || super.equals(obj);
     }
 }

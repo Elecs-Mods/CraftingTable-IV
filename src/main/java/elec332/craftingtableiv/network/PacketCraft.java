@@ -1,7 +1,7 @@
 package elec332.craftingtableiv.network;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import elec332.core.network.AbstractPacket;
 import elec332.core.util.NBTHelper;
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
@@ -23,7 +23,7 @@ public class PacketCraft extends AbstractPacket {
     }
 
     @Override
-    public IMessage onMessage(AbstractPacket abstractPacket, MessageContext messageContext) {
+    public IMessage onMessageThreadSafe(AbstractPacket abstractPacket, MessageContext messageContext) {
         Container container = messageContext.getServerHandler().playerEntity.openContainer;
         if (container instanceof CraftingTableIVContainer) {
             CraftingHandler.canPlayerCraft(((CraftingTableIVContainer) container).thePlayer, ((CraftingTableIVContainer) container).theTile, CraftingHandler.recipeList.get(abstractPacket.networkPackageObject.getInteger("recipe")), new FastRecipeList(), true);

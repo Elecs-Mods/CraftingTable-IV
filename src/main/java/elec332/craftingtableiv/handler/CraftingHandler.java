@@ -3,8 +3,9 @@ package elec332.craftingtableiv.handler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import elec332.core.helper.OredictHelper;
-import elec332.core.minetweaker.MineTweakerHelper;
+import elec332.core.java.JavaHelper;
+import elec332.core.util.OredictHelper;
+import elec332.core.util.MineTweakerHelper;
 import elec332.core.util.DoubleInventory;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.network.PacketCraft;
@@ -65,6 +66,7 @@ public class CraftingHandler {
             for (int i = 0; i < craftingTableIV.getSizeInventory(); i++) {
                 craftingTableIV.setInventorySlotContents(i, fakeCraftingInventory.getStackInSlot(i));
             }
+            player.openContainer.detectAndSendChanges();
         }
         return ret;
     }
@@ -187,7 +189,7 @@ public class CraftingHandler {
                     if (recipe instanceof ShapedOreRecipe && !isOreValid(Lists.newArrayList(((ShapedOreRecipe)recipe).getInput())))
                         continue;
                     output = output.copy();
-                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output).contains("nugget") || OredictHelper.getOreName(output).contains("nugget"))) // || recipeList.contains(recipe))
+                    if (CraftingTableIV.nuggetFilter && (MineTweakerHelper.getItemRegistryName(output).contains("nugget") || JavaHelper.doesListContainPartially(OredictHelper.getOreNames(output), "nugget") )) // || recipeList.contains(recipe))
                         continue;
                     String[] s = MineTweakerHelper.getItemRegistryName(output).replace(":", " ").split(" ");
                     boolean b = false;

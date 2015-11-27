@@ -17,10 +17,13 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.image.ImagingOpException;
+import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -205,7 +208,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         Keyboard.enableRepeatEvents(true);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
-        this.textField = new GuiTextField(this.fontRendererObj, i + 102, j + 5, 103/2, 10);
+        this.textField = new GuiTextField(3, this.fontRendererObj, i + 102, j + 5, 103/2, 10);
         this.textField.setTextColor(-1);
         this.textField.setDisabledTextColour(-1);
         this.textField.setEnableBackgroundDrawing(true);
@@ -213,14 +216,14 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     @Override
-    protected void keyTyped(char c, int i) {
+    protected void keyTyped(char c, int i) throws IOException{
         if (textField.textboxKeyTyped(c, i)) {
             updateRecipes();
         } else super.keyTyped(c, i);
     }
 
     @Override
-    protected void mouseClicked(int i1, int i2, int i3) {
+    protected void mouseClicked(int i1, int i2, int i3) throws IOException{
         super.mouseClicked(i1, i2, i3);
         textField.mouseClicked(i1, i2, i3);
     }
@@ -300,6 +303,10 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             else if (obj instanceof List && !((List) obj).isEmpty())
                 ret.add((ItemStack) ((List) obj).get(0));
         }
+        for (ItemStack stack : ret){
+            if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+                stack.setItemDamage(0);
+        }
         return ret;
     }
 
@@ -313,7 +320,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
 
     @Override
     protected void drawGuiContainerForegroundLayer(int i, int i1) {
-        Minecraft.getMinecraft().fontRenderer.drawString("Crafting Table IV", 8, 6, 0x404040);
+        Minecraft.getMinecraft().fontRendererObj.drawString("Crafting Table IV", 8, 6, 0x404040);
     }
 
     @Override
@@ -332,7 +339,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     @Override
-    public void handleMouseInput() {
+    public void handleMouseInput() throws IOException{
         int i = Mouse.getEventDWheel();
         if(i != 0) {
             int j = (craftableRecipes.getSize() / 8 - 4) + 1;

@@ -1,18 +1,18 @@
 package elec332.craftingtableiv;
 
 import com.google.common.reflect.ClassPath;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
-import elec332.core.helper.FileHelper;
-import elec332.core.helper.MCModInfo;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import elec332.core.util.FileHelper;
+import elec332.core.util.MCModInfo;
 import elec332.core.modBaseUtils.ModBase;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.NetworkHandler;
@@ -86,7 +86,7 @@ public class CraftingTableIV extends ModBase {
         }
 
         loadConfiguration();
-        MCModInfo.CreateMCModInfo(event, "Created by Elec332",
+        MCModInfo.createMCModInfo(event, "Created by Elec332",
                 "The CraftingTableIV mod is the successor of the CraftingTable III mod from the old tekkit days.",
                 "No Link", "path/to/logo.png",
                 new String[]{"Elec332"});
@@ -153,4 +153,5 @@ public class CraftingTableIV extends ModBase {
     public String modID(){
         return ModID;
     }
+
 }

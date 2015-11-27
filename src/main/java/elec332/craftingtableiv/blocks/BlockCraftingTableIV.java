@@ -1,19 +1,29 @@
 package elec332.craftingtableiv.blocks;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import elec332.core.baseclasses.tileentity.BlockTileBase;
+import elec332.core.client.model.ElecQuadBakery;
+import elec332.core.client.model.INoJsonBlock;
+import elec332.core.client.model.RenderingRegistry;
+import elec332.core.client.model.model.IBlockModel;
+import elec332.core.client.model.model.TESRItemModel;
+import elec332.craftingtableiv.client.CraftingTableIVRenderer;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import elec332.core.tile.BlockTileBase;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.world.World;
 
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class BlockCraftingTableIV extends BlockTileBase {
+public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock {
 
     public BlockCraftingTableIV() {
         super(Material.wood, TileEntityCraftingTableIV.class, "craftingtableiv", CraftingTableIV.ModID);
@@ -21,26 +31,18 @@ public class BlockCraftingTableIV extends BlockTileBase {
         setLightOpacity(0);
     }
 
+    @SideOnly(Side.CLIENT)
+    private IBakedModel model;
+
     @Override
-    public void onBlockPreDestroy(World world, int par2, int par3, int par4, int par5) {
-        TileEntityCraftingTableIV theTile = (TileEntityCraftingTableIV) world.getTileEntity(par2, par3, par4);
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+        TileEntityCraftingTableIV theTile = (TileEntityCraftingTableIV) WorldHelper.getTileAt(worldIn, pos);
         for (int i=0; i < theTile.getSizeInventory(); i++) {
             if (theTile.getStackInSlot(i) != null) {
-                WorldHelper.dropStack(world, par2, par3, par4, theTile.getStackInSlot(i));
+                WorldHelper.dropStack(worldIn, pos, theTile.getStackInSlot(i));
             }
         }
-        super.onBlockPreDestroy(world, par2, par3, par4, par5);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerBlockIcons(IIconRegister iconRegister) {
-        //Nope
-    }
-
-    @Override
-    public boolean renderAsNormalBlock() {
-        return false;
+        super.breakBlock(worldIn, pos, state);
     }
 
     @Override
@@ -50,7 +52,56 @@ public class BlockCraftingTableIV extends BlockTileBase {
 
     @Override
     public int getRenderType() {
-        return -1;
+        return 2;
+    }
+
+    /**
+     * This method is used when a model is requested to render the block in a world.
+     *
+     * @param state The current BlockState.
+     * @param iba   The IBlockAccess the block is in.
+     * @param pos   The position of the block.
+     * @return The model to render for this block for the given arguments.
+     */
+    @Override
+    public IBlockModel getBlockModel(IBlockState state, IBlockAccess iba, BlockPos pos) {
+        return null;
+    }
+
+    /**
+     * This method is used when a model is requested when its not placed, so for an item.
+     *
+     * @return The model to render when the block is not placed.
+     */
+    @Override
+    public IBakedModel getBlockModel() {
+        return model;
+    }
+
+    /**
+     * A helper method to prevent you from having to hook into the event,
+     * use this to make your quads. (This always comes AFTER the textures are loaded)
+     *
+     * @param quadBakery        The QuadBakery.
+     * @param renderingRegistry
+     */
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerModels(ElecQuadBakery quadBakery, RenderingRegistry renderingRegistry) {
+        model = new TESRItemModel(new CraftingTableIVRenderer());
+    }
+
+    /**
+     * A helper method to prevent you from having to hook into the event,
+     * use this to register your textures.
+     *
+     * @param textureMap        The TextureMap.
+     * @param renderingRegistry
+     */
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerTextures(TextureMap textureMap, RenderingRegistry renderingRegistry) {
+        //Nope
     }
 
 }

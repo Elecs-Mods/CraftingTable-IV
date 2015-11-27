@@ -1,10 +1,9 @@
 package elec332.craftingtableiv.compat.handlers;
 
 import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.compat.AbstractCompatModule;
-import ic2.core.AdvRecipe;
-import ic2.core.AdvShapelessRecipe;
+//import ic2.core.AdvRecipe;
+//import ic2.core.AdvShapelessRecipe;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class IC2 extends AbstractCompatModule {
 
     @Override
     public void init() {
-        identifyTypes();
+        /*identifyTypes();
         if (normal){
             registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
                 @Override
@@ -69,7 +68,7 @@ public class IC2 extends AbstractCompatModule {
                     return recipe.input;
                 }
             });
-        }
+        }*/
     }
 
     private void identifyTypes(){

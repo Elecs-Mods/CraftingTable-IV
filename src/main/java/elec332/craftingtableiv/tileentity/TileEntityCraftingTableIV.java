@@ -1,8 +1,10 @@
 package elec332.craftingtableiv.tileentity;
 
-import elec332.core.baseclasses.tileentity.BaseTileWithInventory;
+import elec332.core.tile.BaseTileWithInventory;
 import elec332.craftingtableiv.CraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -27,6 +29,9 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
     public void updateEntity() {
         super.updateEntity();
         if (CraftingTableIV.enableDoor) {
+            int xCoord = pos.getX();
+            int yCoord = pos.getY();
+            int zCoord = pos.getZ();
             EntityPlayer entityplayer = worldObj.getClosestPlayer((float)xCoord + 0.5F, (float)yCoord + 0.5F, (float)zCoord + 0.5F, 10D);
             if(entityplayer != null){
                 playerDistance = entityplayer.getDistanceSq((double)xCoord, (double)yCoord, (double)zCoord);
@@ -60,8 +65,8 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
     }
 
     @Override
-    public boolean onBlockActivated(EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        player.openGui(CraftingTableIV.instance, CraftingTableIV.guiID, worldObj, xCoord, yCoord, zCoord);
+    public boolean onBlockActivated(EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) {
+        player.openGui(CraftingTableIV.instance, CraftingTableIV.guiID, worldObj, pos.getX(), pos.getY(), pos.getZ());
         return true;
     }
 /*
@@ -134,5 +139,51 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
     @Override
     protected String standardInventoryName() {
         return "CraftingTable IV";
+    }
+
+    @Override
+    public void openInventory(EntityPlayer player) {
+
+    }
+
+    @Override
+    public void closeInventory(EntityPlayer player) {
+
+    }
+
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+
+    }
+
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+        throw new IllegalAccessError();
+    }
+
+    /**
+     * Returns true if this thing is named
+     */
+    @Override
+    public boolean hasCustomName() {
+        return false;
+    }
+
+    /**
+     * Get the formatted ChatComponent that will be used for the sender's username in chat
+     */
+    @Override
+    public IChatComponent getDisplayName() {
+        return null;
     }
 }

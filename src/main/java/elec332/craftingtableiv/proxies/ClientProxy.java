@@ -1,6 +1,8 @@
 package elec332.craftingtableiv.proxies;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
+import elec332.core.world.WorldHelper;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.GuiCTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVItemRenderer;
@@ -20,13 +22,13 @@ public class ClientProxy extends CommonProxy {
     public void registerRenders() {
         CraftingTableIVRenderer craftingTableIVRenderer = new CraftingTableIVRenderer();
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCraftingTableIV.class, craftingTableIVRenderer);
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(CraftingTableIV.craftingTableIV), new CraftingTableIVItemRenderer());
+        //MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(CraftingTableIV.craftingTableIV), new CraftingTableIVItemRenderer());
     }
 
     @Override
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         if (ID == CraftingTableIV.guiID)
-            return new GuiCTableIV(player, (TileEntityCraftingTableIV)world.getTileEntity(x,y,z));
+            return new GuiCTableIV(player, (TileEntityCraftingTableIV) WorldHelper.getTileAt(world, new BlockPos(x, y, z)));
         return null;
     }
 

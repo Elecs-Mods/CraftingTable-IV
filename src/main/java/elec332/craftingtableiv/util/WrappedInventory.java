@@ -1,9 +1,10 @@
 package elec332.craftingtableiv.util;
 
-import elec332.core.player.InventoryHelper;
+import elec332.core.util.InventoryHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IChatComponent;
 
 /**
  * Created by Elec332 on 16-9-2015.
@@ -42,14 +43,16 @@ public class WrappedInventory<I extends IInventory> implements IInventory{
     }
 
     @Override
-    public String getInventoryName() {
-        return inventory.getInventoryName();
+    public String getCommandSenderName() {
+        return inventory.getCommandSenderName();
     }
 
     @Override
-    public boolean hasCustomInventoryName() {
-        return inventory.hasCustomInventoryName();
+    public boolean hasCustomName() {
+        return inventory.hasCustomName();
     }
+
+
 
     @Override
     public int getInventoryStackLimit() {
@@ -67,18 +70,43 @@ public class WrappedInventory<I extends IInventory> implements IInventory{
     }
 
     @Override
-    public void openInventory() {
-        inventory.openInventory();
+    public void openInventory(EntityPlayer player) {
+        inventory.openInventory(player);
     }
 
     @Override
-    public void closeInventory() {
-        inventory.closeInventory();
+    public void closeInventory(EntityPlayer player) {
+        inventory.closeInventory(player);
     }
 
     @Override
     public boolean isItemValidForSlot(int slot, ItemStack Stack) {
         return inventory.isItemValidForSlot(slot, Stack);
+    }
+
+    @Override
+    public IChatComponent getDisplayName() {
+        return inventory.getDisplayName();
+    }
+
+    @Override
+    public int getField(int id) {
+        return inventory.getField(id);
+    }
+
+    @Override
+    public void setField(int id, int value) {
+        inventory.setField(id, value);
+    }
+
+    @Override
+    public int getFieldCount() {
+        return inventory.getFieldCount();
+    }
+
+    @Override
+    public void clear() {
+        inventory.clear();
     }
 
     public boolean addItemToInventory(ItemStack stack) {
