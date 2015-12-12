@@ -1,14 +1,17 @@
 package elec332.craftingtableiv.blocks;
 
+import elec332.core.client.model.ElecModelBakery;
 import elec332.core.client.model.ElecQuadBakery;
 import elec332.core.client.model.INoJsonBlock;
 import elec332.core.client.model.RenderingRegistry;
 import elec332.core.client.model.model.IBlockModel;
 import elec332.core.client.model.model.TESRItemModel;
+import elec332.core.client.model.template.ElecTemplateBakery;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.item.Item;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
@@ -71,37 +74,36 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     /**
      * This method is used when a model is requested when its not placed, so for an item.
      *
+     * @param item
+     * @param meta
      * @return The model to render when the block is not placed.
      */
     @Override
-    public IBakedModel getBlockModel() {
-        return model;
+    public IBakedModel getBlockModel(Item item, int meta) {
+        return this.model;
     }
 
     /**
      * A helper method to prevent you from having to hook into the event,
      * use this to make your quads. (This always comes AFTER the textures are loaded)
      *
-     * @param quadBakery        The QuadBakery.
-     * @param renderingRegistry
+     * @param quadBakery     The QuadBakery.
+     * @param modelBakery
+     * @param templateBakery
      */
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerModels(ElecQuadBakery quadBakery, RenderingRegistry renderingRegistry) {
-        model = new TESRItemModel(new CraftingTableIVRenderer());
+    public void registerModels(ElecQuadBakery quadBakery, ElecModelBakery modelBakery, ElecTemplateBakery templateBakery) {
+        this.model = new TESRItemModel(new CraftingTableIVRenderer());
     }
 
     /**
      * A helper method to prevent you from having to hook into the event,
      * use this to register your textures.
      *
-     * @param textureMap        The TextureMap.
-     * @param renderingRegistry
+     * @param textureMap The TextureMap.
      */
     @Override
-    @SideOnly(Side.CLIENT)
-    public void registerTextures(TextureMap textureMap, RenderingRegistry renderingRegistry) {
-        //Nope
+    public void registerTextures(TextureMap textureMap) {
     }
 
 }
