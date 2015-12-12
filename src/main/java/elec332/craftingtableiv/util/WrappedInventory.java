@@ -33,8 +33,8 @@ public class WrappedInventory<I extends IInventory> implements IInventory{
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slot) {
-        return inventory.getStackInSlotOnClosing(slot);
+    public ItemStack removeStackFromSlot(int slot) {
+        return inventory.removeStackFromSlot(slot);
     }
 
     @Override
@@ -43,16 +43,14 @@ public class WrappedInventory<I extends IInventory> implements IInventory{
     }
 
     @Override
-    public String getCommandSenderName() {
-        return inventory.getCommandSenderName();
+    public String getName() {
+        return inventory.getName();
     }
 
     @Override
     public boolean hasCustomName() {
         return inventory.hasCustomName();
     }
-
-
 
     @Override
     public int getInventoryStackLimit() {
