@@ -1,6 +1,6 @@
 package elec332.craftingtableiv.blocks.inv;
 
-import elec332.craftingtableiv.handler.WrappedRecipe;
+import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 

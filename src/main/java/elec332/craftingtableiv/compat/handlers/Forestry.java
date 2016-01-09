@@ -17,7 +17,7 @@ public class Forestry extends AbstractCompatModule {
     }
 
     @Override
-    public void init() {
+    public void init() {/*
         registerHandler(ShapedRecipeCustom.class, new AbstractRecipeHandler<ShapedRecipeCustom>() {
             @Override
             public Object[] getIngredients(ShapedRecipeCustom recipe) {
@@ -30,7 +30,7 @@ public class Forestry extends AbstractCompatModule {
                 return recipe.getIngredients().toArray();
             }
         });
-        registerDisabledRecipe(MatingRecipe.class);
+        registerDisabledRecipe(MatingRecipe.class);*/
     }
 
 }

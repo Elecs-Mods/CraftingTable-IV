@@ -70,7 +70,7 @@ public class CraftingTableIVContainer extends Container {
 
     @Override
     public ItemStack slotClick(int slotIndex, int mouseButton, int flag, EntityPlayer entityplayer) {
-        if(slotIndex >= 0 && inventorySlots.get(slotIndex) != null && inventorySlots.get(slotIndex) instanceof SlotCrafter) {
+        if(slotIndex >= 0 && getSlot(slotIndex) != null && getSlot(slotIndex) instanceof SlotCrafter) {
             return null;
         }
         return super.slotClick(slotIndex, mouseButton, flag, entityplayer);

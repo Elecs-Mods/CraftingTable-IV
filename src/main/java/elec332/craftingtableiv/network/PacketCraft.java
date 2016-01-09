@@ -4,11 +4,13 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import elec332.core.network.AbstractPacket;
 import elec332.core.util.NBTHelper;
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
-import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.handler.FastRecipeList;
-import elec332.craftingtableiv.handler.WrappedRecipe;
+import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
+import elec332.craftingtableiv.abstraction.handler.FastRecipeList;
+import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
 import net.minecraft.inventory.Container;
+import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * Created by Elec332 on 6-7-2015.
@@ -18,17 +20,13 @@ public class PacketCraft extends AbstractPacket {
     public PacketCraft() {
     }
 
-    public PacketCraft(WrappedRecipe recipe) {
-        super(new NBTHelper().addToTag(CraftingHandler.recipeList.indexOf(recipe), "recipe").toNBT());
+    public PacketCraft(NBTTagCompound tag) {
+        super(tag);
     }
 
     @Override
     public IMessage onMessage(AbstractPacket abstractPacket, MessageContext messageContext) {
-        Container container = messageContext.getServerHandler().playerEntity.openContainer;
-        if (container instanceof CraftingTableIVContainer) {
-            CraftingHandler.canPlayerCraft(((CraftingTableIVContainer) container).thePlayer, ((CraftingTableIVContainer) container).theTile, CraftingHandler.recipeList.get(abstractPacket.networkPackageObject.getInteger("recipe")), new FastRecipeList(), true);
-            container.detectAndSendChanges();
-        }
+        CraftingTableIVAbstractionLayer.instance.onMessageReceived(abstractPacket.networkPackageObject);
         return null;
     }
 }

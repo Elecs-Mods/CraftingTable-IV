@@ -1,4 +1,4 @@
-package elec332.craftingtableiv.handler;
+package elec332.craftingtableiv.abstraction.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

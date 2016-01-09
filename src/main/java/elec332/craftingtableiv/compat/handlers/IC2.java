@@ -22,7 +22,7 @@ public class IC2 extends AbstractCompatModule {
     private boolean classic;
 
     @Override
-    public void init() {
+    public void init() {/*
         identifyTypes();
         if (normal){
             registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
@@ -69,7 +69,7 @@ public class IC2 extends AbstractCompatModule {
                     return recipe.input;
                 }
             });
-        }
+        }*/
     }
 
     private void identifyTypes(){

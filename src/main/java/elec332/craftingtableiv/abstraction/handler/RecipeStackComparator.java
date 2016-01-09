@@ -1,4 +1,4 @@
-package elec332.craftingtableiv.handler;
+package elec332.craftingtableiv.abstraction.handler;
 
 import elec332.core.helper.OredictHelper;
 import net.minecraft.item.ItemStack;

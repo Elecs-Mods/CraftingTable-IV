@@ -30,7 +30,7 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
             EntityPlayer entityplayer = worldObj.getClosestPlayer((float)xCoord + 0.5F, (float)yCoord + 0.5F, (float)zCoord + 0.5F, 10D);
             if(entityplayer != null){
                 playerDistance = entityplayer.getDistanceSq((double)xCoord, (double)yCoord, (double)zCoord);
-                if(playerDistance < 7F){
+                if(playerDistance < CraftingTableIV.doorRange){
                     doorAngle += openspeed;
 
                     if(tablestate != 1) {
@@ -42,7 +42,7 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
                     if(doorAngle > 1.8F){
                         doorAngle = 1.8F;
                     }
-                } else if(playerDistance > 7F) {
+                } else if(playerDistance > CraftingTableIV.doorRange) {
                     doorAngle -= openspeed;
 
                     if(tablestate != 0) {

@@ -1,7 +1,8 @@
 package elec332.craftingtableiv.blocks.inv;
 
 import com.google.common.collect.Lists;
-import elec332.craftingtableiv.handler.WrappedRecipe;
+import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
+import elec332.craftingtableiv.blocks.container.GuiCTableIV;
 import net.minecraft.item.ItemStack;
 
 import java.util.List;
@@ -25,6 +26,13 @@ public class InventoryCraftingTableIV {
 
     public int getSize() {
         return recipes.size();
+    }
+
+    public boolean addRecipe(WrappedRecipe recipe, GuiCTableIV.StackMatcher stackMatcher){
+        if (stackMatcher.canAdd(recipe)){
+            return forceAddRecipe(recipe);
+        }
+        return false;
     }
 
     public boolean forceAddRecipe(WrappedRecipe recipe){

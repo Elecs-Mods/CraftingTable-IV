@@ -1,6 +1,7 @@
 package elec332.craftingtableiv;
 
 import com.google.common.reflect.ClassPath;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -11,37 +12,50 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import elec332.core.helper.FileHelper;
 import elec332.core.helper.MCModInfo;
 import elec332.core.modBaseUtils.ModBase;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.NetworkHandler;
 import elec332.core.util.EventHelper;
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
+import elec332.craftingtableiv.abstraction.ICraftingTableIVMod;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
 import elec332.craftingtableiv.compat.AbstractCompatModule;
 import elec332.craftingtableiv.compat.CraftingTableIVCompatHandler;
-import elec332.craftingtableiv.handler.CraftingHandler;
+import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
 import elec332.craftingtableiv.network.PacketCraft;
 import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Logger;
+import scala.tools.nsc.Global;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
  */
 @Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = ModInfo.DEPENDENCIES+"@[#ELECCORE_VER#,)",
         acceptedMinecraftVersions = ModInfo.ACCEPTEDMCVERSIONS, useMetadata = true, canBeDeactivated = true)
-public class CraftingTableIV extends ModBase {
+public class CraftingTableIV extends ModBase implements ICraftingTableIVMod {
 
     public static final String ModName = "CraftingTable-IV"; //Human readable name
     public static final String ModID = "CraftingTableIV";  //modid (usually lowercase)
@@ -56,6 +70,7 @@ public class CraftingTableIV extends ModBase {
     public static NetworkHandler networkHandler;
     public static Logger logger;
     public static CraftingTableIVCompatHandler compatHandler;
+    public static CraftingTableIVAbstractionLayer abstractionLayer;
 
     /**Config**/
     public static int recursionDepth = 5;
@@ -64,6 +79,7 @@ public class CraftingTableIV extends ModBase {
     public static boolean enableNoise = true;
     public static String[] disabledMods;
     public static boolean debugTimings = true;
+    public static float doorRange = 7f;
     /**********/
 
     private static String[] defaultDisabledMods = {"ztones"};
@@ -73,6 +89,8 @@ public class CraftingTableIV extends ModBase {
         this.cfg = FileHelper.getConfigFileElec(event);
         logger = event.getModLog();
         loadConfiguration();
+        abstractionLayer = new CraftingTableIVAbstractionLayer(this, logger);
+
         //setting up mod stuff
         compatHandler = new CraftingTableIVCompatHandler();
         try {
@@ -84,7 +102,7 @@ public class CraftingTableIV extends ModBase {
         } catch (Exception e){
             throw new RuntimeException("[CraftingTableIV] Error fetching compat handlers!", e);
         }
-
+        abstractionLayer.preInit();
         loadConfiguration();
         MCModInfo.CreateMCModInfo(event, "Created by Elec332",
                 "The CraftingTableIV mod is the successor of the CraftingTable III mod from the old tekkit days.",
@@ -104,6 +122,7 @@ public class CraftingTableIV extends ModBase {
         networkHandler.registerClientPacket(PacketInitRecipes.class);
         networkHandler.registerServerPacket(PacketCraft.class);
         GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.crafting_table, Items.book);
+        abstractionLayer.init();
         compatHandler.init();
         //register item/block
 
@@ -117,9 +136,12 @@ public class CraftingTableIV extends ModBase {
         enableDoor = config.getBoolean("EnableDoor", "general", true, "Set to false to disable the opening door on the CTIV");
         enableNoise = config.getBoolean("EnableNoise", "general", true, "Set to false to disable the door noise when opening and closing");
         disabledMods = config.getStringList("DisabledMods", "general", defaultDisabledMods, "Every item from the modID's specified here will not show up in the CraftingTable");
-        debugTimings = config.getBoolean("DebugTimings","debug", true, "When true, will print messages to the log regarding how long it took to load all recipes in de CTIV bench (when opened)");
+        debugTimings = config.getBoolean("DebugTimings", "debug", true, "When true, will print messages to the log regarding how long it took to load all recipes in de CTIV bench (when opened)");
+        doorRange = config.getFloat("Doorrange", "general0", doorRange, 0, 100, "The squared distance from craftingtable -> player at which the door will start opening.");
         loadConfiguration();
         //Mod compat stuff
+
+        abstractionLayer.postInit();
 
         notifyEvent(event);
     }
@@ -127,7 +149,7 @@ public class CraftingTableIV extends ModBase {
     @Mod.EventHandler
     public void serverStarted(FMLServerStartedEvent event){
         EventHelper.registerHandlerFML(this);
-        loadRecipes();
+        abstractionLayer.serverStarted();
     }
 
     @SubscribeEvent
@@ -135,11 +157,9 @@ public class CraftingTableIV extends ModBase {
         networkHandler.getNetworkWrapper().sendTo(new PacketInitRecipes(), (EntityPlayerMP)event.player);
     }
 
+    @Deprecated
     public static void loadRecipes(){
-        OreDictionary.initVanillaEntries();
-        Long l = System.currentTimeMillis();
-        CraftingHandler.InitRecipes();
-        instance.info("Initialised " + CraftingHandler.recipeList.size() + " recipes in " + (System.currentTimeMillis() - l) + " ms");
+        throw new RuntimeException();
     }
 
     File cfg;
@@ -153,4 +173,50 @@ public class CraftingTableIV extends ModBase {
     public String modID(){
         return ModID;
     }
+
+    /* Abstraction layer implementation. */
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<IRecipe> getRegisteredRecipes() {
+        return CraftingManager.getInstance().getRecipeList();
+    }
+
+    /**
+     * Returns a string that will not be visible to the player, containing all the item data
+     * (tooltip), used for the search bar.
+     *
+     * @param stack The stack the String is requested from.
+     * @return A String identifying the stack.
+     */
+    @Override
+    @SideOnly(Side.CLIENT)
+    public String getFullItemName(ItemStack stack) {
+        StringBuilder stringBuilder = new StringBuilder();
+        List tooltip = stack.getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+        boolean appendH = false;
+        for (Object o : tooltip){
+            stringBuilder.append(o);
+            if (appendH){
+                stringBuilder.append("#");
+            } else appendH = true;
+        }
+        return stringBuilder.toString().toLowerCase();
+    }
+
+    @Override
+    public boolean isEffectiveSideClient() {
+        return FMLCommonHandler.instance().getEffectiveSide().isClient();
+    }
+
+    @Override
+    public World getWorld(int dim) {
+        return DimensionManager.getWorld(dim);
+    }
+
+    @Override
+    public void sendMessageToServer(NBTTagCompound tag) {
+        networkHandler.getNetworkWrapper().sendToServer(new PacketCraft(tag));
+    }
+
 }

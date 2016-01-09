@@ -2,12 +2,13 @@ package elec332.craftingtableiv.blocks.container;
 
 import com.google.common.collect.Lists;
 import elec332.core.util.Constants;
+import elec332.core.util.DoubleInventory;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
-import elec332.craftingtableiv.handler.CraftingHandler;
-import elec332.craftingtableiv.handler.FastRecipeList;
-import elec332.craftingtableiv.handler.WrappedRecipe;
+import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
+import elec332.craftingtableiv.abstraction.handler.FastRecipeList;
+import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
@@ -54,7 +55,19 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         container = (CraftingTableIVContainer) inventorySlots;
         inventory = container.inventory;
         container.setGui(this);
-        updateRecipes();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(90);
+                } catch (Exception e){
+                    //Nope
+                } finally {
+                    updateRecipes();
+                }
+
+            }
+        }).start();
     }
 
     private void stopThread(){
@@ -128,7 +141,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
 
     public boolean onRequestSingleRecipeOutput(SlotCrafter slot) {
         WrappedRecipe recipe = slot.getIRecipe();
-        return recipe != null && CraftingHandler.canPlayerCraft(thePlayer, theTile, recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true);
+        return recipe != null && CraftingHandler.canCraft(CraftingHandler.forCraftingTableIV(thePlayer, theTile), recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true);
     }
 
     //TODO START
@@ -259,31 +272,31 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         for (int a = 0; a < ((CraftingTableIVContainer)inventorySlots).inventory.getSizeInventory(); a++) {
             if (this.inventorySlots.inventorySlots.get(a) instanceof SlotCrafter) {
                 SlotCrafter theSlot = (SlotCrafter) this.inventorySlots.inventorySlots.get(a);
-                if (theSlot.getIRecipe() != null){
-                theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput().getStack());
-                if (getIsMouseOverSlot(theSlot, i, j)) {
-                    try {
-                        List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());
-                        int Counter = 0;
-                        for (int b = 0; b < theRecipe.size(); b++) {
-                            if (RecipeType == 1) {
-                                if (theRecipe.get(b) != null)
-                                    ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b));
-                                else
-                                    ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, null);
-                            } else if (RecipeType == 0) {
-                                if (theRecipe.get(b) != null) {
-                                    ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(Counter, theRecipe.get(b));
-                                    Counter++;
+                if (theSlot.getIRecipe() != null) {
+                    theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput().getStack());
+                    if (getIsMouseOverSlot(theSlot, i, j)) {
+                        try {
+                            List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());
+                            int counter = 0;
+                            for (int b = 0; b < theRecipe.size(); b++) {
+                                if (RecipeType == 1) {
+                                    if (theRecipe.get(b) != null)
+                                        ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b));
+                                    else
+                                        ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, null);
+                                } else if (RecipeType == 0) {
+                                    if (theRecipe.get(b) != null) {
+                                        ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(counter, theRecipe.get(b));
+                                        counter++;
+                                    }
                                 }
                             }
+                        } catch (Throwable throwable) {
+                            throwable.printStackTrace();
                         }
-                    } catch (Throwable throwable){
-                        throwable.printStackTrace();
                     }
                 }
-            }}
-
+            }
         }
         super.drawScreen(i, j, f);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -374,16 +387,18 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                 List<WrappedRecipe> validRecipes = Lists.newArrayList();
                 List<WrappedRecipe> canCraft = Lists.newArrayList();
                 StackMatcher matcher = toPattern(textField);
-                for (WrappedRecipe recipe : CraftingHandler.recipeList) {
+                validRecipes = Lists.newArrayList(CraftingHandler.getAllRecipes());
+                /*for (WrappedRecipe recipe : CraftingHandler.getAllRecipes()) {
                     if (matcher.canAdd(recipe)){
                         validRecipes.add(recipe);
                     }
-                }
+                }*/
+                CraftingHandler.IWorldAccessibleInventory wrappedInventory = CraftingHandler.forCraftingTableIV(thePlayer, theTile);
                 for (WrappedRecipe recipe : validRecipes){
                     checkStopThread();
-                    if (CraftingHandler.canPlayerCraft(thePlayer, theTile, recipe, new FastRecipeList(), false)) {
+                    if (CraftingHandler.canCraft(wrappedInventory, recipe, null, false)) {
                         checkStopThread();
-                        craftableRecipes.forceAddRecipe(recipe);
+                        craftableRecipes.addRecipe(recipe, matcher);
                         canCraft.add(recipe);
                     }
                 }
@@ -395,20 +410,22 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                     FastRecipeList recipeList = new FastRecipeList(canCraft);
                     for (WrappedRecipe recipe : validRecipes){
                         checkStopThread();
-                        if (CraftingHandler.canPlayerCraft(thePlayer, theTile, recipe, recipeList, false)) {
+                        if (CraftingHandler.canCraft(wrappedInventory, recipe, recipeList, false)) {
                             checkStopThread();
-                            craftableRecipes.forceAddRecipe(recipe);
+                            craftableRecipes.addRecipe(recipe, matcher);
                             canCraft.add(recipe);
                             updateVisibleSlots(ScrollValue);
                         }
                     }
                     validRecipes.removeAll(canCraft);
-                    if (pcc.size() == canCraft.size())
+                    if (pcc.size() == canCraft.size()) {
                         break;
+                    }
                 }
                 updateVisibleSlots(ScrollValue);
-                if (CraftingTableIV.debugTimings)
+                if (CraftingTableIV.debugTimings) {
                     CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
+                }
             }
         }
 
@@ -439,12 +456,13 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         } catch (Exception e){
             pattern = null;
         }
-        if (pattern != null)
+        if (pattern != null) {
             return new PatternStackMatcher(pattern);
+        }
         return new StackMatcher();
     }
 
-    private static class StackMatcher {
+    public static class StackMatcher {
 
         public boolean canAdd(WrappedRecipe recipe){
             return true;
@@ -458,7 +476,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             this.pattern = pattern;
         }
 
-        Pattern pattern;
+        private Pattern pattern;
 
         public boolean canAdd(WrappedRecipe recipe){
             return pattern.matcher(recipe.itemIdentifierClientName()).find();

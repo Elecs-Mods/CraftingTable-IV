@@ -4,6 +4,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import elec332.core.network.AbstractPacket;
 import elec332.craftingtableiv.CraftingTableIV;
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 
 /**
  * Created by Elec332 on 22-6-2015.
@@ -12,7 +13,8 @@ public class PacketInitRecipes extends AbstractPacket {
 
     @Override
     public IMessage onMessage(AbstractPacket abstractPacket, MessageContext messageContext) {
-        CraftingTableIV.loadRecipes();
+        CraftingTableIVAbstractionLayer.instance.reloadRecipes();
         return null;
     }
+
 }
