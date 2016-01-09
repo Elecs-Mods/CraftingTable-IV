@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import elec332.core.util.Constants;
 import elec332.core.util.DoubleInventory;
 import elec332.craftingtableiv.CraftingTableIV;
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.blocks.inv.InventoryCraftingTableIV;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
@@ -132,7 +133,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             } else if (mouseButton == Constants.Mouse.MOUSE_LEFT){
                 onRequestSingleRecipeOutput((SlotCrafter) slot);
                 updateRecipes();
-            } else CraftingTableIV.instance.info("Received mouse event with ID: "+mouseButton+" I cannot process this button");
+            } else CraftingTableIVAbstractionLayer.instance.logger.info("Received mouse event with ID: "+mouseButton+" I cannot process this button");
         } else {
             super.handleMouseClick(slot, slotIndex, mouseButton, flag);
             updateRecipes();
@@ -273,7 +274,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             if (this.inventorySlots.inventorySlots.get(a) instanceof SlotCrafter) {
                 SlotCrafter theSlot = (SlotCrafter) this.inventorySlots.inventorySlots.get(a);
                 if (theSlot.getIRecipe() != null) {
-                    theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput().getStack());
+                    theSlot.inventory.setInventorySlotContents(theSlot.getSlotIndex(), theSlot.getIRecipe().getRecipeOutput());
                     if (getIsMouseOverSlot(theSlot, i, j)) {
                         try {
                             List<ItemStack> theRecipe = getIngredients(theSlot.getIRecipe());
@@ -404,7 +405,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                 }
                 updateVisibleSlots(ScrollValue);
                 validRecipes.removeAll(canCraft);
-                for (int i = 0; i < CraftingTableIV.recursionDepth; i++) {
+                for (int i = 0; i < CraftingTableIVAbstractionLayer.recursionDepth; i++) {
                     checkStopThread();
                     List<WrappedRecipe> pcc = Lists.newArrayList(canCraft);
                     FastRecipeList recipeList = new FastRecipeList(canCraft);
@@ -423,8 +424,8 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                     }
                 }
                 updateVisibleSlots(ScrollValue);
-                if (CraftingTableIV.debugTimings) {
-                    CraftingTableIV.instance.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
+                if (CraftingTableIVAbstractionLayer.debugTimings) {
+                    CraftingTableIVAbstractionLayer.instance.logger.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
                 }
             }
         }

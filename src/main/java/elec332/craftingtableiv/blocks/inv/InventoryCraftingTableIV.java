@@ -53,7 +53,7 @@ public class InventoryCraftingTableIV {
     }
 
     public ItemStack getRecipeOutput(int i) {
-        return recipes.get(i).getRecipeOutput().getStack().copy();//return synced.get(i).getOutput();//getIRecipe(i).getRecipeOutput().copy();
+        return recipes.get(i).getRecipeOutput().copy();//return synced.get(i).getOutput();//getIRecipe(i).getRecipeOutput().copy();
     }
 
     public void clearRecipes() {

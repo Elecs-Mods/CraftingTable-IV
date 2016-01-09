@@ -3,12 +3,10 @@ package elec332.craftingtableiv.abstraction.handler;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import elec332.core.minetweaker.MineTweakerHelper;
-import elec332.core.player.InventoryHelper;
+import elec332.core.util.BasicInventory;
 import elec332.core.util.BlockLoc;
 import elec332.core.util.DoubleInventory;
 import elec332.core.world.WorldHelper;
-import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
@@ -37,11 +35,6 @@ public class CraftingHandler {
     private static FastRecipeList recipeList;
     private static List<WrappedRecipe> allRecipes;
 
-    @SuppressWarnings("all")
-    private static boolean nuggetFilter = true;
-    private static String[] disabledMods = {"ztones"};
-    private static int maxRecursion = 5;
-
     public static void rebuildList(){
         clearLists();
         List<IRecipeHandler> recipeHandlers = getAbstractionLayer().api.getRegistry();
@@ -56,10 +49,10 @@ public class CraftingHandler {
             if (getAbstractionLayer().api.isRecipeDisabled(recipe)){
                 continue;
             }
-            if (nuggetFilter && isNugget(recipe.getRecipeOutput()))
+            if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput()))
                 continue;
-            String[] s = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput()).replace(":", " ").split(" ");
-            for (String s1 : disabledMods) {
+            String[] s = CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput()).replace(":", " ").split(" ");
+            for (String s1 : CraftingTableIVAbstractionLayer.disabledMods) {
                 if (s1.equalsIgnoreCase(s[0])) {
                     continue recipeLoop;
                 }
@@ -108,7 +101,7 @@ public class CraftingHandler {
     }
 
     private static boolean isNugget(ItemStack stack){
-        if (MineTweakerHelper.getItemRegistryName(stack).contains("nugget"))
+        if (CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(stack).contains("nugget"))
             return true;
         for (Integer i : OreDictionary.getOreIDs(stack)){
             if (OreDictionary.getOreName(i).contains("nugget"))
@@ -123,15 +116,17 @@ public class CraftingHandler {
 
     public static <I extends IInventory> boolean canCraft(IWorldAccessibleInventory<I> inventory, WrappedRecipe recipe, @Nullable FastRecipeList list, boolean craft){
         ItemStack[] oldContents = inventory.getInventory().getCopyOfContents();
-        boolean ret = canCraft(inventory, inventory.getInventory(), recipe, list, craft, 0);
-        if (!ret || !craft){
+        WrappedInventory inv = WrappedInventory.of(new BasicInventory("", oldContents.length));
+        inv.setContents(oldContents);
+        boolean ret = canCraft(inventory, inv, recipe, list, craft, 0);
+        if (ret && craft && !isClient()){
             inventory.getInventory().setContents(oldContents);
         }
         return ret;
     }
 
     private static <I extends IInventory> boolean canCraft(IWorldAccessibleInventory<I> inventory, WrappedInventory wrappedInventory, WrappedRecipe recipe, @Nullable FastRecipeList list, boolean craft, int recursion){
-        if (recursion >= maxRecursion || inventory == null || recipe == null){
+        if (recursion >= CraftingTableIVAbstractionLayer.recursionDepth || inventory == null || recipe == null){
             return false;
         }
         int inputSize = recipe.getInput().length;
@@ -142,7 +137,7 @@ public class CraftingHandler {
             if (obj == null)
                 continue;
             if (obj instanceof ItemStack){
-                ItemStack stack = (ItemStack) obj;
+                ItemStack stack = ((ItemStack) obj).copy();
                 int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
                 if (i >= 0){
                     usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
@@ -166,6 +161,7 @@ public class CraftingHandler {
                 @SuppressWarnings("unchecked")
                 List<ItemStack> stacks = (List<ItemStack>) obj;
                 for (ItemStack stack : stacks){
+                    stack = stack.copy();
                     int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
                     if (i >= 0){
                         usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
@@ -176,6 +172,7 @@ public class CraftingHandler {
                 if (list == null)
                     return false;
                 for (ItemStack stack : stacks) {
+                    stack = stack.copy();
                     List<WrappedRecipe> recipes = list.getCraftingRecipe(stack);
                     if (canCraftAnyOf(recipes, inventory, wrappedInventory, list, craft, recursion)) {
                         int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
@@ -195,7 +192,7 @@ public class CraftingHandler {
         ItemStack out = recipe.getRecipeHandler().getCraftingResult(recipe.getRecipe(), usedIngredients);
         if (out == null)
             return false;
-        if (!inventory.getInventory().addItemToInventory(out)){
+        if (!wrappedInventory.addItemToInventory(out)){
             inventory.dropStack(out);
         }
         if (craft && isClient()) {
@@ -205,9 +202,10 @@ public class CraftingHandler {
     }
 
     private static int getFirstSlotWithItemStack(IInventory inventory, ItemStack stack, WrappedRecipe recipe){
+        IRecipeHandler recipeHandler = recipe.getRecipeHandler();
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack itemStack = inventory.getStackInSlot(i);
-            if (itemStack != null && recipe.getRecipeHandler().isValidIngredientFor(recipe.getRecipe(), stack, itemStack)){
+            if (itemStack != null && recipeHandler.isValidIngredientFor(recipe.getRecipe(), stack, itemStack)){
                 return i;
             }
         }
@@ -325,7 +323,7 @@ public class CraftingHandler {
         }
 
         private CraftingTableIVHandler(EntityPlayer player, TileEntityCraftingTableIV craftingTableIV, World world){
-            if (player.worldObj != world && craftingTableIV.getWorldObj() != world)
+            if (player.worldObj != world && CraftingTableIVAbstractionLayer.instance.mod.getWorld(craftingTableIV) != world)
                 throw new IllegalArgumentException();
             this.inventory = WrappedInventory.of(new DoubleInventory<InventoryPlayer, TileEntityCraftingTableIV>(player.inventory, craftingTableIV));
             this.world = world;

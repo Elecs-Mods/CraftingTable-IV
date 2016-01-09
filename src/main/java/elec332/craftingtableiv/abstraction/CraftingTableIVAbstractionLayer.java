@@ -9,8 +9,10 @@ import elec332.craftingtableiv.api.ICraftingTableIVAPI;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -27,30 +29,53 @@ public class CraftingTableIVAbstractionLayer implements ICraftingTableIVAPI {
         instance = this;
     }
 
-    private final Logger logger;
+    public final Logger logger;
     public static CraftingTableIVAbstractionLayer instance;
     public final ICraftingTableIVAPI api;
     public final ICraftingTableIVMod mod;
+    private Configuration config;
 
-    public void preInit(){
+    /**Config**/
+    public static int recursionDepth = 5;
+    public static boolean nuggetFilter = true;
+    public static boolean enableDoor = true;
+    public static boolean enableNoise = true;
+    public static String[] disabledMods, defaultDisabledMods = {"ztones"};
+    public static boolean debugTimings = true;
+    public static float doorRange = 7f;
+    /**********/
+
+    public void preInit(File configLocation){
+        this.config = new Configuration(configLocation);
     }
 
     public void init(){
+        config.load();
+        recursionDepth = config.getInt("Recursion depth", "general", 5, 0, 10, "Set to 0 to disable recursion");
+        nuggetFilter = config.getBoolean("NuggetFilter", "general", true, "Filters nuggets out of the recipeList, only disable if you know what you're doing!");
+        enableDoor = config.getBoolean("EnableDoor", "general", true, "Set to false to disable the opening door on the CTIV");
+        enableNoise = config.getBoolean("EnableNoise", "general", true, "Set to false to disable the door noise when opening and closing");
+        disabledMods = config.getStringList("DisabledMods", "general", defaultDisabledMods, "Every item from the modID's specified here will not show up in the CraftingTable");
+        debugTimings = config.getBoolean("DebugTimings","debug", true, "When true, will print messages to the log regarding how long it took to load all recipes in de CTIV bench (when opened)");
+        doorRange = config.getFloat("Doorrange", "general", doorRange, 0, 100, "The squared distance from craftingtable -> player at which the door will start opening.");
+        if (config.hasChanged()) {
+            config.save();
+        }
     }
 
     public void postInit(){
+        registerVanillaHandlers();
+        RecipeHandler.getCompatHandler().closeRegistry();
     }
 
     public void serverStarted(){
-        registerVanillaHandlers();
-        RecipeHandler.getCompatHandler().closeRegistry();
         reloadRecipes();
     }
 
     public void reloadRecipes(){
         Long l = System.currentTimeMillis();
         CraftingHandler.rebuildList();
-        logger.info("Initialised " + -1 + " recipes in " + (System.currentTimeMillis() - l) + " ms");
+        logger.info("Initialised " + CraftingHandler.getAllRecipes().size() + " recipes in " + (System.currentTimeMillis() - l) + " ms");
     }
 
     @Override
@@ -102,6 +127,10 @@ public class CraftingTableIVAbstractionLayer implements ICraftingTableIVAPI {
     private void registerVanillaHandlers(){
         registerHandler(new ForgeRecipeHandler());
         registerHandler(new VanillaRecipeHandler());
+    }
+
+    public Configuration getConfig() {
+        return this.config;
     }
 
 }

@@ -5,3 +5,5 @@ eclipse/
 *.ipr
 *.iml
 .gradle/
+run/
+build/

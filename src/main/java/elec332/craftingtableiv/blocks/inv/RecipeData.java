@@ -13,7 +13,7 @@ public class RecipeData{
 
     public RecipeData(WrappedRecipe recipe){
         this();
-        output = recipe.getRecipeOutput().getStack();
+        output = recipe.getRecipeOutput().copy();
         for (int i = 0; i < recipe.getInput().length; i++) {
             if (recipe.getInput()[i] instanceof ItemStack) {
                 input[i] = (ItemStack) recipe.getInput()[i];

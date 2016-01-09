@@ -1,6 +1,6 @@
 package elec332.craftingtableiv.api;
 
-import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.OreDictionary;

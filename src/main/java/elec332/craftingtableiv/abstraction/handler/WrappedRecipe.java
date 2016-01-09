@@ -1,9 +1,5 @@
 package elec332.craftingtableiv.abstraction.handler;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import elec332.core.minetweaker.MineTweakerHelper;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.ItemStack;
@@ -32,26 +28,24 @@ public class WrappedRecipe {
 
     private WrappedRecipe(Object[] input, IRecipe recipe, IRecipeHandler handler){
         this.input = input;
-        this.outPut = new RecipeStackComparator(recipe.getRecipeOutput().copy());
-        this.outputItemName = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput());
+        this.outPut = recipe.getRecipeOutput().copy();
+        this.outputItemName = CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput());
         this.recipe = recipe;
-        this.identifier = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ")[0];
+        this.identifier = CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ")[0];
         this.recipeHandler = handler;
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient()){
+        if (CraftingTableIVAbstractionLayer.instance.mod.isEffectiveSideClient()){
             this.itemName = CraftingTableIVAbstractionLayer.instance.mod.getFullItemName(recipe.getRecipeOutput().copy());
         }
     }
 
     private final IRecipe recipe;
     private final Object[] input;
-    private final RecipeStackComparator outPut;
+    private final ItemStack outPut;
     private final String outputItemName;
     private final String identifier;
-    @SideOnly(Side.CLIENT)
     private String itemName;
     private final IRecipeHandler recipeHandler;
 
-    @SideOnly(Side.CLIENT)
     public String itemIdentifierClientName(){
         return itemName;
     }
@@ -60,8 +54,8 @@ public class WrappedRecipe {
         return input;
     }
 
-    public RecipeStackComparator getRecipeOutput() {
-        return outPut;
+    public ItemStack getRecipeOutput() {
+        return outPut.copy();
     }
 
     public String getOutputItemName() {
