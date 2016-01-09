@@ -1,8 +1,8 @@
-package elec332.craftingtableiv.handler;
+package elec332.craftingtableiv.abstraction.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import elec332.core.util.MineTweakerHelper;
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -28,7 +28,7 @@ public class FastRecipeList {
     Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash;
 
     public void addRecipe(WrappedRecipe recipe){
-        ItemComparator itemComparator = new ItemComparator(recipe.getRecipeOutput().stack);
+        ItemComparator itemComparator = new ItemComparator(recipe.getRecipe().getRecipeOutput().copy());
         String s = identifier(itemComparator.getStack());
         if (recipeHash.get(s) == null)
             recipeHash.put(s, Maps.<ItemComparator, List<WrappedRecipe>>newHashMap());
@@ -52,7 +52,7 @@ public class FastRecipeList {
             return possRet;
         List<WrappedRecipe> ret = Lists.newArrayList();
         for (WrappedRecipe recipe : possRet) {
-            ItemStack out = recipe.getRecipeOutput().getStack();
+            ItemStack out = recipe.getRecipeOutput();
             if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes()))
                 ret.add(recipe);
         }
@@ -67,7 +67,7 @@ public class FastRecipeList {
     }
 
     public boolean removeRecipe(WrappedRecipe recipe){
-        return recipeHash.get(recipe.getIdentifier()).get(new ItemComparator(recipe.getRecipeOutput().stack)).remove(recipe);
+        return recipeHash.get(recipe.getIdentifier()).get(new ItemComparator(recipe.getRecipeOutput())).remove(recipe);
     }
 
     public void removeAllRecipes(List<WrappedRecipe> recipes){
@@ -80,7 +80,7 @@ public class FastRecipeList {
         for (Map.Entry<String, Map<ItemComparator, List<WrappedRecipe>>> entry : recipeHash.entrySet()){
             ret.recipeHash.put(entry.getKey(), Maps.<ItemComparator, List<WrappedRecipe>>newHashMap());
             for (Map.Entry<ItemComparator, List<WrappedRecipe>> comparatorListEntry : recipeHash.get(entry.getKey()).entrySet()){
-                ret.recipeHash.get(entry.getKey()).put(new RecipeStackComparator(comparatorListEntry.getKey().getStack().copy()), Lists.<WrappedRecipe>newArrayList());
+                ret.recipeHash.get(entry.getKey()).put(new ItemComparator(comparatorListEntry.getKey().getStack().copy()), Lists.<WrappedRecipe>newArrayList());
                 for (WrappedRecipe recipe : recipeHash.get(entry.getKey()).get(comparatorListEntry.getKey())){
                     ret.recipeHash.get(entry.getKey()).get(comparatorListEntry.getKey()).add(recipe);
                 }
@@ -90,7 +90,7 @@ public class FastRecipeList {
     }
 
     private static String identifier(ItemStack stack){
-        return MineTweakerHelper.getItemRegistryName(stack).replace(":", " ").split(" ")[0];
+        return CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(stack).replace(":", " ").split(" ")[0];
     }
 
 }

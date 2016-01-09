@@ -11,7 +11,13 @@ import net.minecraft.util.IChatComponent;
  */
 public class WrappedInventory<I extends IInventory> implements IInventory{
 
-    public WrappedInventory(I inventory){
+    public static <I extends IInventory> WrappedInventory<I> of(I inventory){
+        if (inventory == null)
+            throw new IllegalArgumentException();
+        return new WrappedInventory<I>(inventory);
+    }
+
+    private WrappedInventory(I inventory){
         this.inventory = inventory;
     }
 
@@ -122,6 +128,22 @@ public class WrappedInventory<I extends IInventory> implements IInventory{
     public void copyContentsFrom(I otherInventory){
         for (int i = 0; i < otherInventory.getSizeInventory(); i++) {
             setInventorySlotContents(i, ItemStack.copyItemStack(otherInventory.getStackInSlot(i)));
+        }
+    }
+
+    public ItemStack[] getCopyOfContents(){
+        ItemStack[] ret = new ItemStack[getSizeInventory()];
+        for (int i = 0; i < getSizeInventory(); i++) {
+            ret[i] = ItemStack.copyItemStack(getStackInSlot(i));
+        }
+        return ret;
+    }
+
+    public void setContents(ItemStack[] contents){
+        if (contents.length != getSizeInventory())
+            throw new IllegalArgumentException();
+        for (int i = 0; i < contents.length; i++) {
+            setInventorySlotContents(i, ItemStack.copyItemStack(contents[i]));
         }
     }
 

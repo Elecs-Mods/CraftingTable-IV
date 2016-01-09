@@ -1,7 +1,7 @@
 package elec332.craftingtableiv.blocks.slot;
 
+import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
-import elec332.craftingtableiv.handler.WrappedRecipe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;

@@ -10,8 +10,8 @@ import net.minecraft.item.crafting.IRecipe;
  */
 public abstract class AbstractCompatModule extends AbstractCompatHandler.ICompatHandler {
 
-    public <C extends IRecipe> void registerHandler(Class<C> clazz, IRecipeHandler<C> handler){
-        CraftingTableIVAPI.getAPI().registerHandler(clazz, handler);
+    public <C extends IRecipe> void registerHandler(IRecipeHandler handler){
+        CraftingTableIVAPI.getAPI().registerHandler(handler);
     }
 
     public void registerDisabledRecipe(Class<? extends IRecipe> recipe){

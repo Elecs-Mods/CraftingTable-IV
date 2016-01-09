@@ -1,6 +1,6 @@
 package elec332.craftingtableiv.blocks.inv;
 
-import elec332.craftingtableiv.handler.WrappedRecipe;
+import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -13,7 +13,7 @@ public class RecipeData{
 
     public RecipeData(WrappedRecipe recipe){
         this();
-        output = recipe.getRecipeOutput().getStack();
+        output = recipe.getRecipeOutput();
         for (int i = 0; i < recipe.getInput().length; i++) {
             if (recipe.getInput()[i] instanceof ItemStack) {
                 input[i] = (ItemStack) recipe.getInput()[i];

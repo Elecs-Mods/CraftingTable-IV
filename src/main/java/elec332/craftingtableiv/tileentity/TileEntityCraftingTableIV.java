@@ -2,6 +2,7 @@ package elec332.craftingtableiv.tileentity;
 
 import elec332.core.tile.BaseTileWithInventory;
 import elec332.craftingtableiv.CraftingTableIV;
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
@@ -28,31 +29,31 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
 
     public void updateEntity() {
         super.updateEntity();
-        if (CraftingTableIV.enableDoor) {
+        if (CraftingTableIVAbstractionLayer.enableDoor) {
             int xCoord = pos.getX();
             int yCoord = pos.getY();
             int zCoord = pos.getZ();
             EntityPlayer entityplayer = worldObj.getClosestPlayer((float)xCoord + 0.5F, (float)yCoord + 0.5F, (float)zCoord + 0.5F, 10D);
             if(entityplayer != null){
                 playerDistance = entityplayer.getDistanceSq((double)xCoord, (double)yCoord, (double)zCoord);
-                if(playerDistance < 7F){
+                if(playerDistance < CraftingTableIVAbstractionLayer.doorRange){
                     doorAngle += openspeed;
 
                     if(tablestate != 1) {
                         tablestate = 1;
-                        if (CraftingTableIV.enableNoise)
+                        if (CraftingTableIVAbstractionLayer.enableNoise)
                             worldObj.playSoundEffect((double)xCoord, (double)yCoord + 0.5D, (double)zCoord, "random.chestopen", 0.2F, worldObj.rand.nextFloat() * 0.1F + 0.2F);
                     }
 
                     if(doorAngle > 1.8F){
                         doorAngle = 1.8F;
                     }
-                } else if(playerDistance > 7F) {
+                } else if(playerDistance > CraftingTableIVAbstractionLayer.doorRange) {
                     doorAngle -= openspeed;
 
                     if(tablestate != 0) {
                         tablestate = 0;
-                        if (CraftingTableIV.enableNoise)
+                        if (CraftingTableIVAbstractionLayer.enableNoise)
                             worldObj.playSoundEffect((double)xCoord, (double)yCoord + 0.5D, (double)zCoord, "random.chestclosed", 0.2F, worldObj.rand.nextFloat() * 0.1F + 0.2F);
                     }
 

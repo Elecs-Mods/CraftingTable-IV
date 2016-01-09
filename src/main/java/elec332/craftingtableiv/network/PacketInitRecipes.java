@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.network;
 
+import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import elec332.core.network.AbstractPacket;
@@ -12,7 +13,8 @@ public class PacketInitRecipes extends AbstractPacket {
 
     @Override
     public IMessage onMessageThreadSafe(AbstractPacket abstractPacket, MessageContext messageContext) {
-        CraftingTableIV.loadRecipes();
+        CraftingTableIVAbstractionLayer.instance.reloadRecipes();
         return null;
     }
+
 }
