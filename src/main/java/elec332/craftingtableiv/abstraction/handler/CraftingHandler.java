@@ -46,12 +46,12 @@ public class CraftingHandler {
             if (recipe == null || recipe.getRecipeOutput() == null || recipe.getRecipeOutput().getItem() == null){
                 continue;
             }
-            if (getAbstractionLayer().api.isRecipeDisabled(recipe)){
+            if (getAbstractionLayer().isRecipeDisabled(recipe)){
                 continue;
             }
-            if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput()))
+            if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput().copy()))
                 continue;
-            String[] s = CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput()).replace(":", " ").split(" ");
+            String[] s = CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ");
             for (String s1 : CraftingTableIVAbstractionLayer.disabledMods) {
                 if (s1.equalsIgnoreCase(s[0])) {
                     continue recipeLoop;

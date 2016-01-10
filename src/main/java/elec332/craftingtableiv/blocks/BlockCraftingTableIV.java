@@ -61,21 +61,25 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public IBlockModel getBlockModel(IBlockState state, IBlockAccess iba, BlockPos pos) {
         return null;
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public IBakedModel getBlockModel(Item item, int meta) {
         return this.model;
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void registerModels(ElecQuadBakery quadBakery, ElecModelBakery modelBakery, ElecTemplateBakery templateBakery) {
         this.model = new TESRItemModel(new CraftingTableIVRenderer());
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void registerTextures(IIconRegistrar registrar) {
     }
 

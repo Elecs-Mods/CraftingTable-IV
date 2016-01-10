@@ -16,6 +16,9 @@ import java.util.List;
 public class WrappedRecipe {
 
     public static WrappedRecipe of(Object[] input, IRecipe recipe, IRecipeHandler handler){
+        if (input == null){
+            throw new IllegalArgumentException("Cannot have null input for recipe.");
+        }
         for (Object obj : input){
             if (obj instanceof ItemStack || obj == null)
                 continue;
