@@ -6,3 +6,4 @@ eclipse/
 *.iml
 .gradle/
 run/
+build/

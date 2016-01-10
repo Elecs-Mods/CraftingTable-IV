@@ -1,6 +1,9 @@
 package elec332.craftingtableiv.tileentity;
 
 import elec332.core.tile.BaseTileWithInventory;
+import elec332.core.util.BlockStateHelper;
+import elec332.core.util.DirectionHelper;
+import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,6 +19,8 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
     public static final float openspeed = 0.2F;
     private int tablestate;
 
+    int facing = -1;
+
     public TileEntityCraftingTableIV() {
         super(18);
         this.playerDistance = 7F;
@@ -24,7 +29,10 @@ public class TileEntityCraftingTableIV extends BaseTileWithInventory {
     }
 
     public int getFacing() {
-        return getBlockMetadata();
+        if (facing == -1) {
+            facing = DirectionHelper.getNumberForDirection(WorldHelper.getBlockState(worldObj, pos).getValue(BlockStateHelper.FACING_NORMAL.getProperty()));
+        }
+        return facing;
     }
 
     public void updateEntity() {

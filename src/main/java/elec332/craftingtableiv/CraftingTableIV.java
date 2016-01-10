@@ -50,7 +50,7 @@ import java.util.List;
  * Created by Elec332 on 23-3-2015.
  */
 @Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = ModInfo.DEPENDENCIES+"@[#ELECCORE_VER#,)",
-        acceptedMinecraftVersions = "[1.8.8, 1.8.9)", useMetadata = true, canBeDeactivated = true)
+        acceptedMinecraftVersions = "[1.8.8, 1.8.9]", useMetadata = true, canBeDeactivated = true)
 public class CraftingTableIV implements ICraftingTableIVMod {
 
     public static final String ModName = "CraftingTable-IV"; //Human readable name

@@ -7,7 +7,9 @@ import elec332.core.client.model.INoJsonBlock;
 import elec332.core.client.model.model.IBlockModel;
 import elec332.core.client.model.model.TESRItemModel;
 import elec332.core.client.model.template.ElecTemplateBakery;
+import elec332.core.util.BlockStateHelper;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.Item;
@@ -29,6 +31,7 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
 
     public BlockCraftingTableIV() {
         super(Material.wood, TileEntityCraftingTableIV.class, "craftingtableiv", CraftingTableIV.ModID);
+        setDefaultState(BlockStateHelper.FACING_NORMAL.setDefaultMetaState(this));
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1F, 1.0F);
         setLightOpacity(0);
     }
@@ -75,5 +78,21 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     @Override
     public void registerTextures(IIconRegistrar registrar) {
     }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return BlockStateHelper.FACING_NORMAL.getStateForMeta(this, meta);
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return BlockStateHelper.FACING_NORMAL.getMetaForState(state);
+    }
+
+    @Override
+    protected BlockState createBlockState() {
+        return BlockStateHelper.FACING_NORMAL.createMetaBlockState(this);
+    }
+
 
 }
