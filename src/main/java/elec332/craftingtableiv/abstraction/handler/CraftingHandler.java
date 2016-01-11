@@ -133,7 +133,7 @@ public class CraftingHandler {
         inv.setContents(oldContents);
         boolean ret = canCraft(inventory, inv, recipe, list, craft, 0);
         if (ret && craft && !isClient()){
-            inventory.getInventory().setContents(oldContents);
+            inventory.getInventory().setContents(inv.getCopyOfContents());
         }
         return ret;
     }
@@ -273,7 +273,6 @@ public class CraftingHandler {
     }
 
     public static void onMessageReceived(IWorldAccessibleInventory inventory, NBTTagCompound recipeTag){
-        System.out.println("Received");
         List<WrappedRecipe> recipes = recipeList.getCraftingRecipe(ItemStack.loadItemStackFromNBT(recipeTag.getCompoundTag("out")));
         NBTTagList list = recipeTag.getTagList("ingredients", 10);
         WrappedRecipe wrappedRecipe = null;
@@ -286,6 +285,9 @@ public class CraftingHandler {
             for (int i = 0; i < list.tagCount(); i++) {
                 Object obj = recipe.getInput()[i];
                 ItemStack stack = ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i));
+                if (obj == null && stack == null){
+                    continue;
+                }
                 if (obj instanceof ItemStack){
                     if (recipe.getRecipeHandler().isValidIngredientFor(recipe.getRecipe(), (ItemStack) obj, stack)){
                         continue;
@@ -301,6 +303,7 @@ public class CraftingHandler {
                     }
                     continue recipeLoop;
                 }
+                continue recipeLoop;
             }
             wrappedRecipe = recipe;
             break;
