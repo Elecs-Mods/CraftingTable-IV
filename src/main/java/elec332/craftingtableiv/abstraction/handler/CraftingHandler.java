@@ -34,6 +34,7 @@ public class CraftingHandler {
 
     private static FastRecipeList recipeList;
     private static List<WrappedRecipe> allRecipes;
+    private static List<Class<? extends IRecipe>> erroredClasses;
 
     public static void rebuildList(){
         clearLists();
@@ -46,7 +47,7 @@ public class CraftingHandler {
             if (recipe == null || recipe.getRecipeOutput() == null || recipe.getRecipeOutput().getItem() == null){
                 continue;
             }
-            if (getAbstractionLayer().isRecipeDisabled(recipe)){
+            if (getAbstractionLayer().isRecipeDisabled(recipe) || erroredClasses.contains(recipe.getClass())){
                 continue;
             }
             if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput().copy()))
@@ -57,6 +58,7 @@ public class CraftingHandler {
                     continue recipeLoop;
                 }
             }
+            boolean invalid = false;
             for (IRecipeHandler handler : recipeHandlers){
                 if (handler.canHandleRecipe(recipe)){
                     WrappedRecipe wrappedRecipe = handleRecipe(recipe, handler);
@@ -70,9 +72,15 @@ public class CraftingHandler {
                                 namedList.put(s[0], Lists.<WrappedRecipe>newArrayList());
                             namedList.get(s[0]).add(wrappedRecipe);
                         }
-                        break;
+                        continue recipeLoop;
+                    } else {
+                        CraftingTableIVAbstractionLayer.instance.logger.warn("Recipe "+recipe.getClass().getName()+" has invalid ingredients!");
+                        invalid = true; //Do not exit loop, there might be another valid handler in the list.
                     }
                 }
+            }
+            if (invalid){
+                erroredClasses.add(recipe.getClass());
             }
         }
         entries.putAll(namedList);
@@ -90,10 +98,15 @@ public class CraftingHandler {
         allRecipes = Lists.newArrayList();
     }
 
+    @SuppressWarnings("all")
     private static WrappedRecipe handleRecipe(IRecipe recipe, IRecipeHandler handler){
         if (recipe == null || handler == null)
             return null;
-        return WrappedRecipe.of(handler.getIngredients(recipe), recipe, handler);
+        Object[] ingredients = handler.getIngredients(recipe);
+        if (ingredients != null) {
+            return WrappedRecipe.of(ingredients, recipe, handler);
+        }
+        return null;
     }
 
     private static CraftingTableIVAbstractionLayer getAbstractionLayer(){
@@ -364,6 +377,9 @@ public class CraftingHandler {
         }
     }
 
+    static {
+        erroredClasses = Lists.newArrayList();
+    }
 
     /*
     public static ArrayList<ItemStack> validOutputs = Lists.newArrayList();
