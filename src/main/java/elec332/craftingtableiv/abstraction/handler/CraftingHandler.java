@@ -47,7 +47,7 @@ public class CraftingHandler {
             if (recipe == null || recipe.getRecipeOutput() == null || recipe.getRecipeOutput().getItem() == null){
                 continue;
             }
-            if (getAbstractionLayer().isRecipeDisabled(recipe) || erroredClasses.contains(recipe.getClass())){
+            if (getAbstractionLayer().isRecipeDisabled(recipe)/* || erroredClasses.contains(recipe.getClass())*/){
                 continue;
             }
             if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput().copy()))
