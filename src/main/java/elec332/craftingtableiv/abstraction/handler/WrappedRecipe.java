@@ -8,6 +8,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -15,21 +16,28 @@ import java.util.List;
  */
 public class WrappedRecipe {
 
+    @Nullable
     public static WrappedRecipe of(Object[] input, IRecipe recipe, IRecipeHandler handler){
         if (input == null){
             throw new IllegalArgumentException("Cannot have null input for recipe.");
         }
-        for (Object obj : input){
-            if (obj instanceof ItemStack || obj == null)
-                continue;
-            if (obj instanceof List){
-                if (!((List) obj).isEmpty() && ((List) obj).get(0) instanceof ItemStack)
+        try {
+            for (Object obj : input) {
+                if (obj instanceof ItemStack || obj == null)
                     continue;
+                if (obj instanceof List) {
+                    if (!((List) obj).isEmpty() && ((List) obj).get(0) instanceof ItemStack)
+                        continue;
+                }
+                System.out.println("ERROR: " + recipe.getRecipeOutput().toString() + " ... " + recipe.toString());
+                throw new IllegalArgumentException();
             }
-            System.out.println("ERROR: "+recipe.getRecipeOutput().toString()+" ... "+recipe.toString());
-            throw new IllegalArgumentException();
+            return new WrappedRecipe(input, recipe, handler);
+        } catch (Exception e){
+            e.printStackTrace();
+            CraftingTableIVAbstractionLayer.instance.logger.error("A weird error occurred, please report this on the CraftingTable-IV github issue tracker, with the full log!");
+            return null;
         }
-        return new WrappedRecipe(input, recipe, handler);
     }
 
     private WrappedRecipe(Object[] input, IRecipe recipe, IRecipeHandler handler){
