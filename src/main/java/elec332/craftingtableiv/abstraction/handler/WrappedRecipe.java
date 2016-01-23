@@ -1,10 +1,13 @@
 package elec332.craftingtableiv.abstraction.handler;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -12,18 +15,31 @@ import java.util.List;
  */
 public class WrappedRecipe {
 
+    @Nullable
     public static WrappedRecipe of(Object[] input, IRecipe recipe, IRecipeHandler handler){
-        for (Object obj : input){
-            if (obj instanceof ItemStack || obj == null)
-                continue;
-            if (obj instanceof List){
-                if (!((List) obj).isEmpty() && ((List) obj).get(0) instanceof ItemStack)
-                    continue;
-            }
-            System.out.println("ERROR: "+recipe.getRecipeOutput().toString()+" ... "+recipe.toString());
-            throw new IllegalArgumentException();
+        if (input == null){
+            throw new IllegalArgumentException("Cannot have null input for recipe.");
         }
-        return new WrappedRecipe(input, recipe, handler);
+        try {
+            for (Object obj : input) {
+                if (obj instanceof ItemStack || obj == null)
+                    continue;
+                if (obj instanceof List) {
+                    if (((List) obj).isEmpty()){
+                        return null;
+                    }
+                    if (((List) obj).get(0) instanceof ItemStack)
+                        continue;
+                }
+                System.out.println("ERROR: " + recipe.getRecipeOutput().toString() + " ... " + recipe.toString());
+                throw new IllegalArgumentException();
+            }
+            return new WrappedRecipe(input, recipe, handler);
+        } catch (Exception e){
+            e.printStackTrace();
+            CraftingTableIVAbstractionLayer.instance.logger.error("A weird error occurred, please report this on the CraftingTable-IV github issue tracker, with the full log!");
+            return null;
+        }
     }
 
     private WrappedRecipe(Object[] input, IRecipe recipe, IRecipeHandler handler){
@@ -43,9 +59,11 @@ public class WrappedRecipe {
     private final ItemStack outPut;
     private final String outputItemName;
     private final String identifier;
+    @SideOnly(Side.CLIENT)
     private String itemName;
     private final IRecipeHandler recipeHandler;
 
+    @SideOnly(Side.CLIENT)
     public String itemIdentifierClientName(){
         return itemName;
     }
