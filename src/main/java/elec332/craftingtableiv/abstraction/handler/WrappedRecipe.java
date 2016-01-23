@@ -26,7 +26,9 @@ public class WrappedRecipe {
                 if (obj instanceof ItemStack || obj == null)
                     continue;
                 if (obj instanceof List) {
-                    if (!((List) obj).isEmpty() && ((List) obj).get(0) instanceof ItemStack)
+                    if (((List) obj).isEmpty())
+                        return null;
+                    if (((List) obj).get(0) instanceof ItemStack)
                         continue;
                 }
                 System.out.println("ERROR: " + recipe.getRecipeOutput().toString() + " ... " + recipe.toString());
