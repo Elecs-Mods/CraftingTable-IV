@@ -1,6 +1,7 @@
 [
 {
   "modid": "${modid}",
+  "name": "${modid}",
   "version": "${version}"
 }
 ]
