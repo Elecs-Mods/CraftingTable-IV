@@ -50,6 +50,10 @@ public class CraftingHandler {
             if (getAbstractionLayer().isRecipeDisabled(recipe)/* || erroredClasses.contains(recipe.getClass())*/){
                 continue;
             }
+            if (CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput()) == null){
+                //????
+                continue;
+            }
             if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput().copy()))
                 continue;
             String[] s = CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput().copy()).replace(":", " ").split(" ");
