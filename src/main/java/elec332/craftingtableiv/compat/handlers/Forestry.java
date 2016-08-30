@@ -5,6 +5,9 @@ import elec332.craftingtableiv.compat.AbstractCompatModule;
 import forestry.core.recipes.ShapedRecipeCustom;
 import forestry.core.recipes.ShapelessRecipeCustom;
 import forestry.lepidopterology.recipes.MatingRecipe;
+import net.minecraft.item.crafting.IRecipe;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by Elec332 on 4-10-2015.
@@ -17,20 +20,36 @@ public class Forestry extends AbstractCompatModule {
     }
 
     @Override
-    public void init() {/*
-        registerHandler(ShapedRecipeCustom.class, new AbstractRecipeHandler<ShapedRecipeCustom>() {
+    public void init() {
+        registerHandler(new AbstractRecipeHandler() {
+
             @Override
-            public Object[] getIngredients(ShapedRecipeCustom recipe) {
-                return recipe.getIngredients();
+            public boolean canHandleRecipe(IRecipe recipe) {
+                return recipe instanceof ShapedRecipeCustom;
             }
-        });
-        registerHandler(ShapelessRecipeCustom.class, new AbstractRecipeHandler<ShapelessRecipeCustom>() {
+
             @Override
-            public Object[] getIngredients(ShapelessRecipeCustom recipe) {
-                return recipe.getIngredients().toArray();
+            @Nonnull
+            public Object[] getIngredients(IRecipe recipe) {
+                return ((ShapedRecipeCustom) recipe).getIngredients();
             }
+
         });
-        registerDisabledRecipe(MatingRecipe.class);*/
+        registerHandler(new AbstractRecipeHandler() {
+
+            @Override
+            public boolean canHandleRecipe(IRecipe recipe) {
+                return recipe instanceof ShapelessRecipeCustom;
+            }
+
+            @Override
+            @Nonnull
+            public Object[] getIngredients(IRecipe recipe) {
+                return ((ShapelessRecipeCustom) recipe).getIngredients().toArray();
+            }
+
+        });
+        registerDisabledRecipe(MatingRecipe.class);
     }
 
 }

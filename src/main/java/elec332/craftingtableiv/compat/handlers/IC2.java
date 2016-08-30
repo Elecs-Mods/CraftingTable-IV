@@ -5,7 +5,9 @@ import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.compat.AbstractCompatModule;
 import ic2.core.AdvRecipe;
 import ic2.core.AdvShapelessRecipe;
+import net.minecraft.item.crafting.IRecipe;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -22,12 +24,20 @@ public class IC2 extends AbstractCompatModule {
     private boolean classic;
 
     @Override
-    public void init() {/*
+    public void init() {
         identifyTypes();
         if (normal){
-            registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
+            registerHandler(new AbstractRecipeHandler() {
+
                 @Override
-                public Object[] getIngredients(AdvRecipe recipe) {
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvRecipe;
+                }
+
+                @Override
+                @Nonnull
+                public Object[] getIngredients(IRecipe recipe_) {
+                    AdvRecipe recipe = (AdvRecipe) recipe_;
                     Object[] items = new Object[9];
                     int ret = 0;
                     for (int j = 0; ret < 9; ++ret) {
@@ -43,11 +53,19 @@ public class IC2 extends AbstractCompatModule {
                     }
                     return items;
                 }
+
             });
-            registerHandler(AdvShapelessRecipe.class, new AbstractRecipeHandler<AdvShapelessRecipe>() {
+            registerHandler(new AbstractRecipeHandler() {
+
                 @Override
-                public Object[] getIngredients(AdvShapelessRecipe recipe) {
-                    List[] items = AdvRecipe.expandArray(recipe.input);
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvShapelessRecipe;
+                }
+
+                @Override
+                @Nonnull
+                public Object[] getIngredients(IRecipe recipe) {
+                    List[] items = AdvRecipe.expandArray(((AdvShapelessRecipe) recipe).input);
                     for (List item : items) {
                         if (item != null && item.isEmpty()) {
                             return null;
@@ -55,21 +73,39 @@ public class IC2 extends AbstractCompatModule {
                     }
                     return items;
                 }
+
             });
         } else if (classic){
-            registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
+
+            registerHandler(new AbstractRecipeHandler() {
+
                 @Override
-                public Object[] getIngredients(AdvRecipe recipe) {
-                    return recipe.input;
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvRecipe;
                 }
-            });
-            registerHandler(AdvShapelessRecipe.class, new AbstractRecipeHandler<AdvShapelessRecipe>() {
+
                 @Override
-                public Object[] getIngredients(AdvShapelessRecipe recipe) {
-                    return recipe.input;
+                @Nonnull
+                public Object[] getIngredients(IRecipe recipe) {
+                    return ((AdvRecipe) recipe).input;
                 }
+
             });
-        }*/
+            registerHandler(new AbstractRecipeHandler() {
+
+                @Override
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvShapelessRecipe;
+                }
+
+                @Override
+                @Nonnull
+                public Object[] getIngredients(IRecipe recipe) {
+                    return ((AdvShapelessRecipe) recipe).input;
+                }
+
+            });
+        }
     }
 
     private void identifyTypes(){

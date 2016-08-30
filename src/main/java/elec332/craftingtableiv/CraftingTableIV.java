@@ -75,6 +75,10 @@ public class CraftingTableIV implements ICraftingTableIVMod {
         abstractionLayer = new CraftingTableIVAbstractionLayer(this, logger);
 
         //setting up mod stuff
+
+
+        abstractionLayer.preInit(FileHelper.getConfigFileElec(event));
+
         compatHandler = new CraftingTableIVCompatHandler();
         try {
             for (ClassPath.ClassInfo classInfo : ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClasses("elec332.craftingtableiv.compat.handlers")) {
@@ -85,7 +89,6 @@ public class CraftingTableIV implements ICraftingTableIVMod {
         } catch (Exception e){
             throw new RuntimeException("[CraftingTableIV] Error fetching compat handlers!", e);
         }
-        abstractionLayer.preInit(FileHelper.getConfigFileElec(event));
         MCModInfo.CreateMCModInfo(event, "Created by Elec332",
                 "The CraftingTableIV mod is the successor of the CraftingTable III mod from the old tekkit days.",
                 "No Link", "path/to/logo.png",
