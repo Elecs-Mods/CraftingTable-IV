@@ -1,16 +1,14 @@
 package elec332.craftingtableiv.proxies;
 
 import elec332.core.world.WorldHelper;
-import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.blocks.container.GuiCTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 /**
  * Created by Elec332 on 23-3-2015.

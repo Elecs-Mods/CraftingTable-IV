@@ -1,10 +1,9 @@
 package elec332.craftingtableiv.network;
 
+import elec332.core.network.AbstractPacket;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import elec332.core.network.AbstractPacket;
-import elec332.craftingtableiv.CraftingTableIV;
 
 /**
  * Created by Elec332 on 22-6-2015.

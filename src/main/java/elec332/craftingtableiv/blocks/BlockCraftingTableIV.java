@@ -7,22 +7,22 @@ import elec332.core.client.model.INoJsonBlock;
 import elec332.core.client.model.model.IBlockModel;
 import elec332.core.client.model.model.TESRItemModel;
 import elec332.core.client.model.template.ElecTemplateBakery;
+import elec332.core.tile.BlockTileBase;
 import elec332.core.util.BlockStateHelper;
+import elec332.core.world.WorldHelper;
+import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
+import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.Item;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import elec332.core.tile.BlockTileBase;
-import elec332.core.world.WorldHelper;
-import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
-import net.minecraft.block.material.Material;
-import net.minecraft.world.World;
 
 /**
  * Created by Elec332 on 23-3-2015.

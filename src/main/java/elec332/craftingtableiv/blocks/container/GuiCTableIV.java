@@ -300,23 +300,21 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
 
         }
         super.drawScreen(i, j, f);
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glDisable(2896 /*GL_LIGHTING*/);
-        GL11.glDisable(GL11.GL_BLEND);
-        this.textField.drawTextBox();
     }
 
     private List<ItemStack> getIngredients(WrappedRecipe recipe){
         List<ItemStack> ret = Lists.newArrayList();
         for (Object obj : recipe.getInput()){
-            if (obj instanceof ItemStack)
-                ret.add((ItemStack) obj);
-            else if (obj instanceof List && !((List) obj).isEmpty())
-                ret.add((ItemStack) ((List) obj).get(0));
+            if (obj instanceof ItemStack) {
+                ret.add(((ItemStack) obj).copy());
+            } else if (obj instanceof List && !((List) obj).isEmpty()) {
+                ret.add(((ItemStack) ((List) obj).get(0)).copy());
+            }
         }
         for (ItemStack stack : ret){
-            if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
                 stack.setItemDamage(0);
+            }
         }
         return ret;
     }
@@ -347,6 +345,11 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         int l1 = k1 + 88 + 2;
         //Scrolly bar
         drawTexturedModalRect(l + 154, i1 + 17 + (int)((float)(l1 - k1 - 17) * scroll), 0, 240, 16, 16);
+
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glDisable(2896 /*GL_LIGHTING*/);
+        GL11.glDisable(GL11.GL_BLEND);
+        this.textField.drawTextBox();
     }
 
     @Override

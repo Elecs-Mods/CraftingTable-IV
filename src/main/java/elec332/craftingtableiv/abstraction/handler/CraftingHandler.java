@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import elec332.core.util.BasicInventory;
-import elec332.core.util.BlockLoc;
 import elec332.core.util.DoubleInventory;
+import elec332.core.util.NBTHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.api.IRecipeHandler;
@@ -48,6 +48,9 @@ public class CraftingHandler {
                 continue;
             }
             if (getAbstractionLayer().isRecipeDisabled(recipe)/* || erroredClasses.contains(recipe.getClass())*/){
+                continue;
+            }
+            if (CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(recipe.getRecipeOutput()) == null){
                 continue;
             }
             if (CraftingTableIVAbstractionLayer.nuggetFilter && isNugget(recipe.getRecipeOutput().copy()))
@@ -356,14 +359,14 @@ public class CraftingHandler {
         public void writeToNBT(NBTTagCompound tag) {
             tag.setInteger("dimID", WorldHelper.getDimID(world));
             tag.setInteger("playerID", player.getEntityId());
-            craftingTableIV.myLocation().toNBT(tag);
+            new NBTHelper(tag).addToTag(craftingTableIV.getPos());
         }
 
         @Override
         public IWorldAccessibleInventory<DoubleInventory<InventoryPlayer, TileEntityCraftingTableIV>> readFromNBT(NBTTagCompound tag) {
             World world = getAbstractionLayer().mod.getWorld(tag.getInteger("dimID"));
             EntityPlayer player = (EntityPlayer) world.getEntityByID(tag.getInteger("playerID"));
-            TileEntityCraftingTableIV craftingTableIV = (TileEntityCraftingTableIV) WorldHelper.getTileAt(world, new BlockLoc(tag));
+            TileEntityCraftingTableIV craftingTableIV = (TileEntityCraftingTableIV) WorldHelper.getTileAt(world, new NBTHelper(tag).getPos());
             return new CraftingTableIVHandler(player, craftingTableIV, world);
         }
 
@@ -375,7 +378,7 @@ public class CraftingHandler {
         @Override
         public void dropStack(@Nonnull ItemStack stack) {
             if (!isClient()) {
-                WorldHelper.dropStack(world, craftingTableIV.myLocation(), stack);
+                WorldHelper.dropStack(world, craftingTableIV.getPos(), stack);
             }
         }
     }

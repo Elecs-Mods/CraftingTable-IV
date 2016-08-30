@@ -76,6 +76,7 @@ public class CraftingTableIVContainer extends Container {
         return super.slotClick(slotIndex, mouseButton, flag, entityplayer);
     }
 
+    @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int i) {
         ItemStack stack = null;
         Slot slot = (Slot)this.inventorySlots.get(i);
