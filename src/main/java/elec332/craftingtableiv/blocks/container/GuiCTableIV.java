@@ -11,6 +11,7 @@ import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
@@ -240,7 +241,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     @Override
-    public void drawScreen(int i, int j, float f) {
+    public void drawScreen(int i, int j, float f) {/*
         boolean flag = Mouse.isButtonDown(0);
         int k = guiLeft;
         int l = guiTop;
@@ -264,7 +265,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             if(scroll > 1.0F) {
                 scroll = 1.0F;
             }
-        }
+        }*/
 
         for (int b=0; b<9; b++) {
             ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, null);
@@ -354,22 +355,49 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
 
     @Override
     public void handleMouseInput() throws IOException{
-        int i = Mouse.getEventDWheel();
-        if(i != 0) {
+        int m = Mouse.getEventDWheel();
+        float oldScroll = scroll;
+        if(m != 0) {
             int j = (craftableRecipes.getSize() / 8 - 4) + 1;
-            if(i > 0) {
-                i = 1;
+            if(m > 0) {
+                m = 1;
             }
-            if(i < 0) {
-                i = -1;
+            if(m < 0) {
+                m = -1;
             }
-            scroll -= (double)i / (double)j;
+            scroll -= (double)m / (double)j;
             if(scroll < 0.0F) {
                 scroll = 0.0F;
             }
             if(scroll > 1.0F) {
                 scroll = 1.0F;
             }
+        }
+        if (Mouse.isButtonDown(0)){
+            final ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+            int s1 = scaledresolution.getScaledWidth();
+            int s2 = scaledresolution.getScaledHeight();
+            final int i = Mouse.getX() * s1 / this.mc.displayWidth;
+            final int j = s2 - Mouse.getY() * s2 / this.mc.displayHeight - 1;
+            int k = guiLeft;
+            int l = guiTop;
+            int i1 = k + 155;
+            int j1 = l + 17;
+            int k1 = i1 + 14;
+            int l1 = j1 + 88 + 2;
+
+            if(i >= i1 && j >= j1 && i < k1 && j < l1) {
+                oldScroll = scroll;
+                scroll = (float)(j - (j1 + 8)) / ((float)(l1 - j1) - 16F);
+                if(scroll < 0.0F) {
+                    scroll = 0.0F;
+                }
+                if(scroll > 1.0F) {
+                    scroll = 1.0F;
+                }
+            }
+        }
+        if (scroll != oldScroll) {
             updateVisibleSlots(scroll);
         }
         super.handleMouseInput();
