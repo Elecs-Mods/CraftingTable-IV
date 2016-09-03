@@ -1,10 +1,17 @@
 package elec332.craftingtableiv.compat.handlers;
 
+import com.google.common.collect.Lists;
 import elec332.craftingtableiv.CraftingTableIV;
+import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.compat.AbstractCompatModule;
-//import ic2.core.AdvRecipe;
-//import ic2.core.AdvShapelessRecipe;
+import ic2.api.item.IElectricItem;
+import ic2.api.recipe.IRecipeInput;
+import ic2.core.recipe.AdvRecipe;
+import ic2.core.recipe.AdvShapelessRecipe;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -22,53 +29,133 @@ public class IC2 extends AbstractCompatModule {
 
     @Override
     public void init() {
-        /*identifyTypes();
+        identifyTypes();
         if (normal){
-            registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
-                @Override
-                public Object[] getIngredients(AdvRecipe recipe) {
-                    Object[] items = new Object[9];
-                    int ret = 0;
-                    for (int j = 0; ret < 9; ++ret) {
-                        if ((recipe.masks[0] & 1 << 8 - ret) != 0) {
-                            List inputs = AdvRecipe.expand(recipe.input[j]);
-                            if (inputs.isEmpty()) {
-                                return null;
-                            }
+            registerHandler(new AbstractRecipeHandler() {
 
-                            items[ret] = inputs;
-                            ++j;
-                        }
-                    }
-                    return items;
-                }
-            });
-            registerHandler(AdvShapelessRecipe.class, new AbstractRecipeHandler<AdvShapelessRecipe>() {
                 @Override
-                public Object[] getIngredients(AdvShapelessRecipe recipe) {
-                    List[] items = AdvRecipe.expandArray(recipe.input);
-                    for (List item : items) {
-                        if (item != null && item.isEmpty()) {
-                            return null;
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvRecipe;
+                }
+
+                @Override
+                @Nonnull
+                @SuppressWarnings("all")
+                public Object[] getIngredients(IRecipe recipe_) {
+                    AdvRecipe recipe = (AdvRecipe) recipe_;
+                    if (!isRecipeValid(recipe)){
+                        return null;
+                    }
+                    int mask = recipe.masks[0];
+                    int itemIndex = 0;
+                    List<IRecipeInput> ret = Lists.newArrayList();
+
+                    for(int i = 0; i < 9; ++i) {
+                        if(i % 3 < recipe.inputWidth && i / 3 < recipe.inputHeight) {
+                            if((mask >>> 8 - i & 1) != 0) {
+                                ret.add(recipe.input[itemIndex++]);
+                            } else {
+                                ret.add(null);
+                            }
                         }
                     }
-                    return items;
+                    List<List<ItemStack>> list = replaceRecipeInputs(ret);
+                    return list == null ? null : list.toArray();
                 }
+
+            });
+            registerHandler(new AbstractRecipeHandler() {
+
+                @Override
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvShapelessRecipe;
+                }
+
+                @Override
+                @Nonnull
+                @SuppressWarnings("all")
+                public Object[] getIngredients(IRecipe recipe_) {
+                    AdvShapelessRecipe recipe = (AdvShapelessRecipe) recipe_;
+                    if (!isRecipeValid(recipe)){
+                        return null;
+                    }
+                    List<List<ItemStack>> ret = Lists.newArrayList();
+                    IRecipeInput[] var2 = recipe.input;
+                    for (IRecipeInput input : var2) {
+                        ret.add(input.getInputs());
+                    }
+                    return ret.toArray();
+                }
+
             });
         } else if (classic){
-            registerHandler(AdvRecipe.class, new AbstractRecipeHandler<AdvRecipe>() {
+
+            registerHandler(new AbstractRecipeHandler() {
+
                 @Override
-                public Object[] getIngredients(AdvRecipe recipe) {
-                    return recipe.input;
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvRecipe;
                 }
-            });
-            registerHandler(AdvShapelessRecipe.class, new AbstractRecipeHandler<AdvShapelessRecipe>() {
+
                 @Override
-                public Object[] getIngredients(AdvShapelessRecipe recipe) {
-                    return recipe.input;
+                @Nonnull
+                public Object[] getIngredients(IRecipe recipe) {
+                    return ((AdvRecipe) recipe).input;
                 }
+
             });
-        }*/
+            registerHandler(new AbstractRecipeHandler() {
+
+                @Override
+                public boolean canHandleRecipe(IRecipe recipe) {
+                    return recipe instanceof AdvShapelessRecipe;
+                }
+
+                @Override
+                @Nonnull
+                public Object[] getIngredients(IRecipe recipe) {
+                    return ((AdvShapelessRecipe) recipe).input;
+                }
+
+            });
+        }
+    }
+
+    private boolean isRecipeValid(@Nonnull AdvRecipe recipe) {
+        return !recipe.hidden && !hidden(recipe.input);
+    }
+
+    private boolean isRecipeValid(@Nonnull AdvShapelessRecipe recipe) {
+        return !recipe.hidden && !hidden(recipe.input);
+    }
+
+    private boolean hidden(IRecipeInput[] inputs){
+        for (IRecipeInput input : inputs) {
+            if (input.getInputs().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static List<List<ItemStack>> replaceRecipeInputs(List<IRecipeInput> list) {
+       List<List<ItemStack>> out = Lists.newArrayList();
+
+        for (IRecipeInput recipe : list) {
+            if (recipe == null) {
+                out.add(null);
+            } else {
+                List<ItemStack> replace = recipe.getInputs();
+                for (int i = 0; i < replace.size(); ++i) {
+                    ItemStack stack = replace.get(i);
+                    if (stack != null && stack.getItem() instanceof IElectricItem) {
+                        return null;
+                    }
+                }
+                out.add(replace);
+            }
+        }
+        return out;
     }
 
     private void identifyTypes(){

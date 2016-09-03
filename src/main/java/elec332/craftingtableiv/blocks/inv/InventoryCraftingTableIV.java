@@ -12,69 +12,48 @@ import java.util.List;
  */
 public class InventoryCraftingTableIV {
 
-    private List<WrappedRecipe> recipes;
-    //private List<RecipeData> synced;
+    private List<WrappedRecipe> recipes, shownRecipes;
 
     public InventoryCraftingTableIV() {
         recipes = Lists.newArrayList();
-        //synced = Lists.newArrayList();
+        shownRecipes = Lists.newArrayList();
     }
 
     public List<WrappedRecipe> getAllRecipes(){
         return Lists.newArrayList(recipes);
     }
 
-    public int getSize() {
-        return recipes.size();
+    public int getShownSize() {
+        return shownRecipes.size();
     }
 
-    public boolean addRecipe(WrappedRecipe recipe, GuiCTableIV.StackMatcher matcher){
+    public void addRecipe(WrappedRecipe recipe, GuiCTableIV.StackMatcher matcher){
         if (matcher.canAdd(recipe)){
-            return forceAddRecipe(recipe);
+            shownRecipes.add(recipe);
         }
-        return false;
+        recipes.add(recipe);
     }
 
-    public boolean forceAddRecipe(WrappedRecipe recipe){
-        //synced.add(new RecipeData(recipe));
-        return recipes.add(recipe);
-    }
-
-    public boolean addRecipe(WrappedRecipe recipe) {
-        return canAdd(recipe) && forceAddRecipe(recipe);
-    }
-
-    public WrappedRecipe getIRecipe(int i) {
-        return recipes.get(i);
-    }
-
-    public boolean canAdd(WrappedRecipe recipe){
-        return !recipes.contains(recipe);
+    public WrappedRecipe getShownRecipe(int i) {
+        return shownRecipes.get(i);
     }
 
     public ItemStack getRecipeOutput(int i) {
-        return recipes.get(i).getRecipeOutput();//return synced.get(i).getOutput();//getIRecipe(i).getRecipeOutput().copy();
+        return getShownRecipe(i).getRecipeOutput();
+    }
+
+    public void updateVisual(GuiCTableIV.StackMatcher stackMatcher){
+        shownRecipes.clear();
+        for (WrappedRecipe wrappedRecipe : recipes){
+            if (stackMatcher.canAdd(wrappedRecipe)){
+                shownRecipes.add(wrappedRecipe);
+            }
+        }
     }
 
     public void clearRecipes() {
         recipes.clear();
-    }
-/*
-    public void writeToNBT(NBTTagCompound tagCompound){
-        NBTTagList list = new NBTTagList();
-        for (RecipeData data : synced) {
-            list.appendTag(data.writeToNBT());
-        }
-        tagCompound.setTag("data", list);
+        shownRecipes.clear();
     }
 
-    public void readFromNBT(NBTTagCompound tagCompound){
-        if (tagCompound == null)
-            return;
-        NBTTagList tagList = tagCompound.getTagList("data", 10);
-        synced.clear();
-        for (int i = 0; i < tagList.tagCount(); i++) {
-            synced.add(RecipeData.fromNBT(tagList.getCompoundTagAt(i)));
-        }
-    }*/
 }

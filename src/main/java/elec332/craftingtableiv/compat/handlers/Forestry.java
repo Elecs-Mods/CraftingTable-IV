@@ -1,6 +1,5 @@
 package elec332.craftingtableiv.compat.handlers;
 
-import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.compat.AbstractCompatModule;
 //import forestry.core.recipes.ShapedRecipeCustom;
 //import forestry.core.recipes.ShapelessRecipeCustom;

@@ -77,7 +77,9 @@ public class CraftingHandler {
                         }
                         continue recipeLoop;
                     } else {
-                        CraftingTableIVAbstractionLayer.instance.logger.warn("Recipe "+recipe.getClass().getName()+" has invalid ingredients!");
+                        if (!handler.logHandlerErrors()) {
+                            CraftingTableIVAbstractionLayer.instance.logger.warn("Recipe " + recipe.getClass().getName() + " has invalid ingredients!");
+                        }
                         invalid = true; //Do not exit loop, there might be another valid handler in the list.
                     }
                 }
@@ -288,8 +290,12 @@ public class CraftingHandler {
             for (int i = 0; i < list.tagCount(); i++) {
                 Object obj = recipe.getInput()[i];
                 ItemStack stack = ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i));
-                if (obj == null && stack == null){
-                    continue;
+                if (stack == null){
+                    if (obj == null){
+                        continue;
+                    } else {
+                        continue recipeLoop;
+                    }
                 }
                 if (obj instanceof ItemStack){
                     if (recipe.getRecipeHandler().isValidIngredientFor(recipe.getRecipe(), (ItemStack) obj, stack)){

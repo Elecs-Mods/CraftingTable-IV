@@ -66,7 +66,7 @@ dependencies {
 	//compile "codechicken:CodeChickenLib:"+config.minecraft_version + "-" + config.ccl_version + ":dev"
     //compile "codechicken:CodeChickenCore:"+config.minecraft_version + "-" + config.ccc_version + ":dev"
     //compile "codechicken:NotEnoughItems:"+config.minecraft_version + "-" + config.nei_version + ":dev"
-	//compile "net.industrial-craft:industrialcraft-2:2.2.718-experimental:dev"
+	compile "net.industrial-craft:industrialcraft-2:2.3.262-ex18:dev"
 	//compile "net.sengir.forestry:forestry_"+config.minecraft_version+":4.0.5.33:dev"
 }
 

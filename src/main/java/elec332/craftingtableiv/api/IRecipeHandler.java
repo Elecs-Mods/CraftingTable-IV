@@ -21,4 +21,6 @@ public interface IRecipeHandler {
     @Nullable
     public ItemStack getCraftingResult(IRecipe recipe, ItemStack[] usedStacks);
 
+    public boolean logHandlerErrors();
+
 }

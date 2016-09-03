@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
@@ -21,7 +22,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,25 +30,24 @@ import java.util.regex.Pattern;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
+public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
 
     private float scroll;
-    private boolean field_35313_h;  //???
-    private boolean field_35314_i;  //???
-    int RecipeType = 0;
+    @SuppressWarnings("all")
+    private int RecipeType = 0;
     private GuiTextField textField;
     private CraftingTableIVContainer container;
     private CTIVThread currentThread;
-    public float ScrollValue = 0.0F;
+    private float scrollValue = 0.0F;
     private EntityPlayer thePlayer;
     private TileEntityCraftingTableIV theTile;
-    public InventoryCraftingTableIV craftableRecipes;
+    private InventoryCraftingTableIV craftableRecipes;
     private InventoryBasic inventory;
+    private static final StackMatcher ALWAYS_TRUE;
 
     public GuiCTableIV(EntityPlayer entityplayer, TileEntityCraftingTableIV tile) {
         super(new CraftingTableIVContainer(entityplayer, tile));
         scroll = 0.0F;
-        field_35313_h = false;
         allowUserInput = true;
         ySize = 234;
         thePlayer = entityplayer;
@@ -73,8 +72,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     private void stopThread(){
-        if (currentThread != null)
+        if (currentThread != null) {
             currentThread.killSafe();
+        }
     }
 
     @Override
@@ -83,9 +83,15 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         stopThread();
     }
 
-    public void updateVisibleSlots(float f) {
-        ScrollValue = f;
-        int numberOfRecipes = craftableRecipes.getSize();
+    private void updateVisibleSlots(float f) {
+        if(f < 0.0F) {
+            f = 0.0F;
+        }
+        if(f > 1.0F) {
+            f = 1.0F;
+        }
+        scrollValue = f;
+        int numberOfRecipes = craftableRecipes.getShownSize();
         int i = (numberOfRecipes / 8 - 4) + 1;
         int j = (int)((double)(f * (float)i) + 0.5D);
         if(j < 0)
@@ -99,7 +105,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                     if(recipeOutput != null) {
                         inventory.setInventorySlotContents(l + k * 8, null);
                         if(slot instanceof SlotCrafter) {
-                            ((SlotCrafter)slot).setIRecipe(craftableRecipes.getIRecipe(i1));
+                            ((SlotCrafter)slot).setIRecipe(craftableRecipes.getShownRecipe(i1));
                         }
                     } else {
                         inventory.setInventorySlotContents(l + k * 8, null);
@@ -117,10 +123,19 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         }
     }
 
-    public void updateRecipes(){
-        stopThread();
-        currentThread = new CTIVThread();
-        currentThread.start();
+    private void updateRecipes(){
+        updateRecipes(false);
+    }
+
+    private void updateRecipes(boolean txt){
+        if (txt){
+            craftableRecipes.updateVisual(getCurrentPattern());
+            updateVisibleSlots(scrollValue);
+        } else {
+            stopThread();
+            currentThread = new CTIVThread();
+            currentThread.start();
+        }
     }
 
     @Override
@@ -141,7 +156,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         }
     }
 
-    public boolean onRequestSingleRecipeOutput(SlotCrafter slot) {
+    private boolean onRequestSingleRecipeOutput(SlotCrafter slot) {
         WrappedRecipe recipe = slot.getIRecipe();
         return recipe != null && CraftingHandler.canCraft(CraftingHandler.forCraftingTableIV(thePlayer, theTile), recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true);
     }
@@ -181,7 +196,8 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }*/
 
     private void onRequestMaximumRecipeOutput(SlotCrafter slot) {
-        /*WrappedRecipe recipe = slot.getIRecipe();
+        slot.getIRecipe();
+        /*WrappedRecipe recipe = slot.getShownRecipe();
         if(recipe == null)
             return;
         onRequestMaximumRecipeOutput(thePlayer, recipe, theTile);*/
@@ -230,7 +246,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     @Override
     protected void keyTyped(char c, int i) throws IOException{
         if (textField.textboxKeyTyped(c, i)) {
-            updateRecipes();
+            updateRecipes(true);
         } else super.keyTyped(c, i);
     }
 
@@ -241,33 +257,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     @Override
-    public void drawScreen(int i, int j, float f) {/*
-        boolean flag = Mouse.isButtonDown(0);
-        int k = guiLeft;
-        int l = guiTop;
-        int i1 = k + 155;
-        int j1 = l + 17;
-        int k1 = i1 + 14;
-        int l1 = j1 + 88 + 2;
+    public void drawScreen(int i, int j, float f) {
 
-        if(!field_35314_i && flag && i >= i1 && j >= j1 && i < k1 && j < l1) {
-            field_35313_h = true;
-        }
-        if(!flag) {
-            field_35313_h = false;
-        }
-        field_35314_i = flag;
-        if(field_35313_h) {
-            scroll = (float)(j - (j1 + 8)) / ((float)(l1 - j1) - 16F);
-            if(scroll < 0.0F) {
-                scroll = 0.0F;
-            }
-            if(scroll > 1.0F) {
-                scroll = 1.0F;
-            }
-        }*/
-
-        for (int b=0; b<9; b++) {
+        for (int b = 0; b < 9; b++) {
             ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, null);
         }
 
@@ -335,7 +327,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         mc.renderEngine.bindTexture(new ResourceLocation("craftingtableiv", "gui/crafttableii.png"));
         int l = guiLeft;
         int i1 = guiTop;
@@ -347,9 +339,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         //Scrolly bar
         drawTexturedModalRect(l + 154, i1 + 17 + (int)((float)(l1 - k1 - 17) * scroll), 0, 240, 16, 16);
 
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glDisable(2896 /*GL_LIGHTING*/);
-        GL11.glDisable(GL11.GL_BLEND);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.disableLighting();
+        GlStateManager.disableBlend();
         this.textField.drawTextBox();
     }
 
@@ -358,7 +350,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         int m = Mouse.getEventDWheel();
         float oldScroll = scroll;
         if(m != 0) {
-            int j = (craftableRecipes.getSize() / 8 - 4) + 1;
+            int j = (craftableRecipes.getShownSize() / 8 - 4) + 1;
             if(m > 0) {
                 m = 1;
             }
@@ -366,12 +358,6 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                 m = -1;
             }
             scroll -= (double)m / (double)j;
-            if(scroll < 0.0F) {
-                scroll = 0.0F;
-            }
-            if(scroll > 1.0F) {
-                scroll = 1.0F;
-            }
         }
         if (Mouse.isButtonDown(0)){
             final ScaledResolution scaledresolution = new ScaledResolution(this.mc);
@@ -389,13 +375,13 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             if(i >= i1 && j >= j1 && i < k1 && j < l1) {
                 oldScroll = scroll;
                 scroll = (float)(j - (j1 + 8)) / ((float)(l1 - j1) - 16F);
-                if(scroll < 0.0F) {
-                    scroll = 0.0F;
-                }
-                if(scroll > 1.0F) {
-                    scroll = 1.0F;
-                }
             }
+        }
+        if(scroll < 0.0F) {
+            scroll = 0.0F;
+        }
+        if(scroll > 1.0F) {
+            scroll = 1.0F;
         }
         if (scroll != oldScroll) {
             updateVisibleSlots(scroll);
@@ -409,9 +395,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
     }
 
     @SuppressWarnings("deprecation")
-    private class CTIVThread extends Thread{
+    private class CTIVThread extends Thread {
 
-        public CTIVThread(){
+        CTIVThread(){
             super("CraftingHandler");
         }
 
@@ -420,15 +406,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             long l = System.currentTimeMillis();
             if (thePlayer.worldObj.isRemote) {
                 craftableRecipes.clearRecipes();
-                List<WrappedRecipe> validRecipes = Lists.newArrayList();
+                List<WrappedRecipe> validRecipes = Lists.newArrayList(CraftingHandler.getAllRecipes());
                 List<WrappedRecipe> canCraft = Lists.newArrayList();
-                StackMatcher matcher = toPattern(textField);
-                validRecipes = Lists.newArrayList(CraftingHandler.getAllRecipes());
-                /*for (WrappedRecipe recipe : CraftingHandler.getAllRecipes()) {
-                    if (matcher.canAdd(recipe)){
-                        validRecipes.add(recipe);
-                    }
-                }*/
+                StackMatcher matcher = getCurrentPattern();
                 CraftingHandler.IWorldAccessibleInventory wrappedInventory = CraftingHandler.forCraftingTableIV(thePlayer, theTile);
                 for (WrappedRecipe recipe : validRecipes){
                     checkStopThread();
@@ -438,7 +418,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                         canCraft.add(recipe);
                     }
                 }
-                updateVisibleSlots(ScrollValue);
+                updateVisibleSlots(scrollValue);
                 validRecipes.removeAll(canCraft);
                 for (int i = 0; i < CraftingTableIVAbstractionLayer.recursionDepth; i++) {
                     checkStopThread();
@@ -450,7 +430,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                             checkStopThread();
                             craftableRecipes.addRecipe(recipe, matcher);
                             canCraft.add(recipe);
-                            updateVisibleSlots(ScrollValue);
+                            updateVisibleSlots(scrollValue);
                         }
                     }
                     validRecipes.removeAll(canCraft);
@@ -458,25 +438,29 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
                         break;
                     }
                 }
-                updateVisibleSlots(ScrollValue);
+                updateRecipes(true);
                 if (CraftingTableIVAbstractionLayer.debugTimings) {
                     CraftingTableIVAbstractionLayer.instance.logger.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
                 }
             }
         }
 
-
-        public void killSafe(){
+        private void killSafe(){
             stopThread = true;
         }
 
         private boolean stopThread = false;
 
         private void checkStopThread(){
-            if (stopThread)
+            if (stopThread) {
                 stop();
+            }
         }
 
+    }
+
+    private StackMatcher getCurrentPattern(){
+        return toPattern(textField);
     }
 
     private static StackMatcher toPattern(GuiTextField textField){
@@ -495,7 +479,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
         }
         if (pattern != null)
             return new PatternStackMatcher(pattern);
-        return new StackMatcher();
+        return ALWAYS_TRUE;
     }
 
     public static class StackMatcher {
@@ -518,6 +502,10 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI{
             return pattern.matcher(recipe.itemIdentifierClientName()).find();
         }
 
+    }
+
+    static {
+        ALWAYS_TRUE = new StackMatcher();
     }
 
 }

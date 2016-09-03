@@ -19,4 +19,9 @@ public abstract class AbstractRecipeHandler implements IRecipeHandler {
         return recipe.getRecipeOutput().copy();
     }
 
+    @Override
+    public boolean logHandlerErrors() {
+        return true;
+    }
+
 }
