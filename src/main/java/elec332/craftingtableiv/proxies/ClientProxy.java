@@ -6,7 +6,7 @@ import elec332.craftingtableiv.blocks.container.GuiCTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 

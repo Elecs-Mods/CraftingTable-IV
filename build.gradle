@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -24,6 +24,9 @@ repositories {
         name 'ForgeFS'
         url 'http://files.minecraftforge.net/maven'
     }
+	maven {
+		url "http://dvs1.progwml6.com/files/maven"
+    } 
 	maven {
 		name = "ic2"
 		url = "http://maven.ic2.player.to/"
@@ -52,6 +55,9 @@ version = "${config.minecraft_version}-${config.mod_version}." + (System.env.DRO
 group= mod.group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = mod.fileName
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
     runDir = "run"
@@ -63,11 +69,8 @@ minecraft {
 }
 
 dependencies {
-	//compile "codechicken:CodeChickenLib:"+config.minecraft_version + "-" + config.ccl_version + ":dev"
-    //compile "codechicken:CodeChickenCore:"+config.minecraft_version + "-" + config.ccc_version + ":dev"
-    //compile "codechicken:NotEnoughItems:"+config.minecraft_version + "-" + config.nei_version + ":dev"
-	compile "net.industrial-craft:industrialcraft-2:2.3.262-ex18:dev"
-	//compile "net.sengir.forestry:forestry_"+config.minecraft_version+":4.0.5.33:dev"
+	compile "net.industrial-craft:industrialcraft-2:"+config.ic2_version+":dev"
+	deobfCompile "net.sengir.forestry:forestry_${config.minecraft_version}:${config.forestry_version}"
 }
 
 processResources

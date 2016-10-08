@@ -1,6 +1,5 @@
 package elec332.craftingtableiv;
 
-import com.google.common.reflect.ClassPath;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.NetworkHandler;
 import elec332.core.util.FileHelper;
@@ -8,8 +7,6 @@ import elec332.core.util.MCModInfo;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.abstraction.ICraftingTableIVMod;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
-import elec332.craftingtableiv.compat.AbstractCompatModule;
-import elec332.craftingtableiv.compat.CraftingTableIVCompatHandler;
 import elec332.craftingtableiv.network.PacketCraft;
 import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
@@ -19,6 +16,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -50,7 +48,7 @@ import java.util.List;
  * Created by Elec332 on 23-3-2015.
  */
 @Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = ModInfo.DEPENDENCIES+"@[#ELECCORE_VER#,)",
-        acceptedMinecraftVersions = "[1.8.8, 1.8.9]", useMetadata = true, canBeDeactivated = true)
+        acceptedMinecraftVersions = "[1.9.4,)", useMetadata = true, canBeDeactivated = true)
 public class CraftingTableIV implements ICraftingTableIVMod {
 
     public static final String ModName = "CraftingTable-IV"; //Human readable name
@@ -65,7 +63,6 @@ public class CraftingTableIV implements ICraftingTableIVMod {
     public static CraftingTableIV instance;
     public static NetworkHandler networkHandler;
     public static Logger logger;
-    public static CraftingTableIVCompatHandler compatHandler;
     public static CraftingTableIVAbstractionLayer abstractionLayer;
 
     @Mod.EventHandler
@@ -73,16 +70,6 @@ public class CraftingTableIV implements ICraftingTableIVMod {
         logger = event.getModLog();
         //setting up mod stuff
         abstractionLayer = new CraftingTableIVAbstractionLayer(this, logger);
-        compatHandler = new CraftingTableIVCompatHandler();
-        try {
-            for (ClassPath.ClassInfo classInfo : ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClasses("elec332.craftingtableiv.compat.handlers")) {
-                Class clazz = Class.forName(classInfo.getName());
-                if (AbstractCompatModule.class.isAssignableFrom(clazz))
-                    compatHandler.addHandler((AbstractCompatModule) clazz.newInstance());
-            }
-        } catch (Exception e){
-            throw new RuntimeException("[CraftingTableIV] Error fetching compat handlers!", e);
-        }
 
         abstractionLayer.preInit(FileHelper.getConfigFileElec(event));
         MCModInfo.createMCModInfo(event, "Created by Elec332",
@@ -95,13 +82,13 @@ public class CraftingTableIV implements ICraftingTableIVMod {
     public void init(FMLInitializationEvent event) {
         networkHandler = new NetworkHandler(ModID);
         GameRegistry.registerTileEntity(TileEntityCraftingTableIV.class, "test");
-        craftingTableIV = new BlockCraftingTableIV().register().setCreativeTab(CreativeTabs.tabDecorations);
+        craftingTableIV = GameRegistry.register(new BlockCraftingTableIV()).setCreativeTab(CreativeTabs.DECORATIONS);
+        GameRegistry.register(new ItemBlock(craftingTableIV).setRegistryName(craftingTableIV.getRegistryName()));
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketInitRecipes.class);
         networkHandler.registerServerPacket(PacketCraft.class);
-        GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.crafting_table, Items.book);
-        compatHandler.init();
+        GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.CRAFTING_TABLE, Items.BOOK);
         //register item/block
 
         abstractionLayer.init();

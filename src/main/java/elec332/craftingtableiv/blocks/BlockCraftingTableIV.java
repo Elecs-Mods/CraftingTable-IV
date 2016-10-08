@@ -1,10 +1,11 @@
 package elec332.craftingtableiv.blocks;
 
 import elec332.core.client.IIconRegistrar;
+import elec332.core.client.RenderHelper;
 import elec332.core.client.model.ElecModelBakery;
 import elec332.core.client.model.ElecQuadBakery;
 import elec332.core.client.model.INoJsonBlock;
-import elec332.core.client.model.model.IBlockModel;
+import elec332.core.client.model.model.AbstractItemModel;
 import elec332.core.client.model.model.TESRItemModel;
 import elec332.core.client.model.template.ElecTemplateBakery;
 import elec332.core.tile.BlockTileBase;
@@ -12,17 +13,35 @@ import elec332.core.util.BlockStateHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
+import elec332.craftingtableiv.client.ModelCraftingTableIV;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.tileentity.TileEntitySignRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
-import net.minecraft.util.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -30,9 +49,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock {
 
     public BlockCraftingTableIV() {
-        super(Material.wood, TileEntityCraftingTableIV.class, "craftingtableiv", CraftingTableIV.ModID);
+        super(Material.WOOD, TileEntityCraftingTableIV.class, "craftingtableiv", CraftingTableIV.ModID);
         setDefaultState(BlockStateHelper.FACING_NORMAL.setDefaultMetaState(this));
-        setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1F, 1.0F);
         setLightOpacity(0);
     }
 
@@ -51,31 +69,160 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     }
 
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
 
     @Override
-    public int getRenderType() {
-        return 2;
+    @Nonnull
+    public EnumBlockRenderType getRenderType(IBlockState state) {
+        return EnumBlockRenderType.INVISIBLE;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public IBlockModel getBlockModel(IBlockState state, IBlockAccess iba, BlockPos pos) {
-        return null;
+    public IBakedModel getBlockModel(IBlockState state) {
+        return RenderHelper.getMissingModel();
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public IBakedModel getBlockModel(Item item, int meta) {
+    public IBakedModel getItemModel(ItemStack stack, World world, EntityLivingBase entity) {
         return this.model;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void registerModels(ElecQuadBakery quadBakery, ElecModelBakery modelBakery, ElecTemplateBakery templateBakery) {
-        this.model = new TESRItemModel(new CraftingTableIVRenderer());
+        this.model = /*new AbstractItemModel() {
+
+            CraftingTableIVRenderer renderer = new CraftingTableIVRenderer(){
+
+                @Override
+                protected void init() {
+                    setRendererDispatcher(TileEntityRendererDispatcher.instance);
+                }
+
+            };
+
+            ModelCraftingTableIV modelCraftingTable = new ModelCraftingTableIV();
+
+            @Override
+            public List<BakedQuad> getGeneralQuads() {
+                Tessellator tessellator = Tessellator.getInstance();
+                VertexBuffer vb = tessellator.getBuffer();
+                boolean draw = RenderHelper.isBufferDrawing(vb);
+                int mode = 7;
+                VertexFormat format = null;
+                if (draw){
+                    mode = vb.getDrawMode();
+                    format = vb.getVertexFormat();
+                    tessellator.draw();
+                }
+                GlStateManager.pushMatrix();
+                //GlStateManager.translate(0.5D, 0.5D, 0.5D);
+                //GlStateManager.scale(-1.0F, -1.0F, 1.0F);
+                //GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
+                //GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                //GlStateManager.enableRescaleNormal();
+
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                GlStateManager.enableRescaleNormal();
+                GlStateManager.depthMask(true);
+                //TileEntityRendererDispatcher.instance.renderTileEntity();
+                renderer.renderTileEntityAt(null, 0, 0, 0, -1, 0);
+                //modelCraftingTable.render(null, 2, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+                GlStateManager.popMatrix();
+                if (draw){
+                    vb.begin(mode, format);
+                }
+                return EMPTY_LIST;
+            }
+
+            @Override
+            public ResourceLocation getTextureLocation() {
+                return new ResourceLocation("craftingtableiv", "blocktextures/ctiv.png");
+            }
+
+            @Override
+            public boolean isAmbientOcclusion() {
+                return true;
+            }
+
+            @Override
+            public boolean isGui3d() {
+                return true;
+            }
+
+            @Override
+            public ItemCameraTransforms getItemCameraTransforms() {
+                return ItemCameraTransforms.DEFAULT;
+            }
+        };*new TESRItemModel(new CraftingTableIVRenderer()){
+
+            @Override
+            public boolean isItemTESR() {
+                return true;
+            }
+
+            @Override
+            public boolean isGui3d() {
+                return true;
+            }
+
+            @Override
+            public ItemCameraTransforms getItemCameraTransforms() {
+                return ItemCameraTransforms.DEFAULT;
+            }
+
+            @Override
+            public void renderTesr() {
+                TileEntitySpecialRenderer r = new CraftingTableIVRenderer();
+                r.setRendererDispatcher(TileEntityRendererDispatcher.instance);
+                GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
+                ///////
+                //GlStateManager.depthMask(false);
+               // GlStateManager.depthFunc(514);
+//GlStateManager.disableRescaleNormal();
+                //////
+                GlStateManager.scale(0.5, .5, .5);
+//                TileEntityRendererDispatcher.instance.renderTileEntityAt(new TileEntityCraftingTableIV(), 0.0D, 0.0D, 0.0D, 0.0F);
+                r.renderTileEntityAt(null, 0, 0, 0, -1, 0);
+               // GlStateManager.depthFunc(515);
+               // GlStateManager.depthMask(true);
+            }
+
+        };*/
+        new TESRItemModel(new CraftingTableIVRenderer()) {
+            /*@Override
+            public List<BakedQuad> getGeneralQuads() {
+                return EMPTY_LIST;
+            }
+*/
+            @Override
+            public ResourceLocation getTextureLocation() {
+                return null;
+            }
+
+            @Override
+            public boolean isItemTESR() {
+                return true;
+            }
+
+            @Override
+            public boolean isGui3d() {
+                return true;
+            }
+
+            @Override
+            public ItemCameraTransforms getItemCameraTransforms() {
+                return ElecModelBakery.DEFAULT_ITEM;
+            }
+
+            @Override
+            public void renderTesr() {
+                super.renderTesr();
+            }
+        };
+        //ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(this), 0, TileEntityCraftingTableIV.class);
     }
 
     @Override
@@ -94,9 +241,8 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     }
 
     @Override
-    protected BlockState createBlockState() {
+    protected BlockStateContainer createBlockState() {
         return BlockStateHelper.FACING_NORMAL.createMetaBlockState(this);
     }
-
 
 }

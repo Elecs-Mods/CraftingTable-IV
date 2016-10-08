@@ -1,15 +1,17 @@
-package elec332.craftingtableiv.compat.handlers;
+package elec332.craftingtableiv.compat;
 
 import com.google.common.collect.Lists;
+import elec332.core.module.ElecModule;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.AbstractRecipeHandler;
-import elec332.craftingtableiv.compat.AbstractCompatModule;
+import elec332.craftingtableiv.api.CraftingTableIVAPI;
 import ic2.api.item.IElectricItem;
 import ic2.api.recipe.IRecipeInput;
 import ic2.core.recipe.AdvRecipe;
 import ic2.core.recipe.AdvShapelessRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -17,21 +19,17 @@ import java.util.List;
 /**
  * Created by Elec332 on 4-10-2015.
  */
-public class IC2 extends AbstractCompatModule {
-
-    @Override
-    public String getName() {
-        return "IC2";
-    }
+@ElecModule(owner = CraftingTableIV.ModID, name = "IC2Compat", modDependencies = "IC2")
+public class IC2  {
 
     private boolean normal;
     private boolean classic;
 
-    @Override
-    public void init() {
+    @ElecModule.EventHandler
+    public void init(FMLInitializationEvent event) {
         identifyTypes();
         if (normal){
-            registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {
@@ -64,7 +62,7 @@ public class IC2 extends AbstractCompatModule {
                 }
 
             });
-            registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {
@@ -90,7 +88,7 @@ public class IC2 extends AbstractCompatModule {
             });
         } else if (classic){
 
-            registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {
@@ -104,7 +102,7 @@ public class IC2 extends AbstractCompatModule {
                 }
 
             });
-            registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {

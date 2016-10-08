@@ -5,10 +5,13 @@ import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -68,12 +71,13 @@ public class CraftingTableIVContainer extends Container {
         }
     }
 
+    @Nullable
     @Override
-    public ItemStack slotClick(int slotIndex, int mouseButton, int flag, EntityPlayer entityplayer) {
+    public ItemStack slotClick(int slotIndex, int dragType, ClickType clickType, EntityPlayer player) {
         if(slotIndex >= 0 && inventorySlots.get(slotIndex) != null && inventorySlots.get(slotIndex) instanceof SlotCrafter) {
             return null;
         }
-        return super.slotClick(slotIndex, mouseButton, flag, entityplayer);
+        return super.slotClick(slotIndex, dragType, clickType, player);
     }
 
     @Override

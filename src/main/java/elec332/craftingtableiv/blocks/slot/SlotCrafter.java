@@ -6,6 +6,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.AchievementList;
@@ -15,10 +17,12 @@ import net.minecraft.stats.AchievementList;
  */
 public class SlotCrafter extends CTIVSlot {
 
-    private WrappedRecipe recipe;
     public SlotCrafter(IInventory craftableRecipes, int i, int j, int k, CraftingTableIVContainer container) {
         super(craftableRecipes, i, j, k, container);
     }
+
+    private WrappedRecipe recipe;
+    private static final AchievementHandler achievementHandler;
 
     public void setIRecipe(WrappedRecipe theIRecipe) {
         recipe = theIRecipe;
@@ -34,26 +38,25 @@ public class SlotCrafter extends CTIVSlot {
 
     public void onPickupFromSlot(EntityPlayer player, ItemStack itemstack) {
         itemstack.onCrafting(player.worldObj, player, 1);
-        if(itemstack.getItem() == Item.getItemFromBlock(Blocks.crafting_table)) {
-            player.addStat(AchievementList.buildWorkBench, 1);
-        } else if(itemstack.getItem() == Items.wooden_pickaxe) {
-            player.addStat(AchievementList.buildPickaxe, 1);
-        } else if(itemstack.getItem() == Item.getItemFromBlock(Blocks.furnace)) {
-            player.addStat(AchievementList.buildFurnace, 1);
-        } else if(itemstack.getItem() == Items.wooden_hoe) {
-            player.addStat(AchievementList.buildHoe, 1);
-        } else if(itemstack.getItem() == Items.bread) {
-            player.addStat(AchievementList.makeBread, 1);
-        } else if(itemstack.getItem() == Items.cake) {
-            player.addStat(AchievementList.bakeCake, 1);
-        } else if(itemstack.getItem() == Items.stone_pickaxe) {
-            player.addStat(AchievementList.buildBetterPickaxe, 1);
-        } else if(itemstack.getItem() == Items.wooden_sword) {
-            player.addStat(AchievementList.buildSword, 1);
-        } else if(itemstack.getItem() == Item.getItemFromBlock(Blocks.enchanting_table)) {
-            player.addStat(AchievementList.enchantments, 1);
-        } else if(itemstack.getItem() == Item.getItemFromBlock(Blocks.bookshelf)) {
-            player.addStat(AchievementList.bookcase, 1);
-        }
+        achievementHandler.onCrafting(itemstack);
     }
+
+    static {
+        achievementHandler = new AchievementHandler();
+    }
+
+    private static class AchievementHandler extends SlotCrafting {
+
+        @SuppressWarnings("all")
+        public AchievementHandler() {
+            super(null, null, null, 0, 0, 0);
+        }
+
+        @Override
+        public void onCrafting(ItemStack stack) {
+            super.onCrafting(stack);
+        }
+
+    }
+
 }

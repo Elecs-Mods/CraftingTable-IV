@@ -4,7 +4,7 @@ import elec332.core.util.InventoryHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
 
 /**
  * Created by Elec332 on 16-9-2015.
@@ -89,7 +89,7 @@ public class WrappedInventory<I extends IInventory> implements IInventory{
     }
 
     @Override
-    public IChatComponent getDisplayName() {
+    public ITextComponent getDisplayName() {
         return inventory.getDisplayName();
     }
 

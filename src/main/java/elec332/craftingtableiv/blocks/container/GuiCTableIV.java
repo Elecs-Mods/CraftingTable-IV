@@ -1,6 +1,7 @@
 package elec332.craftingtableiv.blocks.container;
 
 import com.google.common.collect.Lists;
+import elec332.core.client.util.KeyHelper;
 import elec332.core.util.Constants;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
@@ -15,6 +16,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -23,6 +25,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -139,11 +142,11 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
     }
 
     @Override
-    public void handleMouseClick(Slot slot, int slotIndex, int mouseButton, int flag) {
+    protected void handleMouseClick(Slot slot, int slotId, int mouseButton, @Nonnull ClickType type) {
         if(slot instanceof SlotCrafter) {
             if(mouseButton == Constants.Mouse.MOUSE_RIGHT) {
                 updateRecipes();
-            } else if(flag == 1) {
+            } else if(KeyHelper.isShiftDown()) {
                 onRequestMaximumRecipeOutput((SlotCrafter) slot);
                 updateRecipes();
             } else if (mouseButton == Constants.Mouse.MOUSE_LEFT){
@@ -151,7 +154,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
                 updateRecipes();
             } else CraftingTableIVAbstractionLayer.instance.logger.info("Received mouse event with ID: " + mouseButton + " I cannot process this button");
         } else {
-            super.handleMouseClick(slot, slotIndex, mouseButton, flag);
+            super.handleMouseClick(slot, slotId, mouseButton, type);
             updateRecipes();
         }
     }
