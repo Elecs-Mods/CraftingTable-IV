@@ -1,6 +1,6 @@
 package elec332.craftingtableiv.tileentity;
 
-import elec332.core.inventory.IDefaultInventory;
+import elec332.core.api.inventory.IDefaultInventory;
 import elec332.core.tile.TileBase;
 import elec332.core.util.BasicInventory;
 import elec332.core.util.BlockStateHelper;

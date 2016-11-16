@@ -3,14 +3,9 @@ package elec332.craftingtableiv.blocks.slot;
 import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
 import elec332.craftingtableiv.blocks.container.CraftingTableIVContainer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.SlotCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.AchievementList;
 
 /**
  * Created by Elec332 on 23-3-2015.

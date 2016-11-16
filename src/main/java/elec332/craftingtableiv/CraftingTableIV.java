@@ -1,9 +1,11 @@
 package elec332.craftingtableiv;
 
+import elec332.core.api.network.ModNetworkHandler;
 import elec332.core.modBaseUtils.ModInfo;
-import elec332.core.network.NetworkHandler;
+import elec332.core.network.IElecNetworkHandler;
 import elec332.core.util.FileHelper;
 import elec332.core.util.MCModInfo;
+import elec332.core.util.RegistryHelper;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.abstraction.ICraftingTableIVMod;
 import elec332.craftingtableiv.blocks.BlockCraftingTableIV;
@@ -22,6 +24,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -61,7 +64,8 @@ public class CraftingTableIV implements ICraftingTableIVMod {
 
     @Mod.Instance(ModID)
     public static CraftingTableIV instance;
-    public static NetworkHandler networkHandler;
+    @ModNetworkHandler
+    public static IElecNetworkHandler networkHandler;
     public static Logger logger;
     public static CraftingTableIVAbstractionLayer abstractionLayer;
 
@@ -80,7 +84,6 @@ public class CraftingTableIV implements ICraftingTableIVMod {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        networkHandler = new NetworkHandler(ModID);
         GameRegistry.registerTileEntity(TileEntityCraftingTableIV.class, "test");
         craftingTableIV = GameRegistry.register(new BlockCraftingTableIV()).setCreativeTab(CreativeTabs.DECORATIONS);
         GameRegistry.register(new ItemBlock(craftingTableIV).setRegistryName(craftingTableIV.getRegistryName()));
@@ -108,7 +111,7 @@ public class CraftingTableIV implements ICraftingTableIVMod {
 
     @SubscribeEvent
     public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event){
-        networkHandler.getNetworkWrapper().sendTo(new PacketInitRecipes(), (EntityPlayerMP)event.player);
+        networkHandler.sendTo(new PacketInitRecipes(), (EntityPlayerMP)event.player);
     }
 
     @Override
@@ -150,13 +153,18 @@ public class CraftingTableIV implements ICraftingTableIVMod {
 
     @Override
     public void sendMessageToServer(NBTTagCompound tag) {
-        networkHandler.getNetworkWrapper().sendToServer(new PacketCraft(tag));
+        networkHandler.sendToServer(new PacketCraft(tag));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public String getItemRegistryName(ItemStack stack) {
-        return GameData.getItemRegistry().getNameForObject(stack.getItem()).toString();
+        ResourceLocation rl = RegistryHelper.getItemRegistry().getNameForObject(stack.getItem());
+        if (rl == null){
+            CraftingTableIV.logger.info("Found a recipe with an unregistered item! "+stack.getItem().toString());
+            return null;
+        }
+        return rl.toString();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package elec332.craftingtableiv.compat;
 
-import elec332.core.module.ElecModule;
+import elec332.core.api.module.ElecModule;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.api.CraftingTableIVAPI;

@@ -1,47 +1,34 @@
 package elec332.craftingtableiv.blocks;
 
-import elec332.core.client.IIconRegistrar;
+import elec332.core.api.client.IIconRegistrar;
+import elec332.core.api.client.model.IElecModelBakery;
+import elec332.core.api.client.model.IElecQuadBakery;
+import elec332.core.api.client.model.IElecTemplateBakery;
 import elec332.core.client.RenderHelper;
 import elec332.core.client.model.ElecModelBakery;
-import elec332.core.client.model.ElecQuadBakery;
-import elec332.core.client.model.INoJsonBlock;
-import elec332.core.client.model.model.AbstractItemModel;
+import elec332.core.client.model.loading.INoJsonBlock;
 import elec332.core.client.model.model.TESRItemModel;
-import elec332.core.client.model.template.ElecTemplateBakery;
 import elec332.core.tile.BlockTileBase;
 import elec332.core.util.BlockStateHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
-import elec332.craftingtableiv.client.ModelCraftingTableIV;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.tileentity.TileEntitySignRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -91,7 +78,7 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void registerModels(ElecQuadBakery quadBakery, ElecModelBakery modelBakery, ElecTemplateBakery templateBakery) {
+    public void registerModels(IElecQuadBakery quadBakery, IElecModelBakery modelBakery, IElecTemplateBakery templateBakery) {
         this.model = /*new AbstractItemModel() {
 
             CraftingTableIVRenderer renderer = new CraftingTableIVRenderer(){
