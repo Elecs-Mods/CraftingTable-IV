@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.abstraction.handler;
 
+import elec332.core.util.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -9,8 +10,9 @@ public class ItemComparator {
 
     public ItemComparator(ItemStack stack){
         this.stack = stack;
-        if (stack == null || stack.getItem() == null)
+        if (!ItemStackHelper.isStackValid(stack)) {
             throw new IllegalArgumentException("Invalid ItemStack!");
+        }
     }
 
     protected final ItemStack stack;

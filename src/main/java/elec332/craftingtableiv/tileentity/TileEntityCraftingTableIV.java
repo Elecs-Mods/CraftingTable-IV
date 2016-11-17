@@ -1,6 +1,7 @@
 package elec332.craftingtableiv.tileentity;
 
 import elec332.core.api.inventory.IDefaultInventory;
+import elec332.core.api.registration.RegisteredTileEntity;
 import elec332.core.tile.TileBase;
 import elec332.core.util.BasicInventory;
 import elec332.core.util.BlockStateHelper;
@@ -53,6 +54,7 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, ID
     }
 
     @Override
+    @Nonnull
     public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
         inventory.writeToNBT(tagCompound);
         return super.writeToNBT(tagCompound);

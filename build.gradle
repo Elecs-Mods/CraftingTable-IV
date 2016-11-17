@@ -70,7 +70,7 @@ minecraft {
 
 dependencies {
 	compile "net.industrial-craft:industrialcraft-2:"+config.ic2_version+":dev"
-	deobfCompile "net.sengir.forestry:forestry_${config.minecraft_version}:${config.forestry_version}"
+	deobfCompile "net.sengir.forestry:forestry_${config.forestry_version}"
 }
 
 processResources

@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.blocks.container;
 
+import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.blocks.slot.CTIVSlot;
 import elec332.craftingtableiv.blocks.slot.InterceptSlot;
 import elec332.craftingtableiv.blocks.slot.SlotCrafter;
@@ -11,6 +12,7 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -71,43 +73,44 @@ public class CraftingTableIVContainer extends Container {
         }
     }
 
-    @Nullable
     @Override
+    @Nonnull
     public ItemStack slotClick(int slotIndex, int dragType, ClickType clickType, EntityPlayer player) {
         if(slotIndex >= 0 && inventorySlots.get(slotIndex) != null && inventorySlots.get(slotIndex) instanceof SlotCrafter) {
-            return null;
+            return ItemStackHelper.NULL_STACK;
         }
         return super.slotClick(slotIndex, dragType, clickType, player);
     }
 
     @Override
+    @Nonnull
     public ItemStack transferStackInSlot(EntityPlayer player, int i) {
         ItemStack stack = null;
-        Slot slot = (Slot)this.inventorySlots.get(i);
+        Slot slot = this.inventorySlots.get(i);
         if (slot != null && slot.getHasStack()) {
             ItemStack stackInSlot = slot.getStack();
             stack = stackInSlot.copy();
 
             if (i < 58 && i > 39) {
                 if (!this.mergeItemStack(stackInSlot, 58, 94, true)) {
-                    return null;
+                    return ItemStackHelper.NULL_STACK;
                 }
             } else if (i > 57) {
                 if (!this.mergeItemStack(stackInSlot, 40, 58, false)) {
-                    return null;
+                    return ItemStackHelper.NULL_STACK;
                 }
             }
             if (stackInSlot.stackSize == 0) {
-                slot.putStack(null);
+                slot.putStack(ItemStackHelper.NULL_STACK);
             } else {
                 slot.onSlotChanged();
             }
         }
-        return stack;
+        return ItemStackHelper.NULL_STACK;
     }
 
     @Override
-    public boolean canInteractWith(EntityPlayer entityplayer) {
+    public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
         return this.theTile.isUseableByPlayer(entityplayer);
     }
 

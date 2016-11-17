@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import elec332.core.util.BasicInventory;
 import elec332.core.util.DoubleInventory;
+import elec332.core.util.ItemStackHelper;
 import elec332.core.util.NBTHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
@@ -44,7 +45,7 @@ public class CraftingHandler {
         SortedMap<String, List<WrappedRecipe>> namedList = Maps.newTreeMap();
         recipeLoop:
         for (IRecipe recipe : recipeList){
-            if (recipe == null || recipe.getRecipeOutput() == null || recipe.getRecipeOutput().getItem() == null){
+            if (recipe == null || !ItemStackHelper.isStackValid(recipe.getRecipeOutput())){
                 continue;
             }
             if (getAbstractionLayer().isRecipeDisabled(recipe)/* || erroredClasses.contains(recipe.getClass())*/){
@@ -67,12 +68,14 @@ public class CraftingHandler {
                     WrappedRecipe wrappedRecipe = handleRecipe(recipe, handler);
                     if (wrappedRecipe != null){
                         if (s[0].contains("minecraft")) {
-                            if (entries.get("minecraft") == null)
+                            if (entries.get("minecraft") == null) {
                                 entries.put("minecraft", Lists.<WrappedRecipe>newArrayList());
+                            }
                             entries.get("minecraft").add(wrappedRecipe);
                         } else {
-                            if (namedList.get(s[0]) == null)
+                            if (namedList.get(s[0]) == null) {
                                 namedList.put(s[0], Lists.<WrappedRecipe>newArrayList());
+                            }
                             namedList.get(s[0]).add(wrappedRecipe);
                         }
                         continue recipeLoop;
@@ -223,7 +226,7 @@ public class CraftingHandler {
         IRecipeHandler recipeHandler = recipe.getRecipeHandler();
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack itemStack = inventory.getStackInSlot(i);
-            if (itemStack != null && recipeHandler.isValidIngredientFor(recipe.getRecipe(), stack, itemStack)){
+            if (ItemStackHelper.isStackValid(stack) && recipeHandler.isValidIngredientFor(recipe.getRecipe(), stack, itemStack)){
                 return i;
             }
         }
@@ -247,7 +250,7 @@ public class CraftingHandler {
         inventory.decrStackSize(slot, 1);
         if (stack.getItem().hasContainerItem(stack)){
             ItemStack itemStack = stack.getItem().getContainerItem(stack);
-            if (itemStack != null && itemStack.isItemStackDamageable() && itemStack.getItemDamage() > itemStack.getMaxDamage()) {
+            if (ItemStackHelper.isStackValid(itemStack) && itemStack.isItemStackDamageable() && itemStack.getItemDamage() > itemStack.getMaxDamage()) {
                 itemStack = null;
             }
 
@@ -278,7 +281,7 @@ public class CraftingHandler {
     }
 
     public static void onMessageReceived(IWorldAccessibleInventory inventory, NBTTagCompound recipeTag){
-        List<WrappedRecipe> recipes = recipeList.getCraftingRecipe(ItemStack.loadItemStackFromNBT(recipeTag.getCompoundTag("out")));
+        List<WrappedRecipe> recipes = recipeList.getCraftingRecipe(new ItemStack(recipeTag.getCompoundTag("out")));
         NBTTagList list = recipeTag.getTagList("ingredients", 10);
         WrappedRecipe wrappedRecipe = null;
         recipeLoop:
@@ -289,8 +292,8 @@ public class CraftingHandler {
             ingredientLoop:
             for (int i = 0; i < list.tagCount(); i++) {
                 Object obj = recipe.getInput()[i];
-                ItemStack stack = ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i));
-                if (stack == null){
+                ItemStack stack = ItemStackHelper.loadItemStackFromNBT(list.getCompoundTagAt(i));
+                if (!ItemStackHelper.isStackValid(stack)){
                     if (obj == null){
                         continue;
                     } else {
@@ -610,7 +613,7 @@ public class CraftingHandler {
     }
 
     public static List<WrappedRecipe> getCraftingRecipe(ItemStack stack) {
-        if (stack == null || stack.getItem() == null)
+        if (!ItemStackHelper.isStackValid(stack))
             return Lists.newArrayList();
         List<WrappedRecipe> possRet;
         try {

@@ -3,6 +3,7 @@ package elec332.craftingtableiv.blocks.container;
 import com.google.common.collect.Lists;
 import elec332.core.client.util.KeyHelper;
 import elec332.core.util.Constants;
+import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
 import elec332.craftingtableiv.abstraction.handler.FastRecipeList;
@@ -106,18 +107,18 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
                 if(i1 >= 0 && i1 < numberOfRecipes) {
                     ItemStack recipeOutput = craftableRecipes.getRecipeOutput(i1);
                     if(recipeOutput != null) {
-                        inventory.setInventorySlotContents(l + k * 8, null);
+                        inventory.setInventorySlotContents(l + k * 8, ItemStackHelper.NULL_STACK);
                         if(slot instanceof SlotCrafter) {
                             ((SlotCrafter)slot).setIRecipe(craftableRecipes.getShownRecipe(i1));
                         }
                     } else {
-                        inventory.setInventorySlotContents(l + k * 8, null);
+                        inventory.setInventorySlotContents(l + k * 8, ItemStackHelper.NULL_STACK);
                         if(slot instanceof SlotCrafter) {
                             ((SlotCrafter)slot).setIRecipe(null);
                         }
                     }
                 } else {
-                    inventory.setInventorySlotContents(l + k * 8, null);
+                    inventory.setInventorySlotContents(l + k * 8, ItemStackHelper.NULL_STACK);
                     if(slot instanceof SlotCrafter) {
                         ((SlotCrafter)slot).setIRecipe(null);
                     }
@@ -263,7 +264,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
     public void drawScreen(int i, int j, float f) {
 
         for (int b = 0; b < 9; b++) {
-            ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, null);
+            ((CraftingTableIVContainer)inventorySlots).recipeItems.setInventorySlotContents(b, ItemStackHelper.NULL_STACK);
         }
 
         for (int a = 0; a < ((CraftingTableIVContainer)inventorySlots).inventory.getSizeInventory(); a++) {
@@ -280,7 +281,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
                                 if (theRecipe.get(b) != null)
                                     ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, theRecipe.get(b));
                                 else
-                                    ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, null);
+                                    ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(b, ItemStackHelper.NULL_STACK);
                             } else if (RecipeType == 0) {
                                 if (theRecipe.get(b) != null) {
                                     ((CraftingTableIVContainer) inventorySlots).recipeItems.setInventorySlotContents(Counter, theRecipe.get(b));

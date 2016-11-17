@@ -2,6 +2,7 @@ package elec332.craftingtableiv.abstraction.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
@@ -38,23 +39,27 @@ public class FastRecipeList {
     }
 
     public List<WrappedRecipe> getCraftingRecipe(ItemStack stack) {
-        if (stack == null || stack.getItem() == null)
+        if (!ItemStackHelper.isStackValid(stack)) {
             return Lists.newArrayList();
+        }
         List<WrappedRecipe> possRet;
         try {
             possRet = recipeHash.get(identifier(stack)).get(new ItemComparator(stack));
         } catch (Exception e) {
             return Lists.newArrayList();
         }
-        if (possRet == null || possRet.isEmpty())
+        if (possRet == null || possRet.isEmpty()) {
             return Lists.newArrayList();
-        if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+        }
+        if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
             return possRet;
+        }
         List<WrappedRecipe> ret = Lists.newArrayList();
         for (WrappedRecipe recipe : possRet) {
             ItemStack out = recipe.getRecipeOutput();
-            if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes()))
+            if (out.getItemDamage() == stack.getItemDamage() || (!out.getHasSubtypes() && !stack.getHasSubtypes())) {
                 ret.add(recipe);
+            }
         }
         return ret;
     }

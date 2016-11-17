@@ -1,5 +1,6 @@
 package elec332.craftingtableiv;
 
+import elec332.core.api.IElecCoreMod;
 import elec332.core.api.network.ModNetworkHandler;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.IElecNetworkHandler;
@@ -50,9 +51,9 @@ import java.util.List;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-@Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = ModInfo.DEPENDENCIES+"@[#ELECCORE_VER#,)",
-        acceptedMinecraftVersions = "[1.9.4,)", useMetadata = true, canBeDeactivated = true)
-public class CraftingTableIV implements ICraftingTableIVMod {
+@Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = "required-after:eleccore@[#ELECCORE_VER#,)",
+        acceptedMinecraftVersions = "[1.10.2,)", useMetadata = true, canBeDeactivated = true)
+public class CraftingTableIV implements ICraftingTableIVMod, IElecCoreMod {
 
     public static final String ModName = "CraftingTable-IV"; //Human readable name
     public static final String ModID = "CraftingTableIV";  //modid (usually lowercase)
@@ -107,6 +108,11 @@ public class CraftingTableIV implements ICraftingTableIVMod {
     public void serverStarted(FMLServerStartedEvent event){
         MinecraftForge.EVENT_BUS.register(this);
         abstractionLayer.serverStarted();
+    }
+
+    @Override
+    public String getRequiredForgeVersion() {
+        return "13.19.0.2131";
     }
 
     @SubscribeEvent
