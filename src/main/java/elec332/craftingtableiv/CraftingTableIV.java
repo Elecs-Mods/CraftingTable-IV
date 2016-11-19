@@ -114,7 +114,7 @@ public class CraftingTableIV implements ICraftingTableIVMod, IElecCoreMod {
 
     @Override
     public String getRequiredForgeVersion() {
-        return ForgeVersion.mcVersion.equals("1.11") ? "13.19.0.2131" : null;
+        return ForgeVersion.mcVersion.equals("1.11") ? "13.19.0.2149" : null;
     }
 
     @SubscribeEvent

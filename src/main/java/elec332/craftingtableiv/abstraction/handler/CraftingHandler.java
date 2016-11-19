@@ -24,6 +24,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -152,12 +153,17 @@ public class CraftingHandler {
         }
         int inputSize = recipe.getInput().length;
         ItemStack[] usedIngredients = new ItemStack[inputSize];
+        Arrays.fill(usedIngredients, ItemStackHelper.NULL_STACK);
         mainLoop:
         for (int o = 0; o < inputSize; o++) {
             Object obj = recipe.getInput()[o];
-            if (obj == null)
+            if (obj == null) {
                 continue;
+            }
             if (obj instanceof ItemStack){
+                if (!ItemStackHelper.isStackValid((ItemStack) obj)){
+                    continue;
+                }
                 ItemStack stack = ((ItemStack) obj).copy();
                 int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
                 if (i >= 0){
@@ -281,7 +287,7 @@ public class CraftingHandler {
     }
 
     public static void onMessageReceived(IWorldAccessibleInventory inventory, NBTTagCompound recipeTag){
-        List<WrappedRecipe> recipes = recipeList.getCraftingRecipe(new ItemStack(recipeTag.getCompoundTag("out")));
+        List<WrappedRecipe> recipes = recipeList.getCraftingRecipe(ItemStackHelper.loadItemStackFromNBT(recipeTag.getCompoundTag("out")));
         NBTTagList list = recipeTag.getTagList("ingredients", 10);
         WrappedRecipe wrappedRecipe = null;
         recipeLoop:
@@ -294,7 +300,7 @@ public class CraftingHandler {
                 Object obj = recipe.getInput()[i];
                 ItemStack stack = ItemStackHelper.loadItemStackFromNBT(list.getCompoundTagAt(i));
                 if (!ItemStackHelper.isStackValid(stack)){
-                    if (obj == null){
+                    if (obj == null || (obj instanceof ItemStack && !ItemStackHelper.isStackValid((ItemStack) obj))){
                         continue;
                     } else {
                         continue recipeLoop;
