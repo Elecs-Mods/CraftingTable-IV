@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.abstraction;
 
+import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.abstraction.handler.CraftingHandler;
 import elec332.craftingtableiv.abstraction.recipes.RecipeHandler;
 import elec332.craftingtableiv.abstraction.recipes.vanilla.ForgeRecipeHandler;
@@ -108,6 +109,10 @@ public class CraftingTableIVAbstractionLayer implements ICraftingTableIVAPI {
         try {
             NBTTagCompound iwa = tag.getCompoundTag("iwa");
             CraftingHandler.IWorldAccessibleInventory inventory = CraftingHandler.IWorldAccessibleInventory.class.cast(Class.forName(iwa.getString("iwa_ident"), true, getClass().getClassLoader()).newInstance()).readFromNBT(iwa);
+            if (inventory == null){
+                CraftingTableIV.logger.error("Error processing crafing request, player no longer exists?!?");
+                return;
+            }
             CraftingHandler.onMessageReceived(inventory, tag.getCompoundTag("recipe"));
         } catch (Exception e){
             throw new RuntimeException(e);

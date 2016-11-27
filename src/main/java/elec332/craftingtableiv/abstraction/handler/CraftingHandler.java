@@ -8,6 +8,7 @@ import elec332.core.util.DoubleInventory;
 import elec332.core.util.ItemStackHelper;
 import elec332.core.util.NBTHelper;
 import elec332.core.world.WorldHelper;
+import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
@@ -24,10 +25,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
+import java.util.*;
 
 /**
  * Created by Elec332 on 23-3-2015.
@@ -374,6 +372,7 @@ public class CraftingHandler {
         public void writeToNBT(NBTTagCompound tag) {
             tag.setInteger("dimID", WorldHelper.getDimID(world));
             tag.setInteger("playerID", player.getEntityId());
+            tag.setString("PlayerUUID", player.getUniqueID().toString());
             new NBTHelper(tag).addToTag(craftingTableIV.getPos());
         }
 
@@ -381,6 +380,13 @@ public class CraftingHandler {
         public IWorldAccessibleInventory<DoubleInventory<InventoryPlayer, TileEntityCraftingTableIV>> readFromNBT(NBTTagCompound tag) {
             World world = getAbstractionLayer().mod.getWorld(tag.getInteger("dimID"));
             EntityPlayer player = (EntityPlayer) world.getEntityByID(tag.getInteger("playerID"));
+            if (player == null){
+                CraftingTableIV.logger.error("PlayerEntity with ID: "+tag.getInteger("playerID")+" does no longer exist?!?");
+                player = world.getPlayerEntityByUUID(UUID.fromString(tag.getString("PlayerUUID")));
+                if (player == null){
+                    return null;
+                }
+            }
             TileEntityCraftingTableIV craftingTableIV = (TileEntityCraftingTableIV) WorldHelper.getTileAt(world, new NBTHelper(tag).getPos());
             return new CraftingTableIVHandler(player, craftingTableIV, world);
         }

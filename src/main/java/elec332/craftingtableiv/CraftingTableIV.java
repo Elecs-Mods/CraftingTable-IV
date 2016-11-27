@@ -2,6 +2,7 @@ package elec332.craftingtableiv;
 
 import elec332.core.api.IElecCoreMod;
 import elec332.core.api.network.ModNetworkHandler;
+import elec332.core.api.util.IDependencyHandler;
 import elec332.core.modBaseUtils.ModInfo;
 import elec332.core.network.IElecNetworkHandler;
 import elec332.core.util.FileHelper;
@@ -55,7 +56,7 @@ import java.util.List;
  */
 @Mod(modid = CraftingTableIV.ModID, name = CraftingTableIV.ModName, dependencies = "required-after:eleccore@[#ELECCORE_VER#,)",
         acceptedMinecraftVersions = "[1.10.2,)", useMetadata = true, canBeDeactivated = true)
-public class CraftingTableIV implements ICraftingTableIVMod, IElecCoreMod {
+public class CraftingTableIV implements ICraftingTableIVMod, IElecCoreMod, IDependencyHandler {
 
     public static final String ModName = "CraftingTable-IV"; //Human readable name
     public static final String ModID = "CraftingTableIV";  //modid (usually lowercase)
@@ -113,8 +114,8 @@ public class CraftingTableIV implements ICraftingTableIVMod, IElecCoreMod {
     }
 
     @Override
-    public String getRequiredForgeVersion() {
-        return ForgeVersion.mcVersion.equals("1.11") ? "13.19.0.2149" : null;
+    public String getRequiredForgeVersion(String mcVersion) {
+        return mcVersion.equals("1.11") ? "13.19.0.2149" : null;
     }
 
     @SubscribeEvent

@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.abstraction.recipes.vanilla;
 
+import elec332.core.util.recipes.RecipeHelper;
 import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -21,7 +22,7 @@ public class ForgeRecipeHandler extends AbstractRecipeHandler {
     @Override
     public Object[] getIngredients(IRecipe recipe) {
         if (recipe instanceof ShapelessOreRecipe){
-            return ((ShapelessOreRecipe) recipe).getInput().toArray();
+            return RecipeHelper.getRecipeOutput((ShapelessOreRecipe) recipe).toArray();
         }
         return ((ShapedOreRecipe)recipe).getInput();
     }

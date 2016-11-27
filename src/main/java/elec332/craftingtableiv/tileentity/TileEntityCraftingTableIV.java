@@ -1,7 +1,6 @@
 package elec332.craftingtableiv.tileentity;
 
 import elec332.core.api.inventory.IDefaultInventory;
-import elec332.core.api.registration.RegisteredTileEntity;
 import elec332.core.tile.TileBase;
 import elec332.core.util.BasicInventory;
 import elec332.core.util.BlockStateHelper;
@@ -107,7 +106,7 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, ID
     }
 
     @Override
-    public boolean onBlockActivated(IBlockState state, EntityPlayer player, EnumHand hand, ItemStack stack, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         return openGui(player, CraftingTableIV.instance, CraftingTableIV.guiID);
     }
 
