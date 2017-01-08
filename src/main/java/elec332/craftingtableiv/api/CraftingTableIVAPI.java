@@ -10,9 +10,9 @@ import java.util.List;
  */
 public class CraftingTableIVAPI {
 
-    protected static final String owner = "CraftingTableIV";
-    protected static final String version = "1.0.2";
-    protected static final String provides = "CraftingTableIV-API";
+    static final String owner = "CraftingTableIV";
+    static final String version = "1.1.0";
+    static final String provides = "CraftingTableIV-API";
 
     private static final ICraftingTableIVAPI api;
 
@@ -55,7 +55,7 @@ public class CraftingTableIVAPI {
     static {
         ICraftingTableIVAPI a;
         try {
-            a = (ICraftingTableIVAPI) Class.forName("elec332.craftingtableiv.abstraction.recipes.RecipeHandler").getDeclaredMethod("getCompatHandler").invoke(null);
+            a = (ICraftingTableIVAPI) Class.forName("elec332.craftingtableiv.handler.RecipeHandler").getDeclaredMethod("getCompatHandler").invoke(null);
         } catch (Exception e){
             System.out.println("CraftingTableIV mod not found, registering handlers will not work!");
             a = new NullAPI();

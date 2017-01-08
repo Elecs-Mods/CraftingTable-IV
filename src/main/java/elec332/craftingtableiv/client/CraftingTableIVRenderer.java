@@ -14,11 +14,6 @@ public class CraftingTableIVRenderer extends TileEntitySpecialRenderer<TileEntit
 
     public CraftingTableIVRenderer() {
         modelCraftingTable = new ModelCraftingTableIV();
-        init();
-    }
-
-    protected void init(){
-
     }
 
     private final ModelCraftingTableIV modelCraftingTable;
@@ -27,7 +22,7 @@ public class CraftingTableIVRenderer extends TileEntitySpecialRenderer<TileEntit
     @Override
     public void renderTileEntityAt(@Nullable TileEntityCraftingTableIV tile, double x, double y, double z, float partialTicks, int destroyStage) {
         float doorRotation = 0;
-        int facing = 2;
+        int facing = 0;
         if (tile != null) {
             doorRotation = tile.doorAngle;
             facing = tile.getFacing();

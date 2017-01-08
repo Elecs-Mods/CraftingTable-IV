@@ -1,8 +1,7 @@
-package elec332.craftingtableiv.blocks.inv;
+package elec332.craftingtableiv.util;
 
 import com.google.common.collect.Lists;
-import elec332.craftingtableiv.abstraction.handler.WrappedRecipe;
-import elec332.craftingtableiv.blocks.container.GuiCTableIV;
+import elec332.craftingtableiv.inventory.WindowCraftingTableIV;
 import net.minecraft.item.ItemStack;
 
 import java.util.List;
@@ -10,11 +9,11 @@ import java.util.List;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class InventoryCraftingTableIV {
+public class RecipeCache {
 
     private List<WrappedRecipe> recipes, shownRecipes;
 
-    public InventoryCraftingTableIV() {
+    public RecipeCache() {
         recipes = Lists.newArrayList();
         shownRecipes = Lists.newArrayList();
     }
@@ -27,7 +26,7 @@ public class InventoryCraftingTableIV {
         return shownRecipes.size();
     }
 
-    public void addRecipe(WrappedRecipe recipe, GuiCTableIV.StackMatcher matcher){
+    public void addRecipe(WrappedRecipe recipe, WindowCraftingTableIV.StackMatcher matcher){
         if (matcher.canAdd(recipe)){
             shownRecipes.add(recipe);
         }
@@ -42,7 +41,7 @@ public class InventoryCraftingTableIV {
         return getShownRecipe(i).getRecipeOutput();
     }
 
-    public void updateVisual(GuiCTableIV.StackMatcher stackMatcher){
+    public void updateVisual(WindowCraftingTableIV.StackMatcher stackMatcher){
         shownRecipes.clear();
         for (WrappedRecipe wrappedRecipe : recipes){
             if (stackMatcher.canAdd(wrappedRecipe)){

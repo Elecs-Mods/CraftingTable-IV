@@ -1,4 +1,4 @@
-package elec332.craftingtableiv.abstraction.recipes;
+package elec332.craftingtableiv.handler;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

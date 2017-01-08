@@ -3,8 +3,8 @@ package elec332.craftingtableiv.compat;
 import com.google.common.collect.Lists;
 import elec332.core.api.module.ElecModule;
 import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.api.AbstractRecipeHandler;
 import elec332.craftingtableiv.api.CraftingTableIVAPI;
+import elec332.craftingtableiv.api.IRecipeHandler;
 import ic2.api.item.IElectricItem;
 import ic2.api.recipe.IRecipeInput;
 import ic2.core.recipe.AdvRecipe;
@@ -29,7 +29,7 @@ public class IC2  {
     public void init(FMLInitializationEvent event) {
         identifyTypes();
         if (normal){
-            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new IRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {
@@ -61,8 +61,13 @@ public class IC2  {
                     return list == null ? null : list.toArray();
                 }
 
+                @Override
+                public int getRecipeWidth(IRecipe recipe) {
+                    return ((AdvRecipe) recipe).inputWidth;
+                }
+
             });
-            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new IRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {
@@ -88,7 +93,7 @@ public class IC2  {
             });
         } else if (classic){
 
-            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new IRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {
@@ -101,8 +106,12 @@ public class IC2  {
                     return ((AdvRecipe) recipe).input;
                 }
 
+                @Override
+                public int getRecipeWidth(IRecipe recipe) {
+                    return ((AdvRecipe) recipe).inputWidth;
+                }
             });
-            CraftingTableIVAPI.getAPI().registerHandler(new AbstractRecipeHandler() {
+            CraftingTableIVAPI.getAPI().registerHandler(new IRecipeHandler() {
 
                 @Override
                 public boolean canHandleRecipe(IRecipe recipe) {

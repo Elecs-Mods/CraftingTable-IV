@@ -1,4 +1,4 @@
-package elec332.craftingtableiv.abstraction.handler;
+package elec332.craftingtableiv.util;
 
 import elec332.core.util.ItemStackHelper;
 import net.minecraft.item.ItemStack;
@@ -31,7 +31,12 @@ public class ItemComparator {
         return obj instanceof ItemStack ? stacksEqual((ItemStack) obj) : ((obj instanceof ItemComparator) && stacksEqual(((ItemComparator) obj).getStack()));
     }
 
-    public boolean stacksEqual(ItemStack s1){
+    protected boolean stacksEqual(ItemStack s1){
         return s1.getItem() == stack.getItem();
     }
+
+    public ItemComparator copy(){
+        return new ItemComparator(getStack());
+    }
+
 }

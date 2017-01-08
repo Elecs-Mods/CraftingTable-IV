@@ -9,14 +9,6 @@ import net.minecraft.entity.Entity;
  */
 public class ModelCraftingTableIV extends ModelBase {
 
-    ModelRenderer Table;
-    ModelRenderer Door;
-    ModelRenderer door_side1;
-    ModelRenderer door_side2;
-    ModelRenderer door_topside1;
-    ModelRenderer door_topside2;
-    ModelRenderer Book;
-
     public ModelCraftingTableIV() {
         textureWidth = 128;
         textureHeight = 64;
@@ -64,6 +56,14 @@ public class ModelCraftingTableIV extends ModelBase {
         Book.mirror = true;
         setRotation(Book, 0F, 0.4833219F, 0F);
     }
+
+    private ModelRenderer Table;
+    private ModelRenderer Door;
+    private ModelRenderer door_side1;
+    private ModelRenderer door_side2;
+    private ModelRenderer door_topside1;
+    private ModelRenderer door_topside2;
+    private ModelRenderer Book;
 
     public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
         super.render(entity, 0.0F, f1, f2, f3, f4, f5);

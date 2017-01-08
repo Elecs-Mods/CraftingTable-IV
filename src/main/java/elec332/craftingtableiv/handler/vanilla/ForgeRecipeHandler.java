@@ -1,7 +1,7 @@
-package elec332.craftingtableiv.abstraction.recipes.vanilla;
+package elec332.craftingtableiv.handler.vanilla;
 
 import elec332.core.util.recipes.RecipeHelper;
-import elec332.craftingtableiv.api.AbstractRecipeHandler;
+import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 /**
  * Created by Elec332 on 7-1-2016.
  */
-public class ForgeRecipeHandler extends AbstractRecipeHandler {
+public class ForgeRecipeHandler implements IRecipeHandler {
 
     @Override
     public boolean canHandleRecipe(IRecipe recipe) {
@@ -25,6 +25,11 @@ public class ForgeRecipeHandler extends AbstractRecipeHandler {
             return RecipeHelper.getRecipeOutput((ShapelessOreRecipe) recipe).toArray();
         }
         return ((ShapedOreRecipe)recipe).getInput();
+    }
+
+    @Override
+    public int getRecipeWidth(IRecipe recipe) {
+        return recipe instanceof ShapelessOreRecipe ? 3 : -1;
     }
 
 }

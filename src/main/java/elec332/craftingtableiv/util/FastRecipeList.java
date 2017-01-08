@@ -1,13 +1,13 @@
-package elec332.craftingtableiv.abstraction.handler;
+package elec332.craftingtableiv.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import elec332.core.util.ItemStackHelper;
-import elec332.craftingtableiv.abstraction.CraftingTableIVAbstractionLayer;
+import elec332.craftingtableiv.CraftingTableIV;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,30 +26,29 @@ public class FastRecipeList {
         recipeHash = Maps.newHashMap();
     }
 
-    Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash;
+    private Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash;
 
     public void addRecipe(WrappedRecipe recipe){
-        ItemComparator itemComparator = new ItemComparator(recipe.getRecipe().getRecipeOutput().copy());
-        String s = identifier(itemComparator.getStack());
-        if (recipeHash.get(s) == null)
-            recipeHash.put(s, Maps.<ItemComparator, List<WrappedRecipe>>newHashMap());
-        if (recipeHash.get(s).get(itemComparator) == null)
-            recipeHash.get(s).put(itemComparator, new ArrayList<WrappedRecipe>());
-        recipeHash.get(s).get(itemComparator).add(recipe);
+        ItemComparator itemComparator = new ItemComparator(recipe.getRecipe().getRecipeOutput());
+        String s = CraftingTableIV.getItemIdentifier(itemComparator.getStack());
+        recipeHash.
+                computeIfAbsent(s, k -> Maps.<ItemComparator, List<WrappedRecipe>>newHashMap()).
+                computeIfAbsent(itemComparator, k -> Lists.newArrayList()).
+                add(recipe);
     }
 
     public List<WrappedRecipe> getCraftingRecipe(ItemStack stack) {
         if (!ItemStackHelper.isStackValid(stack)) {
-            return Lists.newArrayList();
+            return ImmutableList.of();
         }
         List<WrappedRecipe> possRet;
         try {
-            possRet = recipeHash.get(identifier(stack)).get(new ItemComparator(stack));
+            possRet = recipeHash.get(CraftingTableIV.getItemIdentifier(stack)).get(new ItemComparator(stack));
         } catch (Exception e) {
-            return Lists.newArrayList();
+            return ImmutableList.of();
         }
         if (possRet == null || possRet.isEmpty()) {
-            return Lists.newArrayList();
+            return ImmutableList.of();
         }
         if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
             return possRet;
@@ -76,8 +75,9 @@ public class FastRecipeList {
     }
 
     public void removeAllRecipes(List<WrappedRecipe> recipes){
-        for (WrappedRecipe recipe : recipes)
+        for (WrappedRecipe recipe : recipes) {
             removeRecipe(recipe);
+        }
     }
 
     public FastRecipeList copyOf(){
@@ -85,17 +85,13 @@ public class FastRecipeList {
         for (Map.Entry<String, Map<ItemComparator, List<WrappedRecipe>>> entry : recipeHash.entrySet()){
             ret.recipeHash.put(entry.getKey(), Maps.<ItemComparator, List<WrappedRecipe>>newHashMap());
             for (Map.Entry<ItemComparator, List<WrappedRecipe>> comparatorListEntry : recipeHash.get(entry.getKey()).entrySet()){
-                ret.recipeHash.get(entry.getKey()).put(new ItemComparator(comparatorListEntry.getKey().getStack().copy()), Lists.<WrappedRecipe>newArrayList());
+                ret.recipeHash.get(entry.getKey()).put(comparatorListEntry.getKey().copy(), Lists.<WrappedRecipe>newArrayList());
                 for (WrappedRecipe recipe : recipeHash.get(entry.getKey()).get(comparatorListEntry.getKey())){
                     ret.recipeHash.get(entry.getKey()).get(comparatorListEntry.getKey()).add(recipe);
                 }
             }
         }
         return ret;
-    }
-
-    private static String identifier(ItemStack stack){
-        return CraftingTableIVAbstractionLayer.instance.mod.getItemRegistryName(stack).replace(":", " ").split(" ")[0];
     }
 
 }

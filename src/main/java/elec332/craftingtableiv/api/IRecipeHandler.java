@@ -2,6 +2,7 @@ package elec332.craftingtableiv.api;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,11 +17,27 @@ public interface IRecipeHandler {
     @Nonnull
     public Object[] getIngredients(IRecipe recipe);
 
-    public boolean isValidIngredientFor(IRecipe recipe, ItemStack recipeStack, ItemStack inventoryStack);
+    /**
+     * Returns the recipe width, return -1 for shapeless recipes
+     *
+     * @param recipe The recipe
+     * @return The recipe width, or -1 for shapeless recipes
+     */
+    default public int getRecipeWidth(IRecipe recipe){
+        return -1;
+    }
+
+    default public boolean isValidIngredientFor(IRecipe recipe, ItemStack recipeStack, ItemStack inventoryStack) {
+        return recipeStack.getItem() == inventoryStack.getItem() && (recipeStack.getItemDamage() == inventoryStack.getItemDamage() || recipeStack.getItemDamage() == OreDictionary.WILDCARD_VALUE || !recipeStack.getHasSubtypes() && !inventoryStack.getHasSubtypes());
+    }
 
     @Nullable
-    public ItemStack getCraftingResult(IRecipe recipe, ItemStack[] usedStacks);
+    default public ItemStack getCraftingResult(IRecipe recipe, ItemStack[] usedStacks) {
+        return recipe.getRecipeOutput().copy();
+    }
 
-    public boolean logHandlerErrors();
+    default public boolean logHandlerErrors(){
+        return true;
+    }
 
 }
