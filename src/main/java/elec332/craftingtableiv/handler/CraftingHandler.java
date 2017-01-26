@@ -227,7 +227,7 @@ public class CraftingHandler {
         IRecipeHandler recipeHandler = recipe.getRecipeHandler();
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack itemStack = inventory.getStackInSlot(i);
-            if (ItemStackHelper.isStackValid(stack) && recipeHandler.isValidIngredientFor(recipe.getRecipe(), stack, itemStack)){
+            if (ItemStackHelper.isStackValid(itemStack) && recipeHandler.isValidIngredientFor(recipe.getRecipe(), stack, itemStack)){
                 return i;
             }
         }

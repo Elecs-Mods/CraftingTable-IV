@@ -29,7 +29,7 @@ public class ForgeRecipeHandler implements IRecipeHandler {
 
     @Override
     public int getRecipeWidth(IRecipe recipe) {
-        return recipe instanceof ShapelessOreRecipe ? 3 : -1;
+        return recipe instanceof ShapelessOreRecipe ? -1 : 3;
     }
 
 }

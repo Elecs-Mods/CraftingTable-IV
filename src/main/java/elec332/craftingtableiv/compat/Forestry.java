@@ -32,7 +32,12 @@ public class Forestry  {
             @Override
             public Object[] getIngredients(IRecipe recipe) {
                 try {
-                    return ((List) ingredients.invoke(recipe)).toArray();
+                    Object o = ingredients.invoke(recipe);
+                    if (o.getClass().isArray()){
+                        return (Object[]) o; //MC 1.10
+                    } else {
+                        return ((List) o).toArray(); //MC 1.11
+                    }
                 } catch (Exception e){
                     throw new RuntimeException();
                 }

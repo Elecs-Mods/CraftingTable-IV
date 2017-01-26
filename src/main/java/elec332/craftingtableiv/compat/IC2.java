@@ -9,12 +9,13 @@ import ic2.api.item.IElectricItem;
 import ic2.api.recipe.IRecipeInput;
 import ic2.core.recipe.AdvRecipe;
 import ic2.core.recipe.AdvShapelessRecipe;
+import ic2.core.util.StackUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Elec332 on 4-10-2015.
@@ -46,14 +47,14 @@ public class IC2  {
                     }
                     int mask = recipe.masks[0];
                     int itemIndex = 0;
-                    List<IRecipeInput> ret = Lists.newArrayList();
+                    ArrayList ret = new ArrayList();
 
                     for(int i = 0; i < 9; ++i) {
                         if(i % 3 < recipe.inputWidth && i / 3 < recipe.inputHeight) {
                             if((mask >>> 8 - i & 1) != 0) {
                                 ret.add(recipe.input[itemIndex++]);
                             } else {
-                                ret.add(null);
+                                ret.add((Object)null);
                             }
                         }
                     }
@@ -129,11 +130,29 @@ public class IC2  {
     }
 
     private boolean isRecipeValid(@Nonnull AdvRecipe recipe) {
-        return !recipe.hidden && !hidden(recipe.input);
+        if (!recipe.canShow()) {
+            return false;
+        } else {
+            for (IRecipeInput input : recipe.input) {
+                if (input.getInputs().isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     private boolean isRecipeValid(@Nonnull AdvShapelessRecipe recipe) {
-        return !recipe.hidden && !hidden(recipe.input);
+        if (!recipe.canShow()) {
+            return false;
+        } else {
+            for (IRecipeInput input : recipe.input) {
+                if (input.getInputs().isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     private boolean hidden(IRecipeInput[] inputs){
@@ -146,22 +165,26 @@ public class IC2  {
     }
 
     private static List<List<ItemStack>> replaceRecipeInputs(List<IRecipeInput> list) {
-       List<List<ItemStack>> out = Lists.newArrayList();
+        List<List<ItemStack>> out = Lists.newArrayList();
 
         for (IRecipeInput recipe : list) {
             if (recipe == null) {
-                out.add(null);
+                out.add(Collections.emptyList());
             } else {
-                List<ItemStack> replace = recipe.getInputs();
-                for (int i = 0; i < replace.size(); ++i) {
-                    ItemStack stack = replace.get(i);
+                List<ItemStack> replace = Lists.newArrayList();
+                ListIterator<ItemStack> it = replace.listIterator();
+
+                while (it.hasNext()) {
+                    ItemStack stack = it.next();
                     if (stack != null && stack.getItem() instanceof IElectricItem) {
-                        return null;
+                        it.set(StackUtil.copyWithWildCard(stack));
                     }
                 }
+
                 out.add(replace);
             }
         }
+
         return out;
     }
 

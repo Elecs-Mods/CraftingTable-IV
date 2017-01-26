@@ -26,7 +26,7 @@ public class WrappedRecipe {
         }
         Object[] input = handler.getIngredients(recipe);
         if (input == null){
-            throw new RuntimeException();
+            System.out.println(new RuntimeException("Found null input for recipe: "+recipe));
         }
         try {
             for (Object obj : input) {
