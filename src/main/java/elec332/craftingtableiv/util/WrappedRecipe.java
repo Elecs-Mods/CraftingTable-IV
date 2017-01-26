@@ -21,14 +21,14 @@ public class WrappedRecipe {
     @Nullable
     @SuppressWarnings("all")
     public static WrappedRecipe of(IRecipe recipe, IRecipeHandler handler){
-        if (!handler.canHandleRecipe(recipe)){
-            throw new IllegalArgumentException("Invalid RecipeHandler.");
-        }
-        Object[] input = handler.getIngredients(recipe);
-        if (input == null){
-            throw new RuntimeException();
-        }
         try {
+            if (!handler.canHandleRecipe(recipe)){
+                throw new IllegalArgumentException("Invalid RecipeHandler.");
+            }
+            Object[] input = handler.getIngredients(recipe);
+            if (input == null){
+                throw new RuntimeException();
+            }
             for (Object obj : input) {
                 if (obj instanceof ItemStack || obj == null){
                     continue;
