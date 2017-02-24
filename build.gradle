@@ -51,7 +51,7 @@ modInfo.withReader {
     project.ext.mod = new ConfigSlurper().parse prop
 }
 
-version = "${config.minecraft_version}-${config.mod_version}." + (System.env.DRONE_BUILD_NUMBER ?: "localBuild")
+version = /*"${config.minecraft_version}-" + */"${config.mod_version}." + (System.env.BUILD_NUMBER ?: "localBuild")
 group= mod.group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = mod.fileName
 
