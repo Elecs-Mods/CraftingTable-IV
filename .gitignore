@@ -7,3 +7,4 @@ eclipse/
 .gradle/
 run/
 build/
+.idea/

@@ -323,11 +323,12 @@ public class WindowCraftingTableIV extends Window {
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected void keyTyped(char c, int i) {
+    protected boolean keyTyped(char c, int i) {
         if (textField.textboxKeyTyped(c, i)) {
             updateRecipes(true);
+            return true;
         } else {
-            super.keyTyped(c, i);
+            return super.keyTyped(c, i);
         }
     }
 
