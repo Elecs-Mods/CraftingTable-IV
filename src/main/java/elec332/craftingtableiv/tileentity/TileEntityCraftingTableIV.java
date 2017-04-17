@@ -31,7 +31,7 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, II
         this.inventory = new BasicItemHandler(18);
     }
 
-    public boolean showRecipeSize = true, showShaped = false;
+    public boolean showRecipeSize = true, showShaped = true;
     public float doorAngle;
     private BasicItemHandler inventory;
     private static final float openspeed = 0.2F;
