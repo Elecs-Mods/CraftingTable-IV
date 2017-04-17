@@ -31,6 +31,9 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     @Override
     public void registerHandler(IRecipeHandler handler){
         checkClosed();
+        if (handler == null){
+            return;
+        }
         registry.add(handler);
     }
 
