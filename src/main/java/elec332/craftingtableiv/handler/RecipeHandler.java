@@ -37,8 +37,9 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     @Override
     public void registerDisabledRecipe(Class<? extends IRecipe> recipe){
         checkClosed();
-        if (!disabledRecipes.contains(recipe))
+        if (!disabledRecipes.contains(recipe)) {
             disabledRecipes.add(recipe);
+        }
     }
 
     @Override

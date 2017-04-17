@@ -31,6 +31,7 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, II
         this.inventory = new BasicItemHandler(18);
     }
 
+    public boolean showRecipeSize = true, showShaped = false;
     public float doorAngle;
     private BasicItemHandler inventory;
     private static final float openspeed = 0.2F;
@@ -48,12 +49,16 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, II
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+        showRecipeSize = tagCompound.getBoolean("shR");
+        showShaped = tagCompound.getBoolean("ssH");
         inventory.writeToNBT(tagCompound);
         return super.writeToNBT(tagCompound);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
+        tagCompound.setBoolean("shR", showRecipeSize);
+        tagCompound.setBoolean("ssH", showShaped);
         inventory.deserializeNBT(tagCompound);
         super.readFromNBT(tagCompound);
     }
@@ -100,7 +105,10 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, II
 
     @Override
     public boolean onBlockActivated(IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-        return openWindow(player, CraftingTableIV.proxy, CraftingTableIV.guiID);
+        if (!world.isRemote) {
+            openWindow(player, CraftingTableIV.proxy, CraftingTableIV.guiID);
+        }
+        return true;
     }
 
     @Override

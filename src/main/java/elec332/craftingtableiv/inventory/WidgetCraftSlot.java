@@ -1,11 +1,14 @@
 package elec332.craftingtableiv.inventory;
 
 import elec332.core.inventory.widget.slot.WidgetSlot;
+import elec332.core.inventory.window.Window;
 import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.util.WrappedRecipe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -17,13 +20,21 @@ public class WidgetCraftSlot extends WidgetSlot {
 
     public WidgetCraftSlot(IItemHandler inventory, int index, int x, int y, WindowCraftingTableIV listener) {
         super(inventory, index, x, y);
+        this.window = listener;
     }
 
+    private WindowCraftingTableIV window;
     private WrappedRecipe recipe;
+    private int amt;
     private static final AchievementHandler achievementHandler;
 
-    public void setIRecipe(WrappedRecipe theIRecipe) {
-        recipe = theIRecipe;
+    public void clearRecipe(){
+        setIRecipe(null, 0);
+    }
+
+    public void setIRecipe(WrappedRecipe theIRecipe, int amt) {
+        this.recipe = theIRecipe;
+        this.amt = amt;
     }
 
     public WrappedRecipe getIRecipe() {
@@ -38,7 +49,11 @@ public class WidgetCraftSlot extends WidgetSlot {
     @Nonnull
     @Override
     public ItemStack getStack() {
-        return recipe == null ? ItemStackHelper.NULL_STACK : recipe.getRecipeOutput();
+        return recipe == null ? ItemStackHelper.NULL_STACK : recipe.getRecipeOutput(window.recipeSize() ? amt : 1);
+    }
+
+    public int getAmount() {
+        return this.amt;
     }
 
     @Nonnull
@@ -48,6 +63,12 @@ public class WidgetCraftSlot extends WidgetSlot {
         achievementHandler.onCrafting(stack);
         return super.onTake(player, stack);
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void draw(Window window, int guiX, int guiY, int mouseX, int mouseY) {
+    }
+
 
     static {
         achievementHandler = new AchievementHandler();

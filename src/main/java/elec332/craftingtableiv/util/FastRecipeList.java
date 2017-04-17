@@ -18,8 +18,9 @@ public class FastRecipeList {
 
     public FastRecipeList(List<WrappedRecipe> recipes){
         this();
-        for (WrappedRecipe recipe : recipes)
+        for (WrappedRecipe recipe : recipes) {
             addRecipe(recipe);
+        }
     }
 
     public FastRecipeList(){

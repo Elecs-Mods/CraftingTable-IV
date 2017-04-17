@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * Created by Elec332 on 23-3-2015.
  */
+@SuppressWarnings("deprecation")
 public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock {
 
     public BlockCraftingTableIV() {
@@ -80,6 +81,7 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     }
 
     @Override
+    @Nonnull
     public IBlockState getStateFromMeta(int meta) {
         return BlockStateHelper.FACING_NORMAL.getStateForMeta(this, meta);
     }
@@ -90,6 +92,7 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
     }
 
     @Override
+    @Nonnull
     protected BlockStateContainer createBlockState() {
         return BlockStateHelper.FACING_NORMAL.createMetaBlockState(this);
     }

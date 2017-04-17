@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.util;
 
+import elec332.core.util.InventoryHelper;
 import elec332.core.util.ItemStackHelper;
 import elec332.core.util.MineTweakerHelper;
 import elec332.craftingtableiv.CraftingTableIV;
@@ -28,21 +29,30 @@ public class WrappedRecipe {
         if (input == null){
             System.out.println(new RuntimeException("Found null input for recipe: "+recipe));
         }
+        boolean list = false, stack = false, one = true;
         try {
             for (Object obj : input) {
                 if (obj instanceof ItemStack || obj == null){
+                    if (stack){
+                        one = false;
+                    }
+                    stack = true;
                     continue;
                 } else if (obj instanceof List) {
                     if (((List) obj).isEmpty()) {
                         return null;
                     } else if (((List) obj).get(0) instanceof ItemStack) {
+                        if (list){
+                            one = false;
+                        }
+                        list = true;
                         continue;
                     }
                 }
                 System.out.println("ERROR: " + recipe.getRecipeOutput().toString() + " ... " + recipe.toString());
                 throw new IllegalArgumentException();
             }
-            return new WrappedRecipe(input, recipe, handler);
+            return new WrappedRecipe(input, recipe, handler, list != stack, one);
         } catch (Exception e){
             e.printStackTrace();
             CraftingTableIV.logger.error(recipe.getRecipeOutput());
@@ -51,15 +61,14 @@ public class WrappedRecipe {
         }
     }
 
-    private WrappedRecipe(Object[] input, IRecipe recipe, IRecipeHandler handler){
-
+    private WrappedRecipe(Object[] input, IRecipe recipe, IRecipeHandler handler, boolean sameType, boolean one){
         this.outPut = recipe.getRecipeOutput().copy();
         this.outputItemName = MineTweakerHelper.getItemRegistryName(recipe.getRecipeOutput());
         this.recipe = recipe;
         this.identifier = CraftingTableIV.getItemIdentifier(recipe.getRecipeOutput());
         this.recipeHandler = handler;
         int width = handler.getRecipeWidth(recipe);
-        this.shaped = false;//width != -1;
+        this.shaped = width != -1;
         if (shaped){
             this.input = makeFit(input, width);
         } else {
@@ -68,6 +77,54 @@ public class WrappedRecipe {
         if (FMLCommonHandler.instance().getEffectiveSide().isClient()){
             this.itemName = CraftingTableIV.instance.getFullItemName(recipe.getRecipeOutput().copy());
         }
+        this.one = one;
+        if (!sameType){
+            sameItems = false;
+            return;
+        }
+        boolean list = false;
+        for (Object o : input){
+            if (o instanceof List){
+                list = true;
+                break;
+            } else if (o instanceof ItemStack){
+                break;
+            }
+        }
+        if (list){
+            List f = null;
+            for (Object o : input){
+                if (o != null){
+                    if (f != null){
+                        if (f.equals(o)){
+                            continue;
+                        }
+                        sameItems = false;
+                        return;
+                    } else {
+                        f = (List) o;
+                    }
+                }
+            }
+            sameItems = true;
+        } else {
+            ItemStack f = null;
+            for (Object o : input){
+                if (o != null){
+                    ItemStack s = (ItemStack) o;
+                    if (f != null){
+                        if (InventoryHelper.areEqualNoSizeNoNBT(f, s)){
+                            continue;
+                        }
+                        sameItems = false;
+                        return;
+                    } else {
+                        f = s;
+                    }
+                }
+            }
+            sameItems = true;
+        }
     }
 
     private final IRecipe recipe;
@@ -75,7 +132,7 @@ public class WrappedRecipe {
     private final ItemStack outPut;
     private final String outputItemName;
     private final String identifier;
-    private final boolean shaped;
+    private final boolean shaped, sameItems, one;
     @SideOnly(Side.CLIENT)
     private String itemName;
     private final IRecipeHandler recipeHandler;
@@ -95,6 +152,24 @@ public class WrappedRecipe {
 
     public ItemStack getRecipeOutput() {
         return outPut.copy();
+    }
+
+    public ItemStack getRecipeOutput(int size) {
+        ItemStack ret = outPut.copy();
+        ret.stackSize = size;
+        return ret;
+    }
+
+    public int getOutputSize() {
+        return outPut.stackSize;
+    }
+
+    public boolean sameItems() {
+        return this.sameItems;
+    }
+
+    public boolean oneItem() {
+        return this.one;
     }
 
     public String getOutputItemName() {
@@ -118,9 +193,9 @@ public class WrappedRecipe {
         if (width == 1){
             for (int i = 0; i < 9; i++) {
                 Object stack = ItemStackHelper.NULL_STACK;
-                if (i % 3 == 0){
+                if (i == 0 || i == 3 || i == 6){
                     int j = i / 3;
-                    stack = ingredients.length < i ? ItemStackHelper.NULL_STACK : ingredients[j];
+                    stack = ingredients.length <= j ? ItemStackHelper.NULL_STACK : ingredients[j];
                 }
                 ret[i] = stack;
             }

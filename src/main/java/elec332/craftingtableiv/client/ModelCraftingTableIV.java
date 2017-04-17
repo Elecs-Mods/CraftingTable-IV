@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity;
  */
 public class ModelCraftingTableIV extends ModelBase {
 
-    public ModelCraftingTableIV() {
+    ModelCraftingTableIV() {
         textureWidth = 128;
         textureHeight = 64;
 

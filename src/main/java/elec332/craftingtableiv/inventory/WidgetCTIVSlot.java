@@ -1,6 +1,9 @@
 package elec332.craftingtableiv.inventory;
 
 import elec332.core.inventory.widget.slot.WidgetSlot;
+import elec332.core.inventory.window.Window;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 
 /**
@@ -18,6 +21,11 @@ public class WidgetCTIVSlot extends WidgetSlot {
     @Override
     public void onSlotChanged() {
         listener.onSlotChanged();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void draw(Window window, int guiX, int guiY, int mouseX, int mouseY) {
     }
 
 }

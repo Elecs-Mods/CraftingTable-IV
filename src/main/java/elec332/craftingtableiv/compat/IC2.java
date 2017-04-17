@@ -1,28 +1,14 @@
 package elec332.craftingtableiv.compat;
 
-import com.google.common.collect.Lists;
 import elec332.core.api.module.ElecModule;
 import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.api.CraftingTableIVAPI;
-import elec332.craftingtableiv.api.IRecipeHandler;
-import ic2.api.item.IElectricItem;
-import ic2.api.recipe.IRecipeInput;
-import ic2.core.recipe.AdvRecipe;
-import ic2.core.recipe.AdvShapelessRecipe;
-import ic2.core.util.StackUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-
-import javax.annotation.Nonnull;
-import java.util.*;
 
 /**
  * Created by Elec332 on 4-10-2015.
  */
-@ElecModule(owner = CraftingTableIV.ModID, name = "IC2Compat", modDependencies = "IC2")
+@ElecModule(owner = CraftingTableIV.ModID, name = "IC2Compat", modDependencies = "ic2")
 public class IC2  {
-
+/*
     private boolean normal;
     private boolean classic;
 
@@ -201,5 +187,5 @@ public class IC2  {
             }
         }
     }
-
+*/
 }

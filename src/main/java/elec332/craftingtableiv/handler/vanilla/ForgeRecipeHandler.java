@@ -22,14 +22,14 @@ public class ForgeRecipeHandler implements IRecipeHandler {
     @Override
     public Object[] getIngredients(IRecipe recipe) {
         if (recipe instanceof ShapelessOreRecipe){
-            return RecipeHelper.getRecipeOutput((ShapelessOreRecipe) recipe).toArray();
+            return RecipeHelper.getRecipeInput((ShapelessOreRecipe) recipe).toArray();
         }
         return ((ShapedOreRecipe)recipe).getInput();
     }
 
     @Override
     public int getRecipeWidth(IRecipe recipe) {
-        return recipe instanceof ShapelessOreRecipe ? -1 : 3;
+        return recipe instanceof ShapelessOreRecipe ? -1 : ((ShapedOreRecipe) recipe).getWidth();
     }
 
 }

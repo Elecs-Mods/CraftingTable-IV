@@ -70,7 +70,7 @@ public class CraftingTableIV implements IElecCoreMod, IDependencyHandler {
 
     /**Config**/
     public static int recursionDepth = 5;
-    public static boolean nuggetFilter = true;
+    public static boolean nuggetFilter = false;
     public static boolean enableDoor = true;
     public static boolean enableNoise = true;
     public static String[] disabledMods, defaultDisabledMods = {
@@ -105,7 +105,7 @@ public class CraftingTableIV implements IElecCoreMod, IDependencyHandler {
 
         config.load();
         recursionDepth = config.getInt("Recursion depth", "general", 5, 0, 10, "Set to 0 to disable recursion");
-        nuggetFilter = config.getBoolean("NuggetFilter", "general", true, "Filters nuggets out of the recipeList, only disable if you know what you're doing!");
+        //nuggetFilter = config.getBoolean("NuggetFilter", "general", true, "Filters nuggets out of the recipeList, only disable if you know what you're doing!");
         enableDoor = config.getBoolean("EnableDoor", "general", true, "Set to false to disable the opening door on the CTIV");
         enableNoise = config.getBoolean("EnableNoise", "general", true, "Set to false to disable the door noise when opening and closing");
         disabledMods = config.getStringList("DisabledMods", "general", defaultDisabledMods, "Every item from the modID's specified here will not show up in the CraftingTable");

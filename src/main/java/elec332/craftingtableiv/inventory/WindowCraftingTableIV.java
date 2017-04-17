@@ -4,7 +4,9 @@ import com.google.common.collect.Lists;
 import elec332.core.client.RenderHelper;
 import elec332.core.client.util.GuiDraw;
 import elec332.core.client.util.KeyHelper;
+import elec332.core.inventory.tooltip.ToolTip;
 import elec332.core.inventory.widget.Widget;
+import elec332.core.inventory.widget.WidgetButton;
 import elec332.core.inventory.widget.slot.WidgetSlot;
 import elec332.core.inventory.window.Window;
 import elec332.core.util.BasicItemHandler;
@@ -106,6 +108,11 @@ public class WindowCraftingTableIV extends Window {
                         return shaped ? super.getSlotIndex() : (y - 34) / 18;
                     }
 
+                    @Override
+                    @SideOnly(Side.CLIENT)
+                    public void draw(Window window, int guiX, int guiY, int mouseX, int mouseY) {
+                    }
+
                 });
             }
         }
@@ -122,8 +129,55 @@ public class WindowCraftingTableIV extends Window {
                     return shaped || !hovering;
                 }
 
+                @Override
+                @SideOnly(Side.CLIENT)
+                public void draw(Window window, int guiX, int guiY, int mouseX, int mouseY) {
+                }
+
             });
         }
+        final ToolTip rSTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show the max amount", "of craftable items.")){
+
+            @Override
+            @SideOnly(Side.CLIENT)
+            public void renderTooltip(int mouseX, int mouseY, int guiLeft, int guiTop) {
+                mouseY += 10;
+                super.renderTooltip(mouseX, mouseY, guiLeft, guiTop);
+            }
+
+        };
+        final ToolTip shTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show shaped recipes", "on the right side."));
+        addWidget(new WidgetButton(xSize + 2, 2, 12, 12){
+
+            @Override
+            public ToolTip getToolTip() {
+                return rSTT;
+            }
+
+            @Override
+            public void onButtonClicked() {
+                if (getPlayer().getEntityWorld().isRemote) {
+                    theTile.showRecipeSize = !recipeSize();
+                }
+            }
+
+        }).setDisplayString("n");
+        addWidget(new WidgetButton(xSize + 2, 15, 12, 12){
+
+            @Override
+            public ToolTip getToolTip() {
+                return shTT;
+            }
+
+            @Override
+            public void onButtonClicked() {
+                if (getPlayer().getEntityWorld().isRemote) {
+                    theTile.showShaped = !showShaped();
+                }
+            }
+
+        }).setDisplayString("s");
+
 
         if (getPlayer().getEntityWorld().isRemote) {
             scroll = 0.0F;
@@ -136,21 +190,30 @@ public class WindowCraftingTableIV extends Window {
             this.textField.setDisabledTextColour(-1);
             this.textField.setEnableBackgroundDrawing(true);
             this.textField.setMaxStringLength(12);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(90);
-                    } catch (Exception e) {
-                        //Nope
-                    } finally {
-                        updateRecipes();
-                    }
+            new Thread(() -> {
 
-                }
-            }).start();
+				try {
+					Thread.sleep(120);
+				} catch (Exception e) {
+					//Nope
+				} finally {
+					updateRecipes();
+					if (craftableRecipes.getAllRecipes().size() == 0){
+					    updateRecipes(); // retry
+                    }
+				}
+
+			}).start();
         }
 
+    }
+
+    public boolean recipeSize(){
+        return theTile.showRecipeSize;
+    }
+
+    public boolean showShaped(){
+        return theTile.showShaped;
     }
 
     @Override
@@ -227,16 +290,17 @@ public class WindowCraftingTableIV extends Window {
                     ItemStack recipeOutput = craftableRecipes.getRecipeOutput(i1);
                     if(recipeOutput != null) {
                         if(slot instanceof WidgetCraftSlot) {
-                            ((WidgetCraftSlot)slot).setIRecipe(craftableRecipes.getShownRecipe(i1));
+                            RecipeCache.Entry e = craftableRecipes.getShownRecipe(i1);
+                            ((WidgetCraftSlot)slot).setIRecipe(e.recipe, e.amount);
                         }
                     } else {
                         if(slot instanceof WidgetCraftSlot) {
-                            ((WidgetCraftSlot)slot).setIRecipe(null);
+                            ((WidgetCraftSlot)slot).clearRecipe();
                         }
                     }
                 } else {
                     if(slot instanceof WidgetCraftSlot) {
-                        ((WidgetCraftSlot)slot).setIRecipe(null);
+                        ((WidgetCraftSlot)slot).clearRecipe();
                     }
                 }
             }
@@ -281,41 +345,19 @@ public class WindowCraftingTableIV extends Window {
 
     private boolean onRequestSingleRecipeOutput(WidgetCraftSlot slot) {
         WrappedRecipe recipe = slot.getIRecipe();
-        return recipe != null && CraftingHandler.canCraft(CraftingHandler.forCraftingTableIV(getPlayer(), theTile), recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true);
+        return recipe != null && CraftingHandler.canCraft(CraftingHandler.forCraftingTableIV(getPlayer(), theTile), recipe, new FastRecipeList(craftableRecipes.getAllRecipes()), true, recipe.getOutputSize()) > 0;
     }
-
-    //TODO START
 
     private void onRequestMaximumRecipeOutput(WidgetCraftSlot slot) {
-        slot.getIRecipe();
-        /*WrappedRecipe recipe = slot.getShownRecipe();
-        if(recipe == null)
+        WrappedRecipe recipe = slot.getIRecipe();
+        if (recipe == null) {
             return;
-        onRequestMaximumRecipeOutput(thePlayer, recipe, theTile);*/
+        }
+        CraftingHandler.IWorldAccessibleInventory<?> wrappedInventory = CraftingHandler.forCraftingTableIV(getPlayer(), theTile);
+        FastRecipeList recipeList = new FastRecipeList(craftableRecipes.getAllRecipes());
+        int i = CraftingHandler.canCraft(wrappedInventory, recipe, recipeList, false, slot.getAmount());
+        CraftingHandler.canCraft(wrappedInventory, recipe, recipeList, true, i);
     }
-/*
-    public static void onRequestMaximumRecipeOutput(EntityPlayer thePlayer, WrappedRecipe irecipe, TileEntityCraftingTableIV Internal) {
-        InventoryPlayer Temp = new InventoryPlayer( thePlayer );
-        Temp.copyInventory(thePlayer.inventory);
-
-        InventoryPlayer inventoryPlayer = thePlayer.inventory;
-        int GoTo = 64;
-        if (irecipe.getRecipeOutput().getStack().getMaxStackSize() > 1) {
-            GoTo = irecipe.getRecipeOutput().getStack().getMaxStackSize() / irecipe.getRecipeOutput().getStack().stackSize ;
-        }
-        for (int i=0; i<GoTo; i++) {
-            Temp.copyInventory(thePlayer.inventory);
-            //if ((Boolean)CraftingHandler.canPlayerCraft(Temp, irecipe.getRecipeOutput(), Internal, RecipeIndex)[0]) {
-            //    Object[] iTemp = CraftingHandler.canPlayerCraft(inventoryPlayer, Internal, irecipe.getRecipeOutput(), 0, null, null, RecipeIndex);
-            //   Internal.theInventory = ((TECraftingTableIV)iTemp[3]).theInventory;
-            //    thePlayer.inventory.copyInventory((InventoryPlayer) iTemp[1]);
-            // } else {
-            break;
-            //}
-        }
-    }*/
-    //TODO END
-
 
     /**
      * Actual GUI stuff
@@ -334,7 +376,10 @@ public class WindowCraftingTableIV extends Window {
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected boolean mouseClicked(int i1, int i2, int i3) {
+    protected boolean mouseClicked(int i1, int i2, int i3) throws IOException {
+        if (super.mouseClicked(i1, i2, i3)){
+            return true;
+        }
         textField.mouseClicked(i1, i2, i3);
         return false;
     }
@@ -356,7 +401,7 @@ public class WindowCraftingTableIV extends Window {
                 WrappedRecipe recipe = theSlot.getIRecipe();
                 if (recipe != null) {
                     this.hovering = true;
-                    this.shaped = recipe.isShaped();
+                    this.shaped = recipe.isShaped() && showShaped();
                     ItemStack[] theRecipe = getIngredients(recipe, this.shaped);
                     for (int b = 0; b < 9; b++) {
                         ItemStack stack = theRecipe[b];
@@ -430,6 +475,7 @@ public class WindowCraftingTableIV extends Window {
     @Override
     @SideOnly(Side.CLIENT)
     protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
+        super.drawGuiContainerBackgroundLayer(f, i, j);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         RenderHelper.bindTexture(new ResourceLocation("craftingtableiv", "gui/crafttableii.png"));
         int l = guiLeft;
@@ -507,6 +553,7 @@ public class WindowCraftingTableIV extends Window {
 
         @Override
         public void run() {
+            int times = 64;
             long l = System.currentTimeMillis();
             if (getPlayer().getEntityWorld().isRemote) {
                 craftableRecipes.clearRecipes();
@@ -516,9 +563,10 @@ public class WindowCraftingTableIV extends Window {
                 CraftingHandler.IWorldAccessibleInventory<?> wrappedInventory = CraftingHandler.forCraftingTableIV(getPlayer(), theTile);
                 for (WrappedRecipe recipe : validRecipes){
                     checkStopThread();
-                    if (CraftingHandler.canCraft(wrappedInventory, recipe, null, false)) {
+                    int a = CraftingHandler.canCraft(wrappedInventory, recipe, null, false, times);
+                    if (a > 0) {
                         checkStopThread();
-                        craftableRecipes.addRecipe(recipe, matcher);
+                        craftableRecipes.addRecipe(recipe, a, matcher);
                         canCraft.add(recipe);
                     }
                 }
@@ -530,14 +578,16 @@ public class WindowCraftingTableIV extends Window {
                     FastRecipeList recipeList = new FastRecipeList(canCraft);
                     for (WrappedRecipe recipe : validRecipes){
                         checkStopThread();
-                        if (CraftingHandler.canCraft(wrappedInventory, recipe, recipeList, false)) {
+                        int a = CraftingHandler.canCraft(wrappedInventory, recipe, recipeList, false, times);
+                        if (a > 0) {
                             checkStopThread();
-                            craftableRecipes.addRecipe(recipe, matcher);
+                            craftableRecipes.addRecipe(recipe, a, matcher);
                             canCraft.add(recipe);
                             updateVisibleSlots(scrollValue);
                         }
                     }
                     validRecipes.removeAll(canCraft);
+                    checkStopThread();
                     if (pcc.size() == canCraft.size()) {
                         break;
                     }
