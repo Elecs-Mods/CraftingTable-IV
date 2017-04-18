@@ -29,22 +29,19 @@ public class WrappedRecipe {
         if (input == null){
             System.out.println(new RuntimeException("Found null input for recipe: "+recipe));
         }
-        boolean list = false, stack = false, one = true;
+        boolean list = false, stack = false;
+        int amt = 0;
         try {
             for (Object obj : input) {
                 if (obj instanceof ItemStack || obj == null){
-                    if (stack){
-                        one = false;
-                    }
+                    amt++;
                     stack = true;
                     continue;
                 } else if (obj instanceof List) {
                     if (((List) obj).isEmpty()) {
                         return null;
                     } else if (((List) obj).get(0) instanceof ItemStack) {
-                        if (list){
-                            one = false;
-                        }
+                        amt++;
                         list = true;
                         continue;
                     }
@@ -52,7 +49,7 @@ public class WrappedRecipe {
                 System.out.println("ERROR: " + recipe.getRecipeOutput().toString() + " ... " + recipe.toString());
                 throw new IllegalArgumentException();
             }
-            return new WrappedRecipe(input, recipe, handler, list != stack, one);
+            return new WrappedRecipe(input, recipe, handler, list != stack && (amt == 4 || amt == 9 || amt == 1), amt == 1);
         } catch (Exception e){
             e.printStackTrace();
             CraftingTableIV.logger.error(recipe.getRecipeOutput());
