@@ -48,6 +48,7 @@ public class WindowCraftingTableIV extends Window {
     public WindowCraftingTableIV(TileEntityCraftingTableIV theTile) {
         super(-1, 234);
         this.theTile = theTile;
+        craftableRecipes = new RecipeCache();
     }
 
     private IItemHandlerModifiable inventory = new BasicItemHandler(8*5);
@@ -59,7 +60,7 @@ public class WindowCraftingTableIV extends Window {
     private GuiTextField textField;
     private CTIVThread currentThread;
     private float scrollValue = 0.0F;
-    private RecipeCache craftableRecipes;
+    private final RecipeCache craftableRecipes;
     private static final StackMatcher ALWAYS_TRUE;
 
     @Override
@@ -181,7 +182,6 @@ public class WindowCraftingTableIV extends Window {
 
         if (getPlayer().getEntityWorld().isRemote) {
             scroll = 0.0F;
-            craftableRecipes = new RecipeCache();
             Keyboard.enableRepeatEvents(true);
             int i = (this.width - this.xSize) / 2;
             int j = (this.height - this.ySize) / 2;
@@ -313,7 +313,9 @@ public class WindowCraftingTableIV extends Window {
 
     private void updateRecipes(boolean txt){
         if (txt){
-            craftableRecipes.updateVisual(getCurrentPattern());
+            synchronized (craftableRecipes) {
+                craftableRecipes.updateVisual(getCurrentPattern());
+            }
             updateVisibleSlots(scrollValue);
         } else {
             stopThread();
