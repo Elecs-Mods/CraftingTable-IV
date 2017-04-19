@@ -74,7 +74,7 @@ public class CraftingTableIV implements IElecCoreMod, IDependencyHandler {
     public static boolean enableDoor = true;
     public static boolean enableNoise = true;
     public static String[] disabledMods, defaultDisabledMods = {
-            "ztones"
+            "ztones", "agricraft"
     };
     public static boolean debugTimings = true;
     public static float doorRange = 7f;
