@@ -633,8 +633,9 @@ public class WindowCraftingTableIV extends Window {
         } catch (Exception e){
             pattern = null;
         }
-        if (pattern != null)
-            return new PatternStackMatcher(pattern);
+        if (pattern != null) {
+			return new PatternStackMatcher(pattern);
+		}
         return ALWAYS_TRUE;
     }
 

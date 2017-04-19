@@ -3,6 +3,7 @@ package elec332.craftingtableiv.handler;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import elec332.core.inventory.ContainerNull;
 import elec332.core.util.*;
 import elec332.core.util.recipes.RecipeHelper;
 import elec332.core.world.WorldHelper;
@@ -13,6 +14,7 @@ import elec332.craftingtableiv.util.FastRecipeList;
 import elec332.craftingtableiv.util.WrappedItemHandler;
 import elec332.craftingtableiv.util.WrappedRecipe;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -231,7 +233,7 @@ public class CraftingHandler {
                 return false;
             }
         }
-        ItemStack out = recipe.getRecipeHandler().getCraftingResult(recipe.getRecipe(), usedIngredients);
+        ItemStack out = recipe.getRecipeHandler().getCraftingResult(recipe.getRecipe(), getInv(usedIngredients));
         if (out == null) {
             return false;
         }
@@ -242,6 +244,20 @@ public class CraftingHandler {
             sendCraftingMessage(inventory, recipe, usedIngredients);
         }
         return true;
+    }
+
+    private static InventoryCrafting getInv(ItemStack[] s){
+        InventoryCrafting ret = new InventoryCrafting(new ContainerNull(), 3, 3);
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack;
+            if (i >= s.length){
+                stack = ItemStackHelper.NULL_STACK;
+            } else {
+                stack = s[i];
+            }
+            ret.setInventorySlotContents(i, stack);
+        }
+        return ret;
     }
 
     private static int getFirstSlotWithItemStack(IItemHandler inventory, ItemStack stack, WrappedRecipe recipe){

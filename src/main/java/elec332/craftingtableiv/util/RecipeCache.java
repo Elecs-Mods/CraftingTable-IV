@@ -64,7 +64,7 @@ public class RecipeCache {
 
     public class Entry {
 
-        public Entry(WrappedRecipe recipe, int amount) {
+        Entry(WrappedRecipe recipe, int amount) {
             this.amount = amount;
             this.recipe = recipe;
         }

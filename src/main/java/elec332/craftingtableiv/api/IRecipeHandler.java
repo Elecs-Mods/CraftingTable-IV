@@ -1,5 +1,6 @@
 package elec332.craftingtableiv.api;
 
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.OreDictionary;
@@ -32,8 +33,8 @@ public interface IRecipeHandler {
     }
 
     @Nullable
-    default public ItemStack getCraftingResult(IRecipe recipe, ItemStack[] usedStacks) {
-        return recipe.getRecipeOutput().copy();
+    default public ItemStack getCraftingResult(IRecipe recipe, InventoryCrafting usedStacks) {
+        return recipe.getCraftingResult(usedStacks);
     }
 
     default public boolean logHandlerErrors(){
