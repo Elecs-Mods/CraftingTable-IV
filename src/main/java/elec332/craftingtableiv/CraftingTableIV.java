@@ -96,7 +96,7 @@ public class CraftingTableIV implements IElecCoreMod, IDependencyHandler {
         GameRegistry.registerTileEntity(TileEntityCraftingTableIV.class, "test");
         craftingTableIV = GameRegistry.register(new BlockCraftingTableIV()).setCreativeTab(CreativeTabs.DECORATIONS);
         GameRegistry.register(new ItemBlock(craftingTableIV).setRegistryName(craftingTableIV.getRegistryName()));
-        WindowManager.INSTANCE.register(proxy);
+        WindowManager.INSTANCE.register(proxy, new ResourceLocation(ModID, "windowfactory"));
         proxy.registerRenders();
         networkHandler.registerClientPacket(PacketInitRecipes.class);
         networkHandler.registerServerPacket(PacketCraft.class);
