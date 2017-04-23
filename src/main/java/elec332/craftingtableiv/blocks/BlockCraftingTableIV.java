@@ -9,6 +9,7 @@ import elec332.core.client.model.loading.INoJsonBlock;
 import elec332.core.client.model.model.TESRItemModel;
 import elec332.core.tile.BlockTileBase;
 import elec332.core.util.BlockStateHelper;
+import elec332.core.util.ItemStackHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.client.CraftingTableIVRenderer;
@@ -44,7 +45,13 @@ public class BlockCraftingTableIV extends BlockTileBase implements INoJsonBlock 
 
     @Override
     public void breakBlock(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
-        WorldHelper.dropInventoryItems(worldIn, pos, (TileEntityCraftingTableIV) WorldHelper.getTileAt(worldIn, pos));
+        TileEntityCraftingTableIV te = (TileEntityCraftingTableIV) WorldHelper.getTileAt(worldIn, pos);
+        for(int i = 0; i < te.getSlots(); ++i) {
+            ItemStack stack = te.getStackInSlot(i);
+            if (!ItemStackHelper.isStackValid(stack)) {
+                WorldHelper.dropStack(worldIn, pos, stack);
+            }
+        }
         super.breakBlock(worldIn, pos, state);
     }
 
