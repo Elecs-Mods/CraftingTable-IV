@@ -39,7 +39,7 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
     private float ScrollValue = 0.0F;
     private EntityPlayer thePlayer;
     private TileEntityCraftingTableIV theTile;
-    private InventoryCraftingTableIV craftableRecipes;
+    private final InventoryCraftingTableIV craftableRecipes;
     private InventoryBasic inventory;
 
     public GuiCTableIV(EntityPlayer entityplayer, TileEntityCraftingTableIV tile) {
@@ -129,7 +129,9 @@ public class GuiCTableIV extends GuiContainer implements ISlotChangeableGUI {
             currentThread = new CTIVThread();
             currentThread.start();
         } else {
-            craftableRecipes.updateVisual(getCurrentPattern());
+            synchronized (craftableRecipes) {
+                craftableRecipes.updateVisual(getCurrentPattern());
+            }
             updateVisibleSlots(ScrollValue);
         }
     }
