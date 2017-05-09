@@ -41,6 +41,7 @@ configFile.withReader {
     def prop = new Properties()
     prop.load(it)
     project.ext.config = new ConfigSlurper().parse prop
+    project.ext.modVersion = "${config.mod_version}." + (System.env.BUILD_NUMBER ?: "localBuild")
 }
 
 ext.modInfo = file "mod.properties"
@@ -51,7 +52,7 @@ modInfo.withReader {
     project.ext.mod = new ConfigSlurper().parse prop
 }
 
-version = /*"${config.minecraft_version}-" + */"${config.mod_version}." + (System.env.BUILD_NUMBER ?: "localBuild")
+version = modVersion
 group= mod.group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = mod.fileName
 
@@ -64,8 +65,11 @@ minecraft {
 	
 	replaceIn mod.mainClass
     replace "#ELECCORE_VER#", config.eleccore_version
+	replace "#FORGE_VER#", config.forge_version
 	
 	mappings = config.mappings
+	
+	useDepAts = true
 }
 
 dependencies {
@@ -73,10 +77,9 @@ dependencies {
 	deobfCompile "net.sengir.forestry:forestry_${config.forestry_version}"
 }
 
-processResources
-{
+processResources {
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", config.mod_version
+    inputs.property "version", modVersion
     inputs.property "mcversion", config.minecraft_version
 
     // replace stuff in mcmod.info, nothing else
@@ -84,7 +87,7 @@ processResources
         include 'mcmod.info'
                 
         // replace version and mcversion
-        expand 'version':(config.mod_version+"."+(System.env.DRONE_BUILD_NUMBER ?: "9999.custom")), 'mcversion':config.minecraft_version, 'modid': mod.modid
+        expand 'version':modVersion, 'mcversion':config.minecraft_version, 'modid': mod.modid
     }
         
     // copy everything else, thats not the mcmod.info
