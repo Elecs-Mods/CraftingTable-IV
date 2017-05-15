@@ -62,6 +62,7 @@ public class WindowCraftingTableIV extends Window {
     private float scrollValue = 0.0F;
     private final RecipeCache craftableRecipes;
     private static final StackMatcher ALWAYS_TRUE;
+    private long lastTextTime = -1;
 
     @Override
     protected void initWindow() {
@@ -369,7 +370,7 @@ public class WindowCraftingTableIV extends Window {
     @SideOnly(Side.CLIENT)
     protected boolean keyTyped(char c, int i) {
         if (textField.textboxKeyTyped(c, i)) {
-            updateRecipes(true);
+            lastTextTime = System.currentTimeMillis();
             return true;
         } else {
             return super.keyTyped(c, i);
@@ -418,6 +419,15 @@ public class WindowCraftingTableIV extends Window {
 
         if (!work && this.hovering){
             this.hovering = false;
+        }
+
+        if (lastTextTime == -1){
+            return;
+        }
+
+        if (System.currentTimeMillis() - lastTextTime > 300){
+            updateRecipes(true);
+            lastTextTime = -1;
         }
 
     }
