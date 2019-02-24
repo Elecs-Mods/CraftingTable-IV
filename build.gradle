@@ -62,7 +62,7 @@ minecraft {
 }
 
 dependencies {
-	compile "nl.elec332.core:ElecCore:1.12.2-1.9.451"
+	compile "nl.elec332.core:ElecCore:" + config.minecraft_version "-" + config.eleccore_version
 	compile "net.industrial-craft:industrialcraft-2:"+config.ic2_version+":dev"
 	deobfCompile "net.sengir.forestry:forestry_${config.forestry_version}"
 }
