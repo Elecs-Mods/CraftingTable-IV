@@ -1,18 +1,14 @@
 package elec332.craftingtableiv.tileentity;
 
-import elec332.core.tile.TileBase;
-import elec332.core.util.BasicItemHandler;
-import elec332.core.util.BlockStateHelper;
-import elec332.core.util.DirectionHelper;
+import elec332.core.inventory.BasicItemHandler;
+import elec332.core.tile.AbstractTileEntity;
+import elec332.core.util.IBlockStateHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -22,7 +18,7 @@ import javax.annotation.Nonnull;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class TileEntityCraftingTableIV extends TileBase implements ITickable, IItemHandlerModifiable {
+public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITickable, IItemHandlerModifiable {
 
     public TileEntityCraftingTableIV() {
         super();
@@ -41,8 +37,10 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, II
 
     public int getFacing() {
         if (facing == -1) {
-            facing = DirectionHelper.getNumberForDirection(WorldHelper.getBlockState(getWorld(), pos).getValue(BlockStateHelper.FACING_NORMAL.getProperty()));
+            facing = WorldHelper.getBlockState(getWorld(), pos).getValue(IBlockStateHelper.FACING_NORMAL.getProperty()).getHorizontalIndex() + 2 % 4;
+            //facing = 1;//todo DirectionHelper.getNumberForDirection(WorldHelper.getBlockState(getWorld(), pos).getValue(BlockStateHelper.FACING_NORMAL.getProperty()));
         }
+        //System.out.println(facing);
         return facing;
     }
 
@@ -101,14 +99,6 @@ public class TileEntityCraftingTableIV extends TileBase implements ITickable, II
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onBlockActivated(IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-        if (!world.isRemote) {
-            openWindow(player, CraftingTableIV.proxy, CraftingTableIV.guiID);
-        }
-        return true;
     }
 
     @Override

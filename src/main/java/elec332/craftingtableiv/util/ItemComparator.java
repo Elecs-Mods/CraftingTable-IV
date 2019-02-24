@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 /**
  * Created by Elec332 on 7-6-2015.
  */
-public class ItemComparator {
+class ItemComparator {
 
     public ItemComparator(ItemStack stack){
         this.stack = stack;

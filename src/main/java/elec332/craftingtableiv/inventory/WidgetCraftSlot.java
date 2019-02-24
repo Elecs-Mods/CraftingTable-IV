@@ -49,7 +49,7 @@ public class WidgetCraftSlot extends WidgetSlot {
     @Nonnull
     @Override
     public ItemStack getStack() {
-        return recipe == null ? ItemStackHelper.NULL_STACK : recipe.getRecipeOutput(window.recipeSize() ? amt : 1);
+        return recipe == null ? ItemStackHelper.NULL_STACK : recipe.getRecipeOutput(window.recipeSize() ? amt : recipe.getOutputSize());
     }
 
     public int getAmount() {

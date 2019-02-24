@@ -20,8 +20,7 @@ public class PacketCraft extends AbstractPacket {
     }
 
     @Override
-    public IMessage onMessageThreadSafe(AbstractPacket abstractPacket, MessageContext messageContext) {
-        NBTTagCompound tag = abstractPacket.networkPackageObject;
+    public IMessage onMessageThreadSafe(NBTTagCompound tag, MessageContext messageContext) {
         try {
             NBTTagCompound iwa = tag.getCompoundTag("iwa");
             CraftingHandler.IWorldAccessibleInventory inventory = CraftingHandler.IWorldAccessibleInventory.class.cast(Class.forName(iwa.getString("iwa_ident"), true, getClass().getClassLoader()).newInstance()).readFromNBT(iwa);

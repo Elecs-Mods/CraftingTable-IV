@@ -5,8 +5,6 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-import javax.annotation.Nullable;
-
 /**
  * Created by Elec332 on 24-3-2015.
  */
@@ -19,8 +17,9 @@ public class CraftingTableIVRenderer extends TileEntitySpecialRenderer<TileEntit
     private final ModelCraftingTableIV modelCraftingTable;
     private static final ResourceLocation rl;
 
+
     @Override
-    public void renderTileEntityAt(@Nullable TileEntityCraftingTableIV tile, double x, double y, double z, float partialTicks, int destroyStage) {
+    public void render(TileEntityCraftingTableIV tile, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         float doorRotation = 0;
         int facing = 0;
         if (tile != null) {

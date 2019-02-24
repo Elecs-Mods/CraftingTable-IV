@@ -3,9 +3,10 @@ package elec332.craftingtableiv.handler;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import elec332.core.inventory.BasicItemHandler;
 import elec332.core.inventory.ContainerNull;
+import elec332.core.inventory.DoubleItemHandler;
 import elec332.core.util.*;
-import elec332.core.util.recipes.RecipeHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.IRecipeHandler;
@@ -16,9 +17,12 @@ import elec332.craftingtableiv.util.WrappedRecipe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -42,8 +46,8 @@ public class CraftingHandler {
 
     public static void rebuildList(){
         clearLists();
-        List<IRecipeHandler> recipeHandlers = RecipeHandler.getCompatHandler().getRegistry();
-        List<IRecipe> recipeList = RecipeHelper.getCraftingManager().getRecipeList();
+        Set<IRecipeHandler> recipeHandlers = RecipeHandler.getCompatHandler().getRegistry();
+        Iterable<IRecipe> recipeList = CraftingManager.REGISTRY;
         Map<String, List<WrappedRecipe>> entries = Maps.newHashMap();
         SortedMap<String, List<WrappedRecipe>> namedList = Maps.newTreeMap();
         recipeLoop:
@@ -57,7 +61,7 @@ public class CraftingHandler {
             if (CraftingTableIV.getItemRegistryName(recipe.getRecipeOutput()) == null){
                 continue;
             }
-            if (CraftingTableIV.nuggetFilter && isNugget(recipe.getRecipeOutput().copy())) {
+            if (CraftingTableIV.nuggetFilter && isNugget(recipe.getRecipeOutput())) {
                 continue;
             }
             String s = CraftingTableIV.getItemIdentifier(recipe.getRecipeOutput());
@@ -69,7 +73,12 @@ public class CraftingHandler {
             boolean invalid = false;
             for (IRecipeHandler handler : recipeHandlers){
                 if (handler.canHandleRecipe(recipe)){
-                    WrappedRecipe wrappedRecipe = handleRecipe(recipe, handler);
+                    WrappedRecipe wrappedRecipe = null;
+                    try {
+                        wrappedRecipe = handleRecipe(recipe, handler);
+                    } catch (Exception e){
+                        throw new RuntimeException("Failed to handle recipe: " + recipe.getClass().getCanonicalName() + " " + recipe, e);
+                    }
                     if (wrappedRecipe != null){
                         if (s.contains("minecraft")) {
                             entries.computeIfAbsent("minecraft", k -> Lists.newArrayList()).add(wrappedRecipe);
@@ -152,7 +161,7 @@ public class CraftingHandler {
     private static <I extends IItemHandlerModifiable> int maxCraft(IWorldAccessibleInventory<I> inventory, WrappedItemHandler wrappedInventory, WrappedRecipe recipe, @Nullable FastRecipeList list, boolean craft, int recursion, int max) {
         int ret = 0;
         int oS = recipe.getOutputSize();
-        int times = MathHelper.floor_float(max / (float) oS);
+        int times = MathHelper.floor(max / (float) oS);
         for (int i = 0; i < times; i++) {
             if (canCraft(inventory, wrappedInventory, recipe, list, craft, recursion)){
                 ret += oS;
@@ -167,77 +176,42 @@ public class CraftingHandler {
         if (recursion >= CraftingTableIV.recursionDepth || inventory == null || recipe == null){
             return false;
         }
-        int inputSize = recipe.getInput().length;
+        int inputSize = recipe.getIngredients().length;
         ItemStack[] usedIngredients = new ItemStack[inputSize];
         Arrays.fill(usedIngredients, ItemStackHelper.NULL_STACK);
-        mainLoop:
         for (int o = 0; o < inputSize; o++) {
-            Object obj = recipe.getInput()[o];
-            if (obj == null) {
+            Ingredient obj = recipe.getIngredients()[o];
+            if (obj == null || obj == Ingredient.EMPTY) {
                 continue;
             }
-            if (obj instanceof ItemStack){
-                if (!ItemStackHelper.isStackValid((ItemStack) obj)){
-                    continue;
-                }
-                ItemStack stack = ((ItemStack) obj).copy();
-                int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
-                if (i >= 0){
+            int i = getFirstSlotWithItemStack(wrappedInventory, obj, recipe);
+            if (i >= 0){
+                usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
+                handleStuff(inventory, wrappedInventory, i, craft);
+                continue;
+            } else if (list != null) {
+                List<WrappedRecipe> recipes = list.getCraftingRecipe(obj, recipe);
+                if (canCraftAnyOf(recipes, inventory, wrappedInventory, list, craft, recursion, recipe)){
+                    i = getFirstSlotWithItemStack(wrappedInventory, obj, recipe);
+                    if (i < 0){
+                        return false;
+                    }
                     usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
                     handleStuff(inventory, wrappedInventory, i, craft);
                     continue;
-                } else if (list != null) {
-                    List<WrappedRecipe> recipes = list.getCraftingRecipe(stack);
-                    if (canCraftAnyOf(recipes, inventory, wrappedInventory, list, craft, recursion, recipe)){
-                        i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
-                        if (i < 0){
-                            return false;
-                        }
-                        usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
-                        handleStuff(inventory, wrappedInventory, i, craft);
-                        continue;
-                    }
-                    return false;
                 }
-                return false;
-            } else if (obj instanceof List && !((List) obj).isEmpty()){
-                @SuppressWarnings("unchecked")
-                List<ItemStack> stacks = (List<ItemStack>) obj;
-                for (ItemStack stack : stacks){
-                    stack = stack.copy();
-                    int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
-                    if (i >= 0){
-                        usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
-                        handleStuff(inventory, wrappedInventory, i, craft);
-                        continue mainLoop;
-                    }
-                }
-                if (list == null) {
-                    return false;
-                }
-                for (ItemStack stack : stacks) {
-                    stack = stack.copy();
-                    List<WrappedRecipe> recipes = list.getCraftingRecipe(stack);
-                    if (canCraftAnyOf(recipes, inventory, wrappedInventory, list, craft, recursion, recipe)) {
-                        int i = getFirstSlotWithItemStack(wrappedInventory, stack, recipe);
-                        if (i < 0){
-                            return false;
-                        }
-                        usedIngredients[o] = wrappedInventory.getStackInSlot(i).copy();
-                        handleStuff(inventory, wrappedInventory, i, craft);
-                        continue mainLoop;
-                    }
-                }
-                return false;
-            } else {
                 return false;
             }
+            return false;
         }
         ItemStack out = recipe.getRecipeHandler().getCraftingResult(recipe.getRecipe(), getInv(usedIngredients));
-        if (out == null) {
+        if (out == null || !ItemStackHelper.isStackValid(out)) {
             return false;
         }
         if (!wrappedInventory.addItemToInventory(out, false)){
+            if (recursion != 0){ //Don't throw recipe ingredients out, only the recipe result
+                return false;
+            }
             inventory.dropStack(out);
         }
         if (craft && isClient()) {
@@ -260,7 +234,7 @@ public class CraftingHandler {
         return ret;
     }
 
-    private static int getFirstSlotWithItemStack(IItemHandler inventory, ItemStack stack, WrappedRecipe recipe){
+    private static int getFirstSlotWithItemStack(IItemHandler inventory, Ingredient stack, WrappedRecipe recipe){
         IRecipeHandler recipeHandler = recipe.getRecipeHandler();
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack itemStack = inventory.getStackInSlot(i);
@@ -273,8 +247,10 @@ public class CraftingHandler {
 
     private static boolean canCraftAnyOf(List<WrappedRecipe> recipes, IWorldAccessibleInventory<?> inventory, WrappedItemHandler wrappedInventory, @Nullable FastRecipeList list, boolean craft, int recursion, WrappedRecipe original){
         for (WrappedRecipe wrappedRecipe : recipes) {
-            if (!canCraftFrom(original, wrappedRecipe)){
-                continue;
+            if (isLoopSensitive(original, wrappedRecipe)){
+                if (CraftingTableIV.aggressiveLoopCheck || isSingleLoop(original, wrappedRecipe)){
+                    continue;
+                }
             }
             ItemStack[] copy = wrappedInventory.getCopyOfContents();
             if (canCraft(inventory, wrappedInventory, wrappedRecipe, list, craft, recursion + 1)) {
@@ -286,8 +262,20 @@ public class CraftingHandler {
         return false;
     }
 
-    private static boolean canCraftFrom(WrappedRecipe original, WrappedRecipe wrappedRecipe){
-        return !(original.sameItems() && wrappedRecipe.sameItems() && wrappedRecipe.oneItem() != original.oneItem());
+    private static boolean isLoopSensitive(WrappedRecipe original, WrappedRecipe wrappedRecipe){ //loop detection
+        return original.sameItems() && wrappedRecipe.sameItems() && (wrappedRecipe.oneItem() != original.oneItem());
+    }
+
+    private static boolean isSingleLoop(WrappedRecipe original, WrappedRecipe wrappedRecipe) {
+        ItemStack stack = null, out = null;
+        if (original.oneItem()) {
+            stack = original.getOneItem();
+            out = wrappedRecipe.getRecipeOutput();
+        } else if (wrappedRecipe.oneItem()) {
+            stack = wrappedRecipe.getOneItem();
+            out = original.getRecipeOutput();
+        }
+        return stack != null && out != null && InventoryHelper.areEqualNoSizeNoNBT(stack, out);
     }
 
     private static void handleStuff(IWorldAccessibleInventory worldAccessibleInventory, WrappedItemHandler inventory, int slot, boolean craft){
@@ -335,34 +323,20 @@ public class CraftingHandler {
         WrappedRecipe wrappedRecipe = null;
         recipeLoop:
         for (WrappedRecipe recipe : recipes){
-            if (list.tagCount() != recipe.getInput().length){
+            if (list.tagCount() != recipe.getIngredients().length){
                 continue;
             }
-            ingredientLoop:
             for (int i = 0; i < list.tagCount(); i++) {
-                Object obj = recipe.getInput()[i];
+                Ingredient obj = recipe.getIngredients()[i];
                 ItemStack stack = ItemStackHelper.loadItemStackFromNBT(list.getCompoundTagAt(i));
                 if (!ItemStackHelper.isStackValid(stack)){
-                    if (obj == null || (obj instanceof ItemStack && !ItemStackHelper.isStackValid((ItemStack) obj))){
+                    if (obj == null || obj == Ingredient.EMPTY){
                         continue;
-                    } else {
-                        continue recipeLoop;
                     }
+                    continue recipeLoop;
                 }
-                if (obj instanceof ItemStack){
-                    if (recipe.getRecipeHandler().isValidIngredientFor(recipe.getRecipe(), (ItemStack) obj, stack)){
-                        continue;
-                    }
-                    continue recipeLoop;
-                } else if (obj instanceof List && !((List) obj).isEmpty()){
-                    @SuppressWarnings("unchecked")
-                    List<ItemStack> stacks = (List<ItemStack>) obj;
-                    for (ItemStack stack1 : stacks){
-                        if (recipe.getRecipeHandler().isValidIngredientFor(recipe.getRecipe(), stack1, stack)){
-                            continue ingredientLoop;
-                        }
-                    }
-                    continue recipeLoop;
+                if (recipe.getRecipeHandler().isValidIngredientFor(recipe.getRecipe(), obj, stack)){
+                    continue;
                 }
                 continue recipeLoop;
             }
@@ -423,7 +397,7 @@ public class CraftingHandler {
             tag.setInteger("dimID", WorldHelper.getDimID(world));
             tag.setInteger("playerID", player.getEntityId());
             tag.setString("PlayerUUID", player.getUniqueID().toString());
-            new NBTHelper(tag).addToTag(craftingTableIV.getPos());
+            new NBTBuilder(tag).setBlockPos(craftingTableIV.getPos());
         }
 
         @Override
@@ -437,7 +411,7 @@ public class CraftingHandler {
                     return null;
                 }
             }
-            TileEntityCraftingTableIV craftingTableIV = (TileEntityCraftingTableIV) WorldHelper.getTileAt(world, new NBTHelper(tag).getPos());
+            TileEntityCraftingTableIV craftingTableIV = (TileEntityCraftingTableIV) WorldHelper.getTileAt(world, new NBTBuilder(tag).getBlockPos());
             return new CraftingTableIVHandler(player, craftingTableIV, world);
         }
 

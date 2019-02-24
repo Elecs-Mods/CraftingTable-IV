@@ -3,14 +3,12 @@ package elec332.craftingtableiv.inventory;
 import com.google.common.collect.Lists;
 import elec332.core.client.RenderHelper;
 import elec332.core.client.util.GuiDraw;
-import elec332.core.client.util.KeyHelper;
+import elec332.core.inventory.BasicItemHandler;
 import elec332.core.inventory.tooltip.ToolTip;
 import elec332.core.inventory.widget.Widget;
 import elec332.core.inventory.widget.WidgetButton;
 import elec332.core.inventory.widget.slot.WidgetSlot;
 import elec332.core.inventory.window.Window;
-import elec332.core.util.BasicItemHandler;
-import elec332.core.util.Constants;
 import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
@@ -38,6 +36,7 @@ import org.lwjgl.input.Mouse;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -61,7 +60,6 @@ public class WindowCraftingTableIV extends Window {
     private CTIVThread currentThread;
     private float scrollValue = 0.0F;
     private final RecipeCache craftableRecipes;
-    private static final StackMatcher ALWAYS_TRUE;
     private long lastTextTime = -1;
 
     @Override
@@ -152,12 +150,12 @@ public class WindowCraftingTableIV extends Window {
         addWidget(new WidgetButton(xSize + 2, 2, 12, 12){
 
             @Override
-            public ToolTip getToolTip() {
+            public ToolTip getToolTip(int mouseX, int mouseY) {
                 return rSTT;
             }
 
             @Override
-            public void onButtonClicked() {
+            public void onButtonClicked(int mouseBttn) {
                 if (getPlayer().getEntityWorld().isRemote) {
                     theTile.showRecipeSize = !recipeSize();
                 }
@@ -167,12 +165,12 @@ public class WindowCraftingTableIV extends Window {
         addWidget(new WidgetButton(xSize + 2, 15, 12, 12){
 
             @Override
-            public ToolTip getToolTip() {
+            public ToolTip getToolTip(int mouseX, int mouseY) {
                 return shTT;
             }
 
             @Override
-            public void onButtonClicked() {
+            public void onButtonClicked(int mouseBttn) {
                 if (getPlayer().getEntityWorld().isRemote) {
                     theTile.showShaped = !showShaped();
                 }
@@ -181,7 +179,7 @@ public class WindowCraftingTableIV extends Window {
         }).setDisplayString("s");
 
 
-        if (getPlayer().getEntityWorld().isRemote) {
+        if (getPlayer().getEntityWorld().isRemote) { //client
             scroll = 0.0F;
             Keyboard.enableRepeatEvents(true);
             int i = (this.width - this.xSize) / 2;
@@ -241,7 +239,7 @@ public class WindowCraftingTableIV extends Window {
                     return ItemStackHelper.NULL_STACK;
                 }
             }
-            if (stackInSlot.stackSize == 0) {
+            if (stackInSlot.getCount() == 0) {
                 slot.putStack(ItemStackHelper.NULL_STACK);
             } else {
                 slot.onSlotChanged();
@@ -329,12 +327,12 @@ public class WindowCraftingTableIV extends Window {
     @SideOnly(Side.CLIENT)
     protected void handleMouseClick(WidgetSlot slot, int slotId, int mouseButton, @Nonnull ClickType type) {
         if(slot instanceof WidgetCraftSlot) {
-            if(mouseButton == Constants.Mouse.MOUSE_RIGHT) {
+            if(mouseButton == 1) { //mouse right
                 updateRecipes();
-            } else if(KeyHelper.isShiftDown()) {
+            } else if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
                 onRequestMaximumRecipeOutput((WidgetCraftSlot) slot);
                 updateRecipes();
-            } else if (mouseButton == Constants.Mouse.MOUSE_LEFT){
+            } else if (mouseButton == 0){ //mouse left
                 onRequestSingleRecipeOutput((WidgetCraftSlot) slot);
                 updateRecipes();
             } else {
@@ -388,9 +386,7 @@ public class WindowCraftingTableIV extends Window {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void drawScreen(int i, int j, float f) {
-
+    protected void drawScreenPost(int mouseX, int mouseY, float partialTicks) {
         for (int b = 0; b < 9; b++) {
             recipeItems.setStackInSlot(b, ItemStackHelper.NULL_STACK);
         }
@@ -399,7 +395,7 @@ public class WindowCraftingTableIV extends Window {
 
         for (int a = 0; a < inventory.getSlots(); a++) {
             WidgetSlot slot = getSlot(a);
-            if (slot instanceof WidgetCraftSlot && getIsMouseOverSlot(slot, i, j)) {
+            if (slot instanceof WidgetCraftSlot && getIsMouseOverSlot(slot, mouseX, mouseY)) {
                 WidgetCraftSlot theSlot = (WidgetCraftSlot) getSlot(a);
                 WrappedRecipe recipe = theSlot.getIRecipe();
                 if (recipe != null) {
@@ -415,7 +411,7 @@ public class WindowCraftingTableIV extends Window {
             }
 
         }
-        super.drawScreen(i, j, f);
+        super.drawScreenPost(mouseX, mouseY, partialTicks);
 
         if (!work && this.hovering){
             this.hovering = false;
@@ -434,39 +430,34 @@ public class WindowCraftingTableIV extends Window {
 
     private ItemStack[] getIngredients(WrappedRecipe recipe, boolean shaped){
         ItemStack[] ret = new ItemStack[9];
-        int counter = 0;
+        int i = 0;
         for (int j = 0; j < 9; j++) {
-            int i = shaped ? j : counter;
-            Object obj = j >= recipe.getInput().length ? ItemStackHelper.NULL_STACK : recipe.getInput()[j];
-            ItemStack stack;
-            if (obj == null){
-                stack = ItemStackHelper.NULL_STACK;
-            } else if (obj instanceof ItemStack) {
-                stack = ((ItemStack) obj).copy();
-            } else if (obj instanceof List && !((List) obj).isEmpty()) {
-                stack = ((ItemStack) ((List) obj).get(0)).copy();
-            } else {
-                stack = ItemStackHelper.NULL_STACK;
+            ItemStack stack = ItemStackHelper.NULL_STACK;
+            if (recipe.getIngredientItems().length > j){
+                ItemStack[] s = recipe.getIngredientItems()[j];
+                if (s != null && s.length > 0){
+                    stack = s[0].copy();
+                }
             }
-            if (!ItemStackHelper.isStackValid(stack)){
-                if (shaped) {
-                    ret[i] = ItemStackHelper.NULL_STACK;
+            if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
+                stack.setItemDamage(0);
+            }
+            if (!shaped){
+                if (ItemStackHelper.isStackValid(stack)){
+                    ret[i] = stack;
+                    i++;
                 }
             } else {
-                ret[i] = stack;
-                counter++;
+                ret[j] = stack;
             }
         }
-        for (int i = 0; i < ret.length; i++) {
-            ItemStack stack = ret[i];
-            if (stack != null) {
-                if (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE) {
-                    stack.setItemDamage(0);
-                }
-            } else {
-                ret[i] = ItemStackHelper.NULL_STACK;
+
+        if (!shaped){ //When not shaped, fill all empty slots with empty stacks
+            for (int j = i; j < 9; j++) {
+                ret[j] = ItemStack.EMPTY;
             }
         }
+
         return ret;
     }
 
@@ -481,7 +472,7 @@ public class WindowCraftingTableIV extends Window {
     @Override
     @SideOnly(Side.CLIENT)
     protected void drawGuiContainerForegroundLayer(int i, int i1) {
-        Minecraft.getMinecraft().fontRendererObj.drawString("Crafting Table IV", 8, 6, 0x404040);
+        RenderHelper.getMCFontrenderer().drawString("Crafting Table IV", 8, 6, 0x404040);
     }
 
     @Override
@@ -571,7 +562,7 @@ public class WindowCraftingTableIV extends Window {
                 craftableRecipes.clearRecipes();
                 List<WrappedRecipe> validRecipes = Lists.newArrayList(CraftingHandler.getAllRecipes());
                 List<WrappedRecipe> canCraft = Lists.newArrayList();
-                StackMatcher matcher = getCurrentPattern();
+                Predicate<WrappedRecipe> matcher = getCurrentPattern();
                 CraftingHandler.IWorldAccessibleInventory<?> wrappedInventory = CraftingHandler.forCraftingTableIV(getPlayer(), theTile);
                 for (WrappedRecipe recipe : validRecipes){
                     checkStopThread();
@@ -625,54 +616,25 @@ public class WindowCraftingTableIV extends Window {
 
     }
 
-    private StackMatcher getCurrentPattern(){
+    private Predicate<WrappedRecipe> getCurrentPattern(){
         return toPattern(textField);
     }
 
-    private static StackMatcher toPattern(GuiTextField textField){
+    private static Predicate<WrappedRecipe> toPattern(GuiTextField textField){
         String txt = null;
         if (textField != null){
             txt = textField.getText();
         }
-        if (txt == null)
+        if (txt == null) {
             txt = "";
+        }
         txt = txt.toLowerCase().replace(".", "").replace("?", ".").replace("*", ".+?");
-        Pattern pattern;
         try {
-            pattern = Pattern.compile(txt);
+            Pattern pattern = Pattern.compile(txt);
+            return recipe -> pattern.matcher(recipe.itemIdentifierClientName()).find();
         } catch (Exception e){
-            pattern = null;
+            return wrappedRecipe -> true;
         }
-        if (pattern != null) {
-			return new PatternStackMatcher(pattern);
-		}
-        return ALWAYS_TRUE;
-    }
-
-    public static class StackMatcher {
-
-        public boolean canAdd(WrappedRecipe recipe){
-            return true;
-        }
-
-    }
-
-    private static class PatternStackMatcher extends StackMatcher {
-
-        private PatternStackMatcher(Pattern pattern){
-            this.pattern = pattern;
-        }
-
-        Pattern pattern;
-
-        public boolean canAdd(WrappedRecipe recipe){
-            return pattern.matcher(recipe.itemIdentifierClientName()).find();
-        }
-
-    }
-
-    static {
-        ALWAYS_TRUE = new StackMatcher();
     }
 
 }

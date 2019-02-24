@@ -6,6 +6,7 @@ import elec332.craftingtableiv.inventory.WindowCraftingTableIV;
 import net.minecraft.item.ItemStack;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -28,9 +29,9 @@ public class RecipeCache {
         return shownRecipes.size();
     }
 
-    public void addRecipe(WrappedRecipe recipe, int amt, WindowCraftingTableIV.StackMatcher matcher){
+    public void addRecipe(WrappedRecipe recipe, int amt, Predicate<WrappedRecipe> matcher){
         Entry entry = new Entry(recipe, amt);
-        if (matcher.canAdd(recipe)){
+        if (matcher.test(recipe)){
             shownRecipes.add(entry);
         }
         recipes.add(entry);
@@ -48,10 +49,10 @@ public class RecipeCache {
         return e.recipe.getRecipeOutput();
     }
 
-    public void updateVisual(WindowCraftingTableIV.StackMatcher stackMatcher){
+    public void updateVisual(Predicate<WrappedRecipe> stackMatcher){
         shownRecipes.clear();
         for (Entry wrappedRecipe : recipes){
-            if (stackMatcher.canAdd(wrappedRecipe.recipe)){
+            if (stackMatcher.test(wrappedRecipe.recipe)){
                 shownRecipes.add(wrappedRecipe);
             }
         }

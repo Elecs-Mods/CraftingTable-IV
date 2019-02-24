@@ -1,12 +1,15 @@
 package elec332.craftingtableiv.handler;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import elec332.craftingtableiv.api.ICraftingTableIVAPI;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.crafting.IRecipe;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Elec332 on 24-6-2015.
@@ -16,7 +19,7 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     private static final RecipeHandler instance = new RecipeHandler();
 
     private RecipeHandler() {
-        registry = Lists.newArrayList();
+        registry = Sets.newHashSet();
         disabledRecipes = Lists.newArrayList();
     }
 
@@ -24,7 +27,7 @@ public class RecipeHandler implements ICraftingTableIVAPI {
         return instance;
     }
 
-    private List<IRecipeHandler> registry;
+    private Set<IRecipeHandler> registry;
     private List<Class<? extends IRecipe>> disabledRecipes;
     private boolean closed;
 
@@ -46,7 +49,7 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     }
 
     @Override
-    public List<IRecipeHandler> getRegistry(){
+    public Set<IRecipeHandler> getRegistry(){
         if (!closed){
             throw new IllegalAccessError("Cannot provide registry before it's been closed!");
         }
@@ -65,7 +68,7 @@ public class RecipeHandler implements ICraftingTableIVAPI {
 
     public void closeRegistry(){
         checkClosed();
-        registry = ImmutableList.copyOf(registry);
+        registry = ImmutableSet.copyOf(registry);
         disabledRecipes = ImmutableList.copyOf(disabledRecipes);
         this.closed = true;
     }
