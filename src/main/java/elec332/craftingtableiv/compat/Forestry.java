@@ -4,19 +4,14 @@ import elec332.core.api.module.ElecModule;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.CraftingTableIVAPI;
 import elec332.craftingtableiv.api.IRecipeHandler;
-import forestry.api.recipes.IDescriptiveRecipe;
 import forestry.core.recipes.ShapedRecipeCustom;
 import forestry.lepidopterology.recipes.MatingRecipe;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Created by Elec332 on 4-10-2015.
@@ -26,27 +21,50 @@ public class Forestry  {
 
     @ElecModule.EventHandler
     public void init(FMLInitializationEvent event) {
-        CraftingTableIV.logger.info("Registering Forestry recipe handlers...");
         CraftingTableIVAPI.getAPI().registerHandler(new IRecipeHandler() {
 
             @Override
             public boolean canHandleRecipe(IRecipe recipe) {
-                return recipe instanceof IDescriptiveRecipe;
-            }
-
-            @Override
-            public int getRecipeWidth(IRecipe recipe) {
-                return ((IDescriptiveRecipe) recipe).getWidth();
+                return recipe instanceof ShapedRecipeCustom;
             }
 
             @Nonnull
             @Override
-            public ItemStack[][] getIngredientStacks(IRecipe recipe) {
-                return ((IDescriptiveRecipe) recipe).getRawIngredients().stream().map(itemStacks -> itemStacks.toArray(new ItemStack[0])).toArray(ItemStack[][]::new);
+            public Object[] getIngredients(IRecipe recipe) {
+                try {
+                    Object o = ingredients.invoke(recipe);
+                    if (o.getClass().isArray()){
+                        return (Object[]) o; //MC 1.10
+                    } else {
+                        return ((List) o).toArray(); //MC 1.11
+                    }
+                } catch (Exception e){
+                    throw new RuntimeException();
+                }
+            }
+
+            @Override
+            public int getRecipeWidth(IRecipe recipe) {
+                return ((ShapedRecipeCustom) recipe).getWidth();
+            }
+
+            @Override
+            public boolean logHandlerErrors() {
+                return false;
             }
 
         });
         CraftingTableIVAPI.getAPI().registerDisabledRecipe(MatingRecipe.class);
+    }
+
+    private static final Method ingredients;
+
+    static {
+        try {
+            ingredients = ShapedRecipeCustom.class.getDeclaredMethod("getIngredients");
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
 }

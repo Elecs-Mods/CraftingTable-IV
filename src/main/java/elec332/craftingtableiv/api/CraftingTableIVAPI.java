@@ -1,9 +1,9 @@
 package elec332.craftingtableiv.api;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.item.crafting.IRecipe;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Created by Elec332 on 24-6-2015.
@@ -36,8 +36,8 @@ public class CraftingTableIVAPI {
         }
 
         @Override
-        public Set<IRecipeHandler> getRegistry() throws IllegalAccessError {
-            return ImmutableSet.of();
+        public List<IRecipeHandler> getRegistry() throws IllegalAccessError {
+            return ImmutableList.of();
         }
 
         @Override

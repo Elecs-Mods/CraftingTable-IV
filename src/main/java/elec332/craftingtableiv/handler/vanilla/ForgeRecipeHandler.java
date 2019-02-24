@@ -1,10 +1,12 @@
 package elec332.craftingtableiv.handler.vanilla;
 
+import elec332.core.util.recipes.RecipeHelper;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 
 /**
@@ -15,6 +17,15 @@ public class ForgeRecipeHandler implements IRecipeHandler {
     @Override
     public boolean canHandleRecipe(IRecipe recipe) {
         return recipe instanceof ShapedOreRecipe || recipe instanceof ShapelessOreRecipe;
+    }
+
+    @Nonnull
+    @Override
+    public Object[] getIngredients(IRecipe recipe) {
+        if (recipe instanceof ShapelessOreRecipe){
+            return RecipeHelper.getRecipeInput((ShapelessOreRecipe) recipe).toArray();
+        }
+        return ((ShapedOreRecipe)recipe).getInput();
     }
 
     @Override

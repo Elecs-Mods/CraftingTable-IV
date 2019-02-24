@@ -6,15 +6,10 @@ import com.google.common.collect.Maps;
 import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by Elec332 on 5-7-2015.
@@ -29,10 +24,10 @@ public class FastRecipeList {
     }
 
     public FastRecipeList(){
-        this.recipeHash = Maps.newHashMap();
+        recipeHash = Maps.newHashMap();
     }
 
-    private final Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash;
+    private Map<String, Map<ItemComparator, List<WrappedRecipe>>> recipeHash;
 
     public void addRecipe(WrappedRecipe recipe){
         ItemComparator itemComparator = new ItemComparator(recipe.getRecipe().getRecipeOutput());
@@ -41,14 +36,6 @@ public class FastRecipeList {
                 computeIfAbsent(s, k -> Maps.<ItemComparator, List<WrappedRecipe>>newHashMap()).
                 computeIfAbsent(itemComparator, k -> Lists.newArrayList()).
                 add(recipe);
-    }
-
-    public List<WrappedRecipe> getCraftingRecipe(Ingredient ingredient, WrappedRecipe owner){
-        return Arrays.stream(owner.getRecipeHandler().getMatchingStacks(owner.getRecipe(), ingredient))
-                .filter(ItemStackHelper::isStackValid)
-                .map(this::getCraftingRecipe)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
     }
 
     public List<WrappedRecipe> getCraftingRecipe(ItemStack stack) {

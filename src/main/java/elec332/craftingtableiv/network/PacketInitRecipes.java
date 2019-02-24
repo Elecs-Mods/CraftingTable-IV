@@ -2,7 +2,6 @@ package elec332.craftingtableiv.network;
 
 import elec332.core.network.packets.AbstractPacket;
 import elec332.craftingtableiv.CraftingTableIV;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -12,7 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 public class PacketInitRecipes extends AbstractPacket {
 
     @Override
-    public IMessage onMessageThreadSafe(NBTTagCompound abstractPacket, MessageContext messageContext) {
+    public IMessage onMessageThreadSafe(AbstractPacket abstractPacket, MessageContext messageContext) {
         CraftingTableIV.instance.reloadRecipes();
         return null;
     }
