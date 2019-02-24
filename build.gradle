@@ -16,20 +16,9 @@ buildscript {
 }
 
 repositories {
-    maven {
-        name 'CB Maven FS'
-        url "http://chickenbones.net/maven/"
-    }
-    maven {
-        name 'ForgeFS'
-        url 'http://files.minecraftforge.net/maven'
-    }
 	maven {
-		url "http://dvs1.progwml6.com/files/maven"
-    } 
-	maven {
-		name = "ic2"
-		url = "http://maven.ic2.player.to/"
+		name = "ModMaven"
+		url = "https://modmaven.k-4u.nl"
 	}
 }
 
@@ -41,7 +30,7 @@ configFile.withReader {
     def prop = new Properties()
     prop.load(it)
     project.ext.config = new ConfigSlurper().parse prop
-    project.ext.modVersion = "${config.mod_version}." + (System.env.BUILD_NUMBER ?: "localBuild")
+    project.ext.modVersion = "${config.minecraft_version}-${config.mod_version}." + (System.env.BUILD_NUMBER ?: "localBuild")
 }
 
 ext.modInfo = file "mod.properties"
@@ -73,6 +62,7 @@ minecraft {
 }
 
 dependencies {
+	compile "nl.elec332.core:ElecCore:1.12.2-1.9.451"
 	compile "net.industrial-craft:industrialcraft-2:"+config.ic2_version+":dev"
 	deobfCompile "net.sengir.forestry:forestry_${config.forestry_version}"
 }
