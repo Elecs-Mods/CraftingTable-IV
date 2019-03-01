@@ -45,7 +45,7 @@ public class ModelCraftingTableIV extends ModelBase {
         setRotation(door_topside1, 0F, 0F, 0F);
         door_topside2 = new ModelRenderer(this, 0, 33);
         door_topside2.addBox(0F, 0F, 0F, 4, 1, 12);
-        door_topside2.setRotationPoint(2F, 15F, -5.8F);
+        door_topside2.setRotationPoint(2F, 15F, -6F);
         door_topside2.setTextureSize(128, 64);
         door_topside2.mirror = true;
         setRotation(door_topside2, 0F, 0F, 0F);
