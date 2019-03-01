@@ -381,7 +381,7 @@ public class CraftingHandler {
             if (player.getEntityWorld() != world && craftingTableIV.getWorld() != world) {
                 throw new IllegalArgumentException();
             }
-            this.inventory = WrappedItemHandler.of(new DoubleItemHandler<>(new PlayerMainInvWrapper(player.inventory), craftingTableIV));
+            this.inventory = WrappedItemHandler.of(new DoubleItemHandler<>(craftingTableIV, new PlayerMainInvWrapper(player.inventory)));
             this.world = world;
             this.craftingTableIV = craftingTableIV;
             this.player = player;
