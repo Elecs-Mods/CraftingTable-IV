@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
  */
 class ItemComparator {
 
-    public ItemComparator(ItemStack stack){
+    public ItemComparator(ItemStack stack) {
         this.stack = stack;
         if (!ItemStackHelper.isStackValid(stack)) {
             throw new IllegalArgumentException("Invalid ItemStack!");
@@ -31,11 +31,11 @@ class ItemComparator {
         return obj instanceof ItemStack ? stacksEqual((ItemStack) obj) : ((obj instanceof ItemComparator) && stacksEqual(((ItemComparator) obj).getStack()));
     }
 
-    protected boolean stacksEqual(ItemStack s1){
+    protected boolean stacksEqual(ItemStack s1) {
         return s1.getItem() == stack.getItem();
     }
 
-    public ItemComparator copy(){
+    public ItemComparator copy() {
         return new ItemComparator(getStack());
     }
 

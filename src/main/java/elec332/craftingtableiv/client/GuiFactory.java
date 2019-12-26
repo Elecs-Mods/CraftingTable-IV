@@ -1,11 +1,8 @@
 package elec332.craftingtableiv.client;
 
-import elec332.craftingtableiv.CraftingTableIV;
-import elec332.craftingtableiv.proxies.ClientProxy;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraftforge.fml.client.IModGuiFactory;
-import net.minecraftforge.fml.client.config.GuiConfig;
 
 import java.util.Set;
 
@@ -24,21 +21,21 @@ public class GuiFactory implements IModGuiFactory {
     }
 
     @Override
-    public GuiScreen createConfigGui(GuiScreen parentScreen) {
-        return new ConfigGui(parentScreen);
+    public Screen createConfigGui(Screen parentScreen) {
+        throw new UnsupportedOperationException();//return new ConfigGui(parentScreen);
     }
 
     @Override
     public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
         return null;
     }
-
+/*
     public static class ConfigGui extends GuiConfig {
 
         public ConfigGui(GuiScreen parentScreen) {
             super(parentScreen, ClientProxy.getCategories(), CraftingTableIV.ModID, false, false, "CraftingTable IV config menu");
         }
 
-    }
+    }*/
 
 }

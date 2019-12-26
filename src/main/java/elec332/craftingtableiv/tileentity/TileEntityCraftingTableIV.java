@@ -1,16 +1,17 @@
 package elec332.craftingtableiv.tileentity;
 
+import com.google.common.base.Preconditions;
 import elec332.core.inventory.BasicItemHandler;
 import elec332.core.tile.AbstractTileEntity;
-import elec332.core.util.IBlockStateHelper;
+import elec332.core.util.BlockProperties;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
@@ -18,7 +19,7 @@ import javax.annotation.Nonnull;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITickable, IItemHandlerModifiable {
+public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITickableTileEntity, IItemHandlerModifiable {
 
     public TileEntityCraftingTableIV() {
         super();
@@ -37,8 +38,8 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
 
     public int getFacing() {
         if (facing == -1) {
-            facing = WorldHelper.getBlockState(getWorld(), pos).getValue(IBlockStateHelper.FACING_NORMAL.getProperty()).getHorizontalIndex() + 2 % 4;
-            //facing = 1;//todo DirectionHelper.getNumberForDirection(WorldHelper.getBlockState(getWorld(), pos).getValue(BlockStateHelper.FACING_NORMAL.getProperty()));
+            facing = WorldHelper.getBlockState(Preconditions.checkNotNull(getWorld()), pos).get(BlockProperties.FACING_NORMAL).getHorizontalIndex() + 2 % 4;
+            //facing = 1;//DirectionHelper.getNumberForDirection(WorldHelper.getBlockState(getWorld(), pos).getValue(BlockStateHelper.FACING_NORMAL.getProperty()));
         }
         //System.out.println(facing);
         return facing;
@@ -46,54 +47,54 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
 
     @Override
     @Nonnull
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT write(CompoundNBT tagCompound) {
         showRecipeSize = tagCompound.getBoolean("shR");
         showShaped = tagCompound.getBoolean("ssH");
         inventory.writeToNBT(tagCompound);
-        return super.writeToNBT(tagCompound);
+        return super.write(tagCompound);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
-        tagCompound.setBoolean("shR", showRecipeSize);
-        tagCompound.setBoolean("ssH", showShaped);
+    public void read(CompoundNBT tagCompound) {
+        tagCompound.putBoolean("shR", showRecipeSize);
+        tagCompound.putBoolean("ssH", showShaped);
         inventory.deserializeNBT(tagCompound);
-        super.readFromNBT(tagCompound);
+        super.read(tagCompound);
     }
 
     @Override
-    public void update() {
+    public void tick() {
         if (CraftingTableIV.enableDoor) {
             int xCoord = pos.getX();
             int yCoord = pos.getY();
             int zCoord = pos.getZ();
-            EntityPlayer entityplayer = getWorld().getClosestPlayer((float)xCoord + 0.5F, (float)yCoord + 0.5F, (float)zCoord + 0.5F, 10D, false);
-            if(entityplayer != null){
-                double playerDistance = entityplayer.getDistanceSq((double)xCoord, (double)yCoord, (double)zCoord);
-                if(playerDistance < CraftingTableIV.doorRange){
+            PlayerEntity PlayerEntity = Preconditions.checkNotNull(getWorld()).getClosestPlayer((float) xCoord + 0.5F, (float) yCoord + 0.5F, (float) zCoord + 0.5F, 10D, false);
+            if (PlayerEntity != null) {
+                double playerDistance = PlayerEntity.getDistanceSq(xCoord, yCoord, zCoord);
+                if (playerDistance < CraftingTableIV.doorRange) {
                     doorAngle += openspeed;
 
-                    if(tablestate != 1) {
+                    if (tablestate != 1) {
                         tablestate = 1;
                         if (CraftingTableIV.enableNoise) {
-                            this.getWorld().playSound(null, xCoord, (double)yCoord + 0.5D, zCoord, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.2F, this.getWorld().rand.nextFloat() * 0.1F + 0.2F);
+                            this.getWorld().playSound(null, xCoord, (double) yCoord + 0.5D, zCoord, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.2F, this.getWorld().rand.nextFloat() * 0.1F + 0.2F);
                         }
                     }
 
-                    if(doorAngle > 1.8F){
+                    if (doorAngle > 1.8F) {
                         doorAngle = 1.8F;
                     }
-                } else if(playerDistance > CraftingTableIV.doorRange) {
+                } else if (playerDistance > CraftingTableIV.doorRange) {
                     doorAngle -= openspeed;
 
-                    if(tablestate != 0) {
+                    if (tablestate != 0) {
                         tablestate = 0;
                         if (CraftingTableIV.enableNoise) {
-                            this.getWorld().playSound(null, xCoord, (double)yCoord + 0.5D, zCoord, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.2F, this.getWorld().rand.nextFloat() * 0.1F + 0.2F);
+                            this.getWorld().playSound(null, xCoord, (double) yCoord + 0.5D, zCoord, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.2F, this.getWorld().rand.nextFloat() * 0.1F + 0.2F);
                         }
                     }
 
-                    if(doorAngle < 0F){
+                    if (doorAngle < 0F) {
                         doorAngle = 0F;
                     }
                 }
@@ -132,6 +133,11 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
     @Override
     public int getSlotLimit(int slot) {
         return inventory.getSlotLimit(slot);
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+        return inventory.isItemValid(slot, stack);
     }
 
 }

@@ -4,11 +4,11 @@ import elec332.core.inventory.widget.slot.WidgetSlot;
 import elec332.core.inventory.window.Window;
 import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.util.WrappedRecipe;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.CraftingResultSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -28,7 +28,7 @@ public class WidgetCraftSlot extends WidgetSlot {
     private int amt;
     private static final AchievementHandler achievementHandler;
 
-    public void clearRecipe(){
+    public void clearRecipe() {
         setIRecipe(null, 0);
     }
 
@@ -58,15 +58,15 @@ public class WidgetCraftSlot extends WidgetSlot {
 
     @Nonnull
     @Override
-    public ItemStack onTake(EntityPlayer player, @Nonnull ItemStack stack) {
+    public ItemStack onTake(PlayerEntity player, @Nonnull ItemStack stack) {
         stack.onCrafting(player.getEntityWorld(), player, 1);
         achievementHandler.onCrafting(stack);
         return super.onTake(player, stack);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void draw(Window window, int guiX, int guiY, int mouseX, int mouseY) {
+    @OnlyIn(Dist.CLIENT)
+    public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY) {
     }
 
 
@@ -74,7 +74,7 @@ public class WidgetCraftSlot extends WidgetSlot {
         achievementHandler = new AchievementHandler();
     }
 
-    private static class AchievementHandler extends SlotCrafting {
+    private static class AchievementHandler extends CraftingResultSlot {
 
         @SuppressWarnings("all")
         public AchievementHandler() {

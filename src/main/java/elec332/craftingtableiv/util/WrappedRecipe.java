@@ -1,15 +1,14 @@
 package elec332.craftingtableiv.util;
 
-import com.google.common.collect.Lists;
+import elec332.core.util.FMLHelper;
 import elec332.core.util.RegistryHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -22,30 +21,30 @@ public class WrappedRecipe {
 
     @Nullable
     @SuppressWarnings("all")
-    public static WrappedRecipe of(IRecipe recipe, IRecipeHandler handler){
-        if (!handler.canHandleRecipe(recipe)){
+    public static WrappedRecipe of(IRecipe recipe, IRecipeHandler handler) {
+        if (!handler.canHandleRecipe(recipe)) {
             throw new IllegalArgumentException("Invalid RecipeHandler");
         }
         List<Ingredient> input_ = handler.getIngredients(recipe);
         ItemStack[][] items = null;
         String errMsg = null;
 
-        if (input_ == null){
+        if (input_ == null) {
             errMsg = "Found null input";
-        } else if (input_.isEmpty()){
+        } else if (input_.isEmpty()) {
             errMsg = "Found empty input";
         }
 
         if (errMsg == null) {
             items = handler.getIngredientStacks(recipe);
-            if (items == null){
+            if (items == null) {
                 errMsg = "Found empty compiled Item list";
-            } else if (items.length != input_.size()){
+            } else if (items.length != input_.size()) {
                 errMsg = "Found mismatch between ingredient size and comiled Item list size";
             }
         }
 
-        if (errMsg != null){
+        if (errMsg != null) {
             throw new RuntimeException(errMsg + " for recipe: " + recipe.getClass().getCanonicalName() + " " + recipe);
         }
 
@@ -57,38 +56,38 @@ public class WrappedRecipe {
         ItemStack rfi = null;
         for (int i = 0; i < input.length; i++) {
             Ingredient ing = input[i];
-            if (ing != Ingredient.EMPTY){
-                if (rfi == null){
-                    if (items[i].length == 0){ //Can happen with ore recipes that have no items registered to the specified ore
+            if (ing != Ingredient.EMPTY) {
+                if (rfi == null) {
+                    if (items[i].length == 0) { //Can happen with ore recipes that have no items registered to the specified ore
                         return null;
                     }
                     rfi = items[i][0];
                 }
-                if (!ing.apply(rfi)){
+                if (!ing.test(rfi)) {
                     same = false;
                     break;
                 }
             }
         }
-        if (shaped){
+        if (shaped) {
             input = makeFit(input, width, Ingredient[]::new, Ingredient.EMPTY);
             ItemStack[] EMPTY = new ItemStack[0];
             items = makeFit(items, width, ItemStack[][]::new, EMPTY);
         }
-        if (!one){
+        if (!one) {
             rfi = null;
         }
         return new WrappedRecipe(input, items, shaped, same, one, rfi, recipe, handler);
     }
 
-    private WrappedRecipe(Ingredient[] ing, ItemStack[][] input, boolean shaped, boolean sameItems, boolean oneItem, ItemStack oneI, IRecipe recipe, IRecipeHandler handler){
+    private WrappedRecipe(Ingredient[] ing, ItemStack[][] input, boolean shaped, boolean sameItems, boolean oneItem, ItemStack oneI, IRecipe recipe, IRecipeHandler handler) {
         this.outPut = recipe.getRecipeOutput().copy();
         this.outputItemName = RegistryHelper.getItemRegistry().getKey(recipe.getRecipeOutput().getItem()).toString();
         this.recipe = recipe;
         this.identifier = CraftingTableIV.getItemIdentifier(recipe.getRecipeOutput());
         this.recipeHandler = handler;
         this.shaped = shaped;
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient()){
+        if (FMLHelper.getLogicalSide().isClient()) {
             this.itemName = CraftingTableIV.instance.getFullItemName(recipe.getRecipeOutput().copy());
         }
         this.ingredients = ing;
@@ -105,12 +104,12 @@ public class WrappedRecipe {
     private final String outputItemName;
     private final String identifier;
     private final boolean shaped, sameItems, oneItem;
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private String itemName;
     private final IRecipeHandler recipeHandler;
 
-    @SideOnly(Side.CLIENT)
-    public String itemIdentifierClientName(){
+    @OnlyIn(Dist.CLIENT)
+    public String itemIdentifierClientName() {
         return itemName;
     }
 
@@ -122,7 +121,7 @@ public class WrappedRecipe {
         return items;
     }
 
-    public boolean isShaped(){
+    public boolean isShaped() {
         return this.shaped;
     }
 
@@ -169,22 +168,22 @@ public class WrappedRecipe {
         return recipeHandler;
     }
 
-    private static <O> O[] makeFit(O[] ingredients, int width, IntFunction<O[]> arrayGen, O empty){
+    private static <O> O[] makeFit(O[] ingredients, int width, IntFunction<O[]> arrayGen, O empty) {
         O[] ret = arrayGen.apply(9);
-        if (width == 1){
+        if (width == 1) {
             for (int i = 0; i < 9; i++) {
                 O stack = empty;
-                if (i == 0 || i == 3 || i == 6){
+                if (i == 0 || i == 3 || i == 6) {
                     int j = i / 3;
                     stack = ingredients.length <= j ? empty : ingredients[j];
                 }
                 ret[i] = stack;
             }
-        } else if (width == 2){
+        } else if (width == 2) {
             int counter = 0;
             for (int i = 0; i < 9; i++) {
                 O stack = empty;
-                if (!(i == 2 || i == 5 || i == 8)){
+                if (!(i == 2 || i == 5 || i == 8)) {
                     stack = counter >= ingredients.length ? empty : ingredients[counter];
                     counter++;
                 }

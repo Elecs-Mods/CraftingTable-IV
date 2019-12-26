@@ -32,16 +32,16 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     private boolean closed;
 
     @Override
-    public void registerHandler(IRecipeHandler handler){
+    public void registerHandler(IRecipeHandler handler) {
         checkClosed();
-        if (handler == null){
+        if (handler == null) {
             return;
         }
         registry.add(handler);
     }
 
     @Override
-    public void registerDisabledRecipe(Class<? extends IRecipe> recipe){
+    public void registerDisabledRecipe(Class<? extends IRecipe> recipe) {
         checkClosed();
         if (!disabledRecipes.contains(recipe)) {
             disabledRecipes.add(recipe);
@@ -49,24 +49,24 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     }
 
     @Override
-    public Set<IRecipeHandler> getRegistry(){
-        if (!closed){
+    public Set<IRecipeHandler> getRegistry() {
+        if (!closed) {
             throw new IllegalAccessError("Cannot provide registry before it's been closed!");
         }
         return registry;
     }
 
     @Override
-    public boolean isRecipeDisabled(IRecipe recipe){
+    public boolean isRecipeDisabled(IRecipe recipe) {
         return isRecipeDisabled(recipe.getClass());
     }
 
     @Override
-    public boolean isRecipeDisabled(Class<? extends IRecipe> recipeClass){
+    public boolean isRecipeDisabled(Class<? extends IRecipe> recipeClass) {
         return disabledRecipes.contains(recipeClass);
     }
 
-    public void closeRegistry(){
+    public void closeRegistry() {
         checkClosed();
         registry = ImmutableSet.copyOf(registry);
         disabledRecipes = ImmutableList.copyOf(disabledRecipes);
@@ -74,7 +74,7 @@ public class RecipeHandler implements ICraftingTableIVAPI {
     }
 
     private void checkClosed() throws IllegalStateException {
-        if (closed){
+        if (closed) {
             throw new IllegalStateException("Registry has already been closed!");
         }
     }

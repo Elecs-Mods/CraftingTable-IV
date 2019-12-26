@@ -12,21 +12,21 @@ import javax.annotation.Nonnull;
  */
 public class WrappedItemHandler<I extends IItemHandlerModifiable> implements IItemHandlerModifiable {
 
-    public static <I extends IItemHandlerModifiable> WrappedItemHandler<I> of(I inventory){
+    public static <I extends IItemHandlerModifiable> WrappedItemHandler<I> of(I inventory) {
         if (inventory == null) {
             throw new IllegalArgumentException();
         }
         return new WrappedItemHandler<I>(inventory);
     }
 
-    private WrappedItemHandler(I inventory){
+    private WrappedItemHandler(I inventory) {
         this.inventory = inventory;
     }
 
     private final I inventory;
 
     @Nonnull
-    public I getInventory(){
+    public I getInventory() {
         return this.inventory;
     }
 
@@ -34,21 +34,17 @@ public class WrappedItemHandler<I extends IItemHandlerModifiable> implements IIt
         return InventoryHelper.addItemToInventory(this.inventory, stack, simulate);
     }
 
-    public int getFirstSlotWithItemStackNoNBT(ItemStack stack) {
-        return InventoryHelper.getFirstSlotWithItemStackNoNBT(this.inventory, stack);
-    }
-
-    public void copyContentsFrom(WrappedItemHandler<I> inventory){
+    public void copyContentsFrom(WrappedItemHandler<I> inventory) {
         copyContentsFrom(inventory.getInventory());
     }
 
-    public void copyContentsFrom(I otherInventory){
+    public void copyContentsFrom(I otherInventory) {
         for (int i = 0; i < otherInventory.getSlots(); i++) {
             setStackInSlot(i, ItemStackHelper.copyItemStack(otherInventory.getStackInSlot(i)));
         }
     }
 
-    public ItemStack[] getCopyOfContents(){
+    public ItemStack[] getCopyOfContents() {
         ItemStack[] ret = new ItemStack[getSlots()];
         for (int i = 0; i < getSlots(); i++) {
             ret[i] = ItemStackHelper.copyItemStack(getStackInSlot(i));
@@ -56,7 +52,7 @@ public class WrappedItemHandler<I extends IItemHandlerModifiable> implements IIt
         return ret;
     }
 
-    public void setContents(ItemStack[] contents){
+    public void setContents(ItemStack[] contents) {
         if (contents.length != getSlots()) {
             throw new IllegalArgumentException();
         }
@@ -96,6 +92,11 @@ public class WrappedItemHandler<I extends IItemHandlerModifiable> implements IIt
     @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
         inventory.setStackInSlot(slot, stack);
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+        return inventory.isItemValid(slot, stack);
     }
 
 }

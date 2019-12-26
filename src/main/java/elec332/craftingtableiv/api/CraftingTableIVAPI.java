@@ -16,13 +16,13 @@ public class CraftingTableIVAPI {
 
     private static final ICraftingTableIVAPI api;
 
-    public static ICraftingTableIVAPI getAPI(){
+    public static ICraftingTableIVAPI getAPI() {
         return api;
     }
 
     public static class NullAPI implements ICraftingTableIVAPI {
 
-        private NullAPI(){
+        private NullAPI() {
         }
 
         @Override
@@ -56,7 +56,7 @@ public class CraftingTableIVAPI {
         ICraftingTableIVAPI a;
         try {
             a = (ICraftingTableIVAPI) Class.forName("elec332.craftingtableiv.handler.RecipeHandler").getDeclaredMethod("getCompatHandler").invoke(null);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("CraftingTableIV mod not found, registering handlers will not work!");
             a = new NullAPI();
         }

@@ -1,0 +1,32 @@
+modLoader="javafml" #mandatory
+# A version range to match for said mod loader - for regular FML @Mod it will be the minecraft version (without the 1.)
+loaderVersion="[${loaderversion},)" #mandatory
+issueTrackerURL="https://https://github.com/Elecs-Mods/CraftingTable-IV/issues" #optional
+authors="Elec332" #optional
+
+[[mods]] #mandatory
+modId="craftingtableiv" #mandatory
+version="${version}" #mandatory
+displayName="CraftingTable-IV" #mandatory
+description="The CraftingTableIV mod is the successor of the CraftingTable III mod from the old tekkit days." #mandatory
+
+[[dependencies.craftingtableiv]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[${mcversion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.craftingtableiv]]
+    modId="forge"
+    mandatory=true
+    versionRange="[${forgeversion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.craftingtableiv]]
+    modId="eleccore"
+    mandatory=false
+    versionRange="[${coreversion},)"
+    ordering="AFTER"
+    side="BOTH"

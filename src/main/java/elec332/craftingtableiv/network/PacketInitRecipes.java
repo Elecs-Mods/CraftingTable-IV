@@ -1,10 +1,9 @@
 package elec332.craftingtableiv.network;
 
+import elec332.core.api.network.IExtendedMessageContext;
 import elec332.core.network.packets.AbstractPacket;
 import elec332.craftingtableiv.CraftingTableIV;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.nbt.CompoundNBT;
 
 /**
  * Created by Elec332 on 22-6-2015.
@@ -12,9 +11,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 public class PacketInitRecipes extends AbstractPacket {
 
     @Override
-    public IMessage onMessageThreadSafe(NBTTagCompound abstractPacket, MessageContext messageContext) {
-        CraftingTableIV.instance.reloadRecipes();
-        return null;
+    public void onMessageThreadSafe(CompoundNBT compoundNBT, IExtendedMessageContext iExtendedMessageContext) {
+        CraftingTableIV.instance.reloadRecipes(iExtendedMessageContext.getSender().world.getRecipeManager());
     }
 
 }

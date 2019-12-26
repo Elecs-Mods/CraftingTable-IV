@@ -1,11 +1,10 @@
 package elec332.craftingtableiv.network;
 
+import elec332.core.api.network.IExtendedMessageContext;
 import elec332.core.network.packets.AbstractPacket;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.nbt.CompoundNBT;
 
 /**
  * Created by Elec332 on 6-7-2015.
@@ -15,24 +14,22 @@ public class PacketCraft extends AbstractPacket {
     public PacketCraft() {
     }
 
-    public PacketCraft(NBTTagCompound tag) {
+    public PacketCraft(CompoundNBT tag) {
         super(tag);
     }
 
     @Override
-    public IMessage onMessageThreadSafe(NBTTagCompound tag, MessageContext messageContext) {
+    public void onMessageThreadSafe(CompoundNBT tag, IExtendedMessageContext iExtendedMessageContext) {
         try {
-            NBTTagCompound iwa = tag.getCompoundTag("iwa");
+            CompoundNBT iwa = tag.getCompound("iwa");
             CraftingHandler.IWorldAccessibleInventory inventory = CraftingHandler.IWorldAccessibleInventory.class.cast(Class.forName(iwa.getString("iwa_ident"), true, getClass().getClassLoader()).newInstance()).readFromNBT(iwa);
-            if (inventory == null){
+            if (inventory == null) {
                 CraftingTableIV.logger.error("Error processing crafing request, player no longer exists?!?");
-                return null;
             }
-            CraftingHandler.onMessageReceived(inventory, tag.getCompoundTag("recipe"));
-        } catch (Exception e){
+            CraftingHandler.onMessageReceived(inventory, tag.getCompound("recipe"));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
 }

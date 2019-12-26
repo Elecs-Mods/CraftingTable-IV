@@ -2,7 +2,6 @@ package elec332.craftingtableiv.util;
 
 import com.google.common.collect.Lists;
 import elec332.core.util.ItemStackHelper;
-import elec332.craftingtableiv.inventory.WindowCraftingTableIV;
 import net.minecraft.item.ItemStack;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class RecipeCache {
         shownRecipes = Lists.newArrayList();
     }
 
-    public List<WrappedRecipe> getAllRecipes(){
+    public List<WrappedRecipe> getAllRecipes() {
         return recipes.stream().map(e -> e.recipe).collect(Collectors.toList());
     }
 
@@ -29,9 +28,9 @@ public class RecipeCache {
         return shownRecipes.size();
     }
 
-    public void addRecipe(WrappedRecipe recipe, int amt, Predicate<WrappedRecipe> matcher){
+    public void addRecipe(WrappedRecipe recipe, int amt, Predicate<WrappedRecipe> matcher) {
         Entry entry = new Entry(recipe, amt);
-        if (matcher.test(recipe)){
+        if (matcher.test(recipe)) {
             shownRecipes.add(entry);
         }
         recipes.add(entry);
@@ -43,16 +42,16 @@ public class RecipeCache {
 
     public ItemStack getRecipeOutput(int i) {
         Entry e = getShownRecipe(i);
-        if (e == null){
+        if (e == null) {
             return ItemStackHelper.NULL_STACK;
         }
         return e.recipe.getRecipeOutput();
     }
 
-    public void updateVisual(Predicate<WrappedRecipe> stackMatcher){
+    public void updateVisual(Predicate<WrappedRecipe> stackMatcher) {
         shownRecipes.clear();
-        for (Entry wrappedRecipe : recipes){
-            if (stackMatcher.test(wrappedRecipe.recipe)){
+        for (Entry wrappedRecipe : recipes) {
+            if (stackMatcher.test(wrappedRecipe.recipe)) {
                 shownRecipes.add(wrappedRecipe);
             }
         }
