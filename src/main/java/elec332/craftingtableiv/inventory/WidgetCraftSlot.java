@@ -1,29 +1,27 @@
 package elec332.craftingtableiv.inventory;
 
 import elec332.core.inventory.widget.slot.WidgetSlot;
-import elec332.core.inventory.window.Window;
 import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.util.WrappedRecipe;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.CraftingResultSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import java.util.function.BooleanSupplier;
 
 /**
  * Created by Elec332 on 1-1-2017.
  */
 public class WidgetCraftSlot extends WidgetSlot {
 
-    public WidgetCraftSlot(IItemHandler inventory, int index, int x, int y, WindowCraftingTableIV listener) {
+    public WidgetCraftSlot(IItemHandler inventory, int index, int x, int y, BooleanSupplier recipeSize) {
         super(inventory, index, x, y);
-        this.window = listener;
+        this.window = recipeSize;
     }
 
-    private WindowCraftingTableIV window;
+    private BooleanSupplier window;
     private WrappedRecipe recipe;
     private int amt;
     private static final AchievementHandler achievementHandler;
@@ -49,7 +47,7 @@ public class WidgetCraftSlot extends WidgetSlot {
     @Nonnull
     @Override
     public ItemStack getStack() {
-        return recipe == null ? ItemStackHelper.NULL_STACK : recipe.getRecipeOutput(window.recipeSize() ? amt : recipe.getOutputSize());
+        return recipe == null ? ItemStackHelper.NULL_STACK : recipe.getRecipeOutput(window.getAsBoolean() ? amt : recipe.getOutputSize());
     }
 
     public int getAmount() {
@@ -63,12 +61,6 @@ public class WidgetCraftSlot extends WidgetSlot {
         achievementHandler.onCrafting(stack);
         return super.onTake(player, stack);
     }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY) {
-    }
-
 
     static {
         achievementHandler = new AchievementHandler();

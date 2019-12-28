@@ -73,8 +73,10 @@ public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock,
         return BOUNDING_BOX;
     }
 
+    @Nonnull
     @Override
-    public BlockRenderType getRenderType(BlockState p_149645_1_) {
+    @SuppressWarnings("deprecation")
+    public BlockRenderType getRenderType(BlockState blockState) {
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 

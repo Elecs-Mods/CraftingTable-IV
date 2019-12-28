@@ -1,14 +1,14 @@
 package elec332.craftingtableiv.inventory;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import elec332.core.client.ClientHelper;
 import elec332.core.client.RenderHelper;
-import elec332.core.client.util.GuiDraw;
 import elec332.core.inventory.BasicItemHandler;
 import elec332.core.inventory.tooltip.ToolTip;
 import elec332.core.inventory.widget.Widget;
 import elec332.core.inventory.widget.WidgetButton;
+import elec332.core.inventory.widget.WidgetScrollArea;
+import elec332.core.inventory.widget.WidgetTextField;
 import elec332.core.inventory.widget.slot.WidgetSlot;
 import elec332.core.inventory.window.Window;
 import elec332.core.util.ItemStackHelper;
@@ -18,12 +18,9 @@ import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import elec332.craftingtableiv.util.FastRecipeList;
 import elec332.craftingtableiv.util.RecipeCache;
 import elec332.craftingtableiv.util.WrappedRecipe;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
@@ -49,10 +46,10 @@ public class WindowCraftingTableIV extends Window {
     private IItemHandlerModifiable inventory = new BasicItemHandler(8 * 5);
     private IItemHandlerModifiable recipeItems = new BasicItemHandler(9);
     private final TileEntityCraftingTableIV theTile;
-    private float scroll;
-    @SuppressWarnings("all")
+
+    private WidgetScrollArea scrollArea;
     private boolean shaped, hovering;
-    private TextFieldWidget textField;
+    private WidgetTextField textField;
     private CTIVThread currentThread;
     private float scrollValue = 0.0F;
     private final RecipeCache craftableRecipes;
@@ -63,13 +60,13 @@ public class WindowCraftingTableIV extends Window {
         super.initWindow();
         for (int l2 = 0; l2 < 5; l2++) {
             for (int j3 = 0; j3 < 8; j3++) {
-                addWidget(new WidgetCraftSlot(inventory, j3 + l2 * 8, 8 + j3 * 18, 18 + l2 * 18, this));
+                addWidget(new WidgetCraftSlot(inventory, j3 + l2 * 8, 8 + j3 * 18, 18 + l2 * 18, this::recipeSize));
             }
         }
 
         for (int a = 0; a < 2; a++) {
             for (int i = 0; i < 9; i++) {
-                addWidget(new WidgetCTIVSlot(theTile, i + (a * 9), 8 + i * 18, 112 + (18 * a), this));
+                addWidget(new WidgetSlot(theTile, i + (a * 9), 8 + i * 18, 112 + (18 * a)).addChangeListener(s -> this.onSlotChanged()));
             }
         }
 
@@ -77,12 +74,12 @@ public class WindowCraftingTableIV extends Window {
 
         for (int j = 0; j < 3; j++) {
             for (int i1 = 0; i1 < 9; i1++) {
-                addWidget(new WidgetCTIVSlot(playerInv, i1 + j * 9 + 9, 8 + i1 * 18, 152 + j * 18, this));
+                addWidget(new WidgetSlot(playerInv, i1 + j * 9 + 9, 8 + i1 * 18, 152 + j * 18).addChangeListener(s -> this.onSlotChanged()));
             }
         }
 
         for (int i3 = 0; i3 < 9; i3++) {
-            addWidget(new WidgetCTIVSlot(playerInv, i3, 8 + i3 * 18, 211, this));
+            addWidget(new WidgetSlot(playerInv, i3, 8 + i3 * 18, 211).addChangeListener(s -> this.onSlotChanged()));
         }
 
         for (int i = 0; i < 3; i++) {
@@ -106,7 +103,7 @@ public class WindowCraftingTableIV extends Window {
 
                     @Override
                     @OnlyIn(Dist.CLIENT)
-                    public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY) {
+                    public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY, float partialTicks) {
                     }
 
                 });
@@ -127,87 +124,59 @@ public class WindowCraftingTableIV extends Window {
 
                 @Override
                 @OnlyIn(Dist.CLIENT)
-                public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY) {
+                public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY, float partialTicks) {
                 }
 
             });
         }
-        final ToolTip rSTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show the max amount", "of craftable items.")) {
-
-            @Override
-            @OnlyIn(Dist.CLIENT)
-            public void renderTooltip(int mouseX, int mouseY, int guiLeft, int guiTop) {
-                mouseY += 10;
-                super.renderTooltip(mouseX, mouseY, guiLeft, guiTop);
-            }
-
-        };
+        final ToolTip rSTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show the max amount", "of craftable items.")).setMouseOffset(0, 10);
         final ToolTip shTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show shaped recipes", "on the right side."));
-        addWidget(new WidgetButton(xSize + 2, 2, 12, 12) {
-
-            @Override
-            public ToolTip getToolTip(double mouseX, double mouseY) {
-                return rSTT;
+        addWidget(new WidgetButton(xSize + 2, 2, 12, 12)).setDisplayString("n").setToolTip(rSTT).addButtonEventListener(button -> {
+            if (getPlayer().getEntityWorld().isRemote) {
+                theTile.showRecipeSize = !recipeSize();
             }
-
-            @Override
-            public void onButtonClicked(int mouseBttn) {
-                if (getPlayer().getEntityWorld().isRemote) {
-                    theTile.showRecipeSize = !recipeSize();
-                }
+        });
+        addWidget(new WidgetButton(xSize + 2, 15, 12, 12)).setDisplayString("s").setToolTip(shTT).addButtonEventListener(button -> {
+            if (getPlayer().getEntityWorld().isRemote) {
+                theTile.showShaped = !showShaped();
             }
+        });
 
-        }).setDisplayString("n");
-        addWidget(new WidgetButton(xSize + 2, 15, 12, 12) {
-
-            @Override
-            public ToolTip getToolTip(double mouseX, double mouseY) {
-                return shTT;
-            }
-
-            @Override
-            public void onButtonClicked(int mouseBttn) {
-                if (getPlayer().getEntityWorld().isRemote) {
-                    theTile.showShaped = !showShaped();
-                }
-            }
-
-        }).setDisplayString("s");
-
-
-        if (getPlayer().getEntityWorld().isRemote) { //client
-            scroll = 0.0F;
-            ClientHelper.getKeyboardListener().enableRepeatEvents(true);
-            int i = (this.width - this.xSize) / 2;
-            int j = (this.height - this.ySize) / 2;
-            this.textField = new TextFieldWidget(RenderHelper.getMCFontrenderer(), i + 102, j + 5, 103 / 2, 10, "");
-            this.textField.setTextColor(-1);
-            this.textField.setDisabledTextColour(-1);
-            this.textField.setEnableBackgroundDrawing(true);
-            this.textField.setMaxStringLength(12);
-            new Thread(() -> {
-
-                try {
-                    Thread.sleep(120);
-                } catch (Exception e) {
-                    //Nope
-                } finally {
-                    updateRecipes();
-                    if (craftableRecipes.getAllRecipes().size() == 0) {
-                        updateRecipes(); // retry
-                    }
-                }
-
-            }).start();
-        }
-
+        this.scrollArea = addWidget(new WidgetScrollArea(155, 17, 14, 90, () -> (craftableRecipes.getShownSize() / 8 - 4) + 1));
+        this.scrollArea.addListener(() -> updateVisibleSlots(scrollArea.getScroll()));
+        this.scrollArea.setScroll(0);
+        this.textField = addWidget(new WidgetTextField(102, 5, 103 / 2, 10, ""));
+        this.textField.setTextColor(-1);
+        this.textField.setDisabledTextColour(-1);
+        this.textField.setEnableBackgroundDrawing(true);
+        this.textField.setMaxStringLength(12);
+        this.textField.addListener(s -> lastTextTime = System.currentTimeMillis());
     }
 
-    public boolean recipeSize() {
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    protected void initClient() {
+        new Thread(() -> {
+
+            try {
+                Thread.sleep(120);
+            } catch (Exception e) {
+                //Nope
+            } finally {
+                updateRecipes();
+                if (craftableRecipes.getAllRecipes().size() == 0) {
+                    updateRecipes(); // retry
+                }
+            }
+
+        }).start();
+    }
+
+    private boolean recipeSize() {
         return theTile.showRecipeSize;
     }
 
-    public boolean showShaped() {
+    private boolean showShaped() {
         return theTile.showShaped;
     }
 
@@ -242,11 +211,6 @@ public class WindowCraftingTableIV extends Window {
             }
         }
         return ItemStackHelper.NULL_STACK;
-    }
-
-    @Override
-    public boolean canInteractWith(@Nonnull PlayerEntity PlayerEntity) {
-        return true;
     }
 
     //Client part
@@ -321,7 +285,7 @@ public class WindowCraftingTableIV extends Window {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    protected void handleMouseClick(WidgetSlot slot, int slotId, int mouseButton, @Nonnull ClickType type) {
+    protected void handleSlotClick(WidgetSlot slot, int slotId, int mouseButton, @Nonnull ClickType type) {
         if (slot instanceof WidgetCraftSlot) {
             if (mouseButton == 1) { //mouse right
                 updateRecipes();
@@ -335,7 +299,7 @@ public class WindowCraftingTableIV extends Window {
                 CraftingTableIV.logger.info("Received mouse event with ID: " + mouseButton + " I cannot process this button");
             }
         } else {
-            super.handleMouseClick(slot, slotId, mouseButton, type);
+            super.handleSlotClick(slot, slotId, mouseButton, type);
             updateRecipes();
         }
     }
@@ -359,49 +323,6 @@ public class WindowCraftingTableIV extends Window {
     /**
      * Actual GUI stuff
      */
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    protected boolean keyTyped(char c, int i) {
-        if (textField.charTyped(c, i)) {
-            lastTextTime = System.currentTimeMillis();
-            return true;
-        } else {
-            return super.keyTyped(c, i);
-        }
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    protected boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
-            return true;
-        }
-        if (button == 0) {
-            float oldScroll = scroll;
-            Minecraft mc = Minecraft.getInstance();
-            //final ScaledResolution scaledresolution = new ScaledResolution(mc);
-            //int s1 = scaledresolution.getScaledWidth();
-            //int s2 = scaledresolution.getScaledHeight();
-            //final int i = Mouse.getX() * s1 / mc.displayWidth;
-            //final int j = s2 - Mouse.getY() * s2 / mc.displayHeight - 1;
-            double i = mouseX;
-            double j = mouseY;
-            int k = guiLeft;
-            int l = guiTop;
-            int i1 = k + 155;
-            int j1 = l + 17;
-            int k1 = i1 + 14;
-            int l1 = j1 + 88 + 2;
-
-            if (i >= i1 && j >= j1 && i < k1 && j < l1) {
-                scroll = (float) (j - (j1 + 8)) / ((float) (l1 - j1) - 16F);
-            }
-            return postMouseEvent(oldScroll);
-        }
-        textField.mouseClicked(mouseX, mouseY, button);
-        return false;
-    }
 
     @Override
     protected void drawScreenPost(int mouseX, int mouseY, float partialTicks) {
@@ -493,60 +414,7 @@ public class WindowCraftingTableIV extends Window {
         RenderHelper.getMCFontrenderer().drawString("Crafting Table IV", 8, 6, 0x404040);
     }
 
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderHelper.bindTexture(new ResourceLocation("craftingtableiv", "gui/crafttableii.png"));
-        int l = guiLeft;
-        int i1 = guiTop;
-        //Background
-        GuiDraw.drawTexturedModalRect(l, i1, 0, 0, xSize, ySize);
-        //int j1 = l + 155;
-        int k1 = i1 + 17;
-        int l1 = k1 + 88 + 2;
-        //Scrolly bar
-        GuiDraw.drawTexturedModalRect(l + 154, i1 + 17 + (int) ((float) (l1 - k1 - 17) * scroll), 0, 240, 16, 16);
-
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableLighting();
-        GlStateManager.disableBlend();
-        this.textField.renderButton(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    protected boolean handleMouseWheel(double m, double translatedMouseX, double translatedMouseY) {
-        float oldScroll = scroll;
-        if (m != 0) {
-            int j = (craftableRecipes.getShownSize() / 8 - 4) + 1;
-            if (m > 0) {
-                m = 1;
-            }
-            if (m < 0) {
-                m = -1;
-            }
-            scroll -= m / (double) j;
-        }
-        return postMouseEvent(oldScroll);
-    }
-
-
-    private boolean postMouseEvent(float oldScroll) {
-        if (scroll < 0.0F) {
-            scroll = 0.0F;
-        }
-        if (scroll > 1.0F) {
-            scroll = 1.0F;
-        }
-        if (scroll != oldScroll) {
-            updateVisibleSlots(scroll);
-            return true;
-        }
-        return false;
-    }
-
-    void onSlotChanged() {
+    private void onSlotChanged() {
         updateRecipes();
     }
 
@@ -623,7 +491,7 @@ public class WindowCraftingTableIV extends Window {
         return toPattern(textField);
     }
 
-    private static Predicate<WrappedRecipe> toPattern(TextFieldWidget textField) {
+    private static Predicate<WrappedRecipe> toPattern(WidgetTextField textField) {
         String txt = null;
         if (textField != null) {
             txt = textField.getText();

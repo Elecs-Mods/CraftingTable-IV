@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import elec332.core.inventory.BasicItemHandler;
+import elec332.core.inventory.ContainerNull;
 import elec332.core.inventory.DoubleItemHandler;
 import elec332.core.util.*;
 import elec332.core.world.WorldHelper;
@@ -16,7 +17,6 @@ import elec332.craftingtableiv.util.WrappedItemHandler;
 import elec332.craftingtableiv.util.WrappedRecipe;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
@@ -224,14 +224,7 @@ public class CraftingHandler {
     }
 
     private static CraftingInventory getInv(ItemStack[] s) {
-        CraftingInventory ret = new CraftingInventory(new Container(null, -1) {
-
-            @Override
-            public boolean canInteractWith(@Nullable PlayerEntity playerIn) {
-                return false;
-            }
-
-        }, 3, 3);
+        CraftingInventory ret = new CraftingInventory(new ContainerNull(), 3, 3);
         for (int i = 0; i < 9; i++) {
             ItemStack stack;
             if (i >= s.length) {
