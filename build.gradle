@@ -151,7 +151,7 @@ task("uploadJars", dependsOn: "reobf") {
                         project {
                             name project.archivesBaseName
                             packaging 'jar'
-                            description mod.fileName
+                            description project.archivesBaseName
                             issueManagement {
                                 system 'github'
                                 url 'https://github.com/Elecs-Mods/CraftingTable-IV/issues'
