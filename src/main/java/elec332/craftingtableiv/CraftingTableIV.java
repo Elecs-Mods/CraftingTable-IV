@@ -24,6 +24,7 @@ import elec332.craftingtableiv.network.PacketCraft;
 import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
+import elec332.craftingtableiv.util.CTIVConfig;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -92,21 +93,6 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
     public static Logger logger;
     private ConfigWrapper config;
 
-    /**
-     * Config
-     **/
-    private static final String[] CONFIG_CATEGORIES = {"general", "client", "debug"};
-    public static int recursionDepth = 5;
-    public static boolean nuggetFilter = false;
-    public static boolean enableDoor = true;
-    public static boolean enableNoise = true;
-    public static String[] disabledMods, defaultDisabledMods = {
-            "ztones", "agricraft"
-    };
-    public static boolean debugTimings = true;
-    public static float doorRange = 7f;
-    public static boolean aggressiveLoopCheck = false;
-
     @SubscribeEvent
     public void registerBlocks(RegistryEvent.Register<Block> blockRegister) {
         craftingTableIV = GameData.register_impl(new BlockCraftingTableIV(new ResourceLocation(CraftingTableIV.MODID, CraftingTableIV.MODID)));
@@ -128,9 +114,7 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
     }
 
     private void preInit(FMLCommonSetupEvent event) {
-        disabledMods = defaultDisabledMods;
-        //setting up mod stuff
-        //this.config = new ConfigWrapper(new File(FMLHelper.));
+        this.config = new ConfigWrapper(this);
     }
 
     public void init(InterModEnqueueEvent event) {
@@ -142,20 +126,9 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
         //Replaced by a stupid JSON...
         //GameRegistry.addShapelessRecipe(new ResourceLocation(MODID, "ctivrecipe"), null, new ItemStack(craftingTableIV), Ingredient.fromStacks(new ItemStack(Blocks.CRAFTING_TABLE)), Ingredient.fromItem(Items.BOOK));
         //GameRegistry.addShapelessRecipe(new ItemStack(craftingTableIV), Blocks.CRAFTING_TABLE, Items.BOOK);
-        //register item/block
 
-        /*config.load();
-        recursionDepth = config.getInt("Recursion depth", "general", 5, 0, 10, "Set to 0 to disable recursion");
-        //nuggetFilter = config.getBoolean("NuggetFilter", "general", true, "Filters nuggets out of the recipeList, only disable if you know what you're doing!");
-        enableDoor = config.getBoolean("EnableDoor", "client", true, "Set to false to disable the opening door on the CTIV");
-        enableNoise = config.getBoolean("EnableNoise", "client", true, "Set to false to disable the door noise when opening and closing");
-        disabledMods = config.getStringList("DisabledMods", "general", defaultDisabledMods, "Every item from the modID's specified here will not show up in the CraftingTable");
-        debugTimings = config.getBoolean("DebugTimings", "debug", true, "When true, will print messages to the log regarding how long it took to load all recipes in de CTIV bench (when opened)");
-        doorRange = config.getFloat("Doorrange", "client", doorRange, 0, 100, "The squared distance from craftingtable -> player at which the door will start opening.");
-        aggressiveLoopCheck = config.getBoolean("AggressiveLoopCheck", "general", false, "Whether to aggressively search for recipe loops, will cause some recipes to search less deep than normal.");
-        if (config.hasChanged()) {
-            config.save();
-        }*/
+        config.registerConfigWithInnerClasses(CTIVConfig.class);
+        config.register();
     }
 
     private void postInit(InterModProcessEvent event) {

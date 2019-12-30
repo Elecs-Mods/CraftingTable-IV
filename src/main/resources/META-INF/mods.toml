@@ -26,7 +26,7 @@ description="The CraftingTableIV mod is the successor of the CraftingTable III m
 
 [[dependencies.craftingtableiv]]
     modId="eleccore"
-    mandatory=false
+    mandatory=true
     versionRange="[${coreversion},)"
     ordering="AFTER"
     side="BOTH"

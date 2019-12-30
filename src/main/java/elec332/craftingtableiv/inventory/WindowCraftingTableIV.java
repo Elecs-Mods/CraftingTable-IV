@@ -15,6 +15,7 @@ import elec332.core.util.ItemStackHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.handler.CraftingHandler;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
+import elec332.craftingtableiv.util.CTIVConfig;
 import elec332.craftingtableiv.util.FastRecipeList;
 import elec332.craftingtableiv.util.RecipeCache;
 import elec332.craftingtableiv.util.WrappedRecipe;
@@ -446,7 +447,7 @@ public class WindowCraftingTableIV extends Window {
                 }
                 updateVisibleSlots(scrollValue);
                 validRecipes.removeAll(canCraft);
-                for (int i = 0; i < CraftingTableIV.recursionDepth; i++) {
+                for (int i = 0; i < CTIVConfig.recursionDepth; i++) {
                     checkStopThread();
                     List<WrappedRecipe> pcc = Lists.newArrayList(canCraft);
                     FastRecipeList recipeList = new FastRecipeList(canCraft);
@@ -467,7 +468,7 @@ public class WindowCraftingTableIV extends Window {
                     }
                 }
                 updateRecipes(true);
-                if (CraftingTableIV.debugTimings) {
+                if (CTIVConfig.Debug.debugTimings) {
                     CraftingTableIV.logger.info("Loaded all recipes for CTIV Gui in " + (System.currentTimeMillis() - l) + " ms");
                 }
             }

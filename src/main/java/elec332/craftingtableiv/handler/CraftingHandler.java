@@ -12,6 +12,7 @@ import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.IRecipeHandler;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
+import elec332.craftingtableiv.util.CTIVConfig;
 import elec332.craftingtableiv.util.FastRecipeList;
 import elec332.craftingtableiv.util.WrappedItemHandler;
 import elec332.craftingtableiv.util.WrappedRecipe;
@@ -63,14 +64,14 @@ public class CraftingHandler {
             if (CraftingTableIV.getItemRegistryName(recipe.getRecipeOutput()) == null) {
                 continue;
             }
-            if (CraftingTableIV.nuggetFilter && isNugget(recipe.getRecipeOutput())) {
+            if (CTIVConfig.nuggetFilter && isNugget(recipe.getRecipeOutput())) {
                 continue;
             }
             if (recipe.getType() != IRecipeType.CRAFTING) {
                 continue;
             }
             String s = CraftingTableIV.getItemIdentifier(recipe.getRecipeOutput());
-            for (String s1 : CraftingTableIV.disabledMods) {
+            for (String s1 : CTIVConfig.disabledMods) {
                 if (s1.equalsIgnoreCase(s)) {
                     continue recipeLoop;
                 }
@@ -176,7 +177,7 @@ public class CraftingHandler {
     }
 
     private static <I extends IItemHandlerModifiable> boolean canCraft(IWorldAccessibleInventory<I> inventory, WrappedItemHandler wrappedInventory, WrappedRecipe recipe, @Nullable FastRecipeList list, boolean craft, int recursion) {
-        if (recursion >= CraftingTableIV.recursionDepth || inventory == null || recipe == null) {
+        if (recursion >= CTIVConfig.recursionDepth || inventory == null || recipe == null) {
             return false;
         }
         int inputSize = recipe.getIngredients().length;
@@ -251,7 +252,7 @@ public class CraftingHandler {
     private static boolean canCraftAnyOf(List<WrappedRecipe> recipes, IWorldAccessibleInventory<?> inventory, WrappedItemHandler wrappedInventory, @Nullable FastRecipeList list, boolean craft, int recursion, WrappedRecipe original) {
         for (WrappedRecipe wrappedRecipe : recipes) {
             if (isLoopSensitive(original, wrappedRecipe)) {
-                if (CraftingTableIV.aggressiveLoopCheck || isSingleLoop(original, wrappedRecipe)) {
+                if (CTIVConfig.aggressiveLoopCheck || isSingleLoop(original, wrappedRecipe)) {
                     continue;
                 }
             }

@@ -42,13 +42,14 @@ configFile.withReader {
     config.mod_version = "${config.minecraft_version}-" + temp + "." + (localBuild ? "localBuild" : build) + classifier
 }
 
-version = modVersion
-group = "nl.elec332.craftingtableiv" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = config.mod_version
+group = "nl.elec332.craftingtableiv"
 archivesBaseName = "CraftingTable-IV"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
+
     accessTransformer = file 'src/main/resources/META-INF/accesstransformer.cfg'
 
     mappings channel: 'snapshot', version: config.mappings
@@ -56,43 +57,18 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-
-            mods {
-                craftingtableiv {
-                    source sourceSets.main
-                }
-//                eleccore {
-//                    source project.file("../ElecCore/src/main")
-//                }
-            }
+            source sourceSets.main
         }
 
         server {
             workingDirectory project.file('run')
-
-            mods {
-                craftingtableiv {
-                    source sourceSets.main
-                }
-//                eleccore {
-//                    source project.file("../ElecCore/src/main")
-//                }
-            }
+            source sourceSets.main
         }
 
         data {
             workingDirectory project.file('run')
-
             args '--mod', 'craftingtableiv', '--all', '--output', file('src/generated/resources/')
-
-            mods {
-                craftingtableiv {
-                    source sourceSets.main
-                }
-//                eleccore {
-//                    source project.file("../ElecCore/src/main")
-//                }
-            }
+            source sourceSets.main
         }
 
     }
@@ -101,8 +77,6 @@ minecraft {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:' + config.minecraft_version + "-" + config.forge_version
-	//compile "nl.elec332.core:ElecCore:" + config.minecraft_version + "-" + config.eleccore_version
-    //runtime fg.deobf("mcp.mobius.waila:Hwyla:${config.WAILA_version}")
     compileOnly "mcp.mobius.waila:Hwyla:${config.WAILA_version}:api"
     runtimeOnly fg.deobf("mcp.mobius.waila:Hwyla:${config.WAILA_version}")
     if (project.hasProperty("multi")) {
@@ -110,8 +84,6 @@ dependencies {
     } else {
         compile fg.deobf("nl.elec332.core:ElecCore:" + config.minecraft_version + "-" + config.eleccore_version)
     }
-    //compile "net.industrial-craft:industrialcraft-2:"+config.ic2_version+":dev"
-	//deobfCompile "net.sengir.forestry:forestry_${config.forestry_version}"
 }
 
 processResources {

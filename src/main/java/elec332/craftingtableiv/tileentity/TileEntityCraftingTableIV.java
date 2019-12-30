@@ -5,7 +5,7 @@ import elec332.core.inventory.BasicItemHandler;
 import elec332.core.tile.AbstractTileEntity;
 import elec332.core.util.BlockProperties;
 import elec332.core.world.WorldHelper;
-import elec332.craftingtableiv.CraftingTableIV;
+import elec332.craftingtableiv.util.CTIVConfig;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -64,19 +64,19 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
 
     @Override
     public void tick() {
-        if (CraftingTableIV.enableDoor) {
+        if (CTIVConfig.Client.enableDoor) {
             int xCoord = pos.getX();
             int yCoord = pos.getY();
             int zCoord = pos.getZ();
             PlayerEntity PlayerEntity = Preconditions.checkNotNull(getWorld()).getClosestPlayer((float) xCoord + 0.5F, (float) yCoord + 0.5F, (float) zCoord + 0.5F, 10D, false);
             if (PlayerEntity != null) {
                 double playerDistance = PlayerEntity.getDistanceSq(xCoord, yCoord, zCoord);
-                if (playerDistance < CraftingTableIV.doorRange) {
+                if (playerDistance < CTIVConfig.Client.doorRange) {
                     doorAngle += openspeed;
 
                     if (tablestate != 1) {
                         tablestate = 1;
-                        if (CraftingTableIV.enableNoise) {
+                        if (CTIVConfig.Client.enableNoise) {
                             this.getWorld().playSound(null, xCoord, (double) yCoord + 0.5D, zCoord, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.2F, this.getWorld().rand.nextFloat() * 0.1F + 0.2F);
                         }
                     }
@@ -84,12 +84,12 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
                     if (doorAngle > 1.8F) {
                         doorAngle = 1.8F;
                     }
-                } else if (playerDistance > CraftingTableIV.doorRange) {
+                } else if (playerDistance > CTIVConfig.Client.doorRange) {
                     doorAngle -= openspeed;
 
                     if (tablestate != 0) {
                         tablestate = 0;
-                        if (CraftingTableIV.enableNoise) {
+                        if (CTIVConfig.Client.enableNoise) {
                             this.getWorld().playSound(null, xCoord, (double) yCoord + 0.5D, zCoord, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.2F, this.getWorld().rand.nextFloat() * 0.1F + 0.2F);
                         }
                     }
