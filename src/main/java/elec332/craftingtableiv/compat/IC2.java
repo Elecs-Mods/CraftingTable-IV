@@ -1,6 +1,8 @@
 package elec332.craftingtableiv.compat;
 
+import com.google.common.base.Preconditions;
 import elec332.core.api.module.ElecModule;
+import elec332.core.util.FMLUtil;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.CraftingTableIVAPI;
 import elec332.craftingtableiv.api.IRecipeHandler;
@@ -17,6 +19,14 @@ public class IC2 {
 
     @ElecModule.EventHandler
     public void init(FMLInitializationEvent event) {
+        if (Preconditions.checkNotNull(FMLUtil.getModContainer(ic2.core.IC2.getInstance())).getName().toLowerCase().contains("classic")) {
+            CraftingTableIV.logger.info("IC2 Classic detected, not registering IC2 recipe handlers.");
+        } else {
+            registerIC2RecipeHandlers();
+        }
+    }
+
+    private void registerIC2RecipeHandlers() {
         CraftingTableIV.logger.info("Registering IC2 recipe handlers...");
         CraftingTableIVAPI.getAPI().registerHandler(new IRecipeHandler() {
 
