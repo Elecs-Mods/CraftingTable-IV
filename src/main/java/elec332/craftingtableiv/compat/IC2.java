@@ -32,6 +32,9 @@ public class IC2 {
 
             @Override
             public boolean canHandleRecipe(IRecipe recipe) {
+                if (recipe.isDynamic() && recipe.getIngredients().isEmpty()){
+                    return false;
+                }
                 return recipe instanceof AdvRecipe && ((AdvRecipe) recipe).canShow();
             }
 
@@ -45,6 +48,9 @@ public class IC2 {
 
             @Override
             public boolean canHandleRecipe(IRecipe recipe) {
+                if (recipe.isDynamic() && recipe.getIngredients().isEmpty()){
+                    return false;
+                }
                 return recipe instanceof AdvShapelessRecipe && ((AdvShapelessRecipe) recipe).canShow();
             }
 
