@@ -78,7 +78,7 @@ minecraft {
 dependencies {
     minecraft 'net.minecraftforge:forge:' + config.minecraft_version + "-" + config.forge_version
 
-    if (project(":ElecCore") != null) {
+    if (findProject(":ElecCore") != null) {
         compile (project(":ElecCore")) {
             exclude group: "*"
         }
