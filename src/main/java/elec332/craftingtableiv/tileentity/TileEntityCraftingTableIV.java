@@ -71,8 +71,9 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
             PlayerEntity PlayerEntity = Preconditions.checkNotNull(getWorld()).getClosestPlayer((float) xCoord + 0.5F, (float) yCoord + 0.5F, (float) zCoord + 0.5F, 10D, false);
             if (PlayerEntity != null) {
                 double playerDistance = PlayerEntity.getDistanceSq(xCoord, yCoord, zCoord);
+                float waterFactor = getBlockState().get(BlockProperties.WATERLOGGED) ? 0.2f : 1;
                 if (playerDistance < CTIVConfig.Client.doorRange) {
-                    doorAngle += openspeed;
+                    doorAngle += openspeed * waterFactor;
 
                     if (tablestate != 1) {
                         tablestate = 1;
@@ -85,7 +86,7 @@ public class TileEntityCraftingTableIV extends AbstractTileEntity implements ITi
                         doorAngle = 1.8F;
                     }
                 } else if (playerDistance > CTIVConfig.Client.doorRange) {
-                    doorAngle -= openspeed;
+                    doorAngle -= openspeed * waterFactor;
 
                     if (tablestate != 0) {
                         tablestate = 0;

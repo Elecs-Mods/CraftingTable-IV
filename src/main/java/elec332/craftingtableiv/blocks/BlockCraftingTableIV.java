@@ -18,8 +18,10 @@ import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
@@ -44,13 +46,15 @@ import javax.annotation.Nullable;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock, INoJsonItem {
+public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock, INoJsonItem, IWaterLoggable {
 
     public BlockCraftingTableIV(ResourceLocation name) {
         super(Properties.create(Material.WOOD));
         setRegistryName(name);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    private TextureAtlasSprite tex;
     @OnlyIn(Dist.CLIENT)
     private IBakedModel model;
     private static final VoxelShape BOUNDING_BOX = VoxelShapes.create(1d / 16, 0, 1d / 16, 15d / 16, 1, 15d / 16);
@@ -103,12 +107,14 @@ public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock,
     public void registerModels(IElecQuadBakery quadBakery, IElecModelBakery modelBakery, IElecTemplateBakery templateBakery) {
         IMutableModelTemplate t = templateBakery.newDefaultBlockTemplate();
         t.setBuiltIn(true);
+        t.setTexture(tex);
         this.model = modelBakery.itemModelForTextures(t);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void registerTextures(IIconRegistrar registrar) {
+        tex = registrar.registerSprite(new ResourceLocation("block/oak_planks"));
     }
 
     @Nullable

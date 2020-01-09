@@ -19,6 +19,7 @@ import elec332.craftingtableiv.util.CTIVConfig;
 import elec332.craftingtableiv.util.FastRecipeList;
 import elec332.craftingtableiv.util.RecipeCache;
 import elec332.craftingtableiv.util.WrappedRecipe;
+import net.minecraft.client.renderer.Rectangle2d;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
@@ -102,12 +103,7 @@ public class WindowCraftingTableIV extends Window {
                         return shaped ? super.getSlotIndex() : (y - 34) / 18;
                     }
 
-                    @Override
-                    @OnlyIn(Dist.CLIENT)
-                    public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY, float partialTicks) {
-                    }
-
-                });
+                }.setSkipBackground());
             }
         }
         for (int i = 3; i < 9; i++) {
@@ -123,12 +119,7 @@ public class WindowCraftingTableIV extends Window {
                     return shaped || !hovering;
                 }
 
-                @Override
-                @OnlyIn(Dist.CLIENT)
-                public void draw(Window window, int guiX, int guiY, double mouseX, double mouseY, float partialTicks) {
-                }
-
-            });
+            }.setSkipBackground());
         }
         final ToolTip rSTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show the max amount", "of craftable items.")).setMouseOffset(0, 10);
         final ToolTip shTT = new ToolTip(Lists.newArrayList("Toggles whether to", "show shaped recipes", "on the right side."));
@@ -179,6 +170,18 @@ public class WindowCraftingTableIV extends Window {
 
     private boolean showShaped() {
         return theTile.showShaped;
+    }
+
+    @Override
+    public void addExtraGuiAreas(List<Rectangle2d> extraAreas) {
+        if (hovering) {
+            if (shaped) {
+                extraAreas.add(createRelativeRectangle(3 * -18, 34, 18 * 3, 18 * 3));
+            } else {
+                extraAreas.add(createRelativeRectangle(-18, 34, 18, 18 * 9));
+            }
+        }
+        extraAreas.add(createRelativeRectangle(xSize + 2, 2, 12, 26));
     }
 
     @Override
