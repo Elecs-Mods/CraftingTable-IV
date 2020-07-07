@@ -21,12 +21,10 @@ import elec332.craftingtableiv.handler.RecipeHandler;
 import elec332.craftingtableiv.handler.vanilla.ForgeRecipeHandler;
 import elec332.craftingtableiv.handler.vanilla.VanillaRecipeHandler;
 import elec332.craftingtableiv.network.PacketCraft;
-import elec332.craftingtableiv.network.PacketInitRecipes;
 import elec332.craftingtableiv.proxies.CommonProxy;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import elec332.craftingtableiv.util.CTIVConfig;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -37,9 +35,10 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -120,7 +119,6 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
     public void init(InterModEnqueueEvent event) {
         WindowManager.INSTANCE.register(proxy, new ResourceLocation(MODID, "windowfactory"));
         proxy.registerRenders();
-        networkHandler.registerAbstractPacket(PacketInitRecipes.class);
         networkHandler.registerAbstractPacket(PacketCraft.class);
 
         //Replaced by a stupid JSON...
@@ -142,9 +140,9 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
         reloadRecipes(event.getServer().getRecipeManager());
     }
 
-    @SubscribeEvent
-    public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        networkHandler.sendTo(new PacketInitRecipes(), (ServerPlayerEntity) event.getPlayer());
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onRecipesReload(RecipesUpdatedEvent event) {
+        reloadRecipes(event.getRecipeManager());
     }
 
     public void reloadRecipes(RecipeManager recipeManager) {
@@ -158,11 +156,6 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
         CraftingTableIVAPI.getAPI().registerHandler(new VanillaRecipeHandler());
     }
 
-    /*
-        public static Stream<ConfigCategory> getConfigCategories() {
-            return Arrays.stream(CONFIG_CATEGORIES).map(instance.config::getCategory);
-        }
-    */
     public void sendCraftingMessage(CraftingHandler.IWorldAccessibleInventory inventory, CompoundNBT recipe) {
         CompoundNBT message = new CompoundNBT();
         CompoundNBT iwa = new CompoundNBT();
@@ -183,7 +176,7 @@ public class CraftingTableIV implements IElecCoreMod, ITileRegister {
     @OnlyIn(Dist.CLIENT)
     public String getFullItemName(ItemStack stack) {
         StringBuilder stringBuilder = new StringBuilder();
-        List tooltip = InventoryHelper.getTooltip(stack, ElecCore.proxy.getClientPlayer(), net.minecraft.client.Minecraft.getInstance().gameSettings.advancedItemTooltips);
+        List<String> tooltip = InventoryHelper.getTooltip(stack, ElecCore.proxy.getClientPlayer(), net.minecraft.client.Minecraft.getInstance().gameSettings.advancedItemTooltips);
         boolean appendH = false;
         for (Object o : tooltip) {
             stringBuilder.append(o);

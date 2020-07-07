@@ -1,92 +1,72 @@
 package elec332.craftingtableiv.client;
 
-import net.minecraft.client.renderer.entity.model.RendererModel;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.entity.Entity;
+import elec332.core.client.model.renderer.AbstractModel;
+import elec332.core.client.model.renderer.ElecModelRenderer;
 
 /**
  * Created by Elec332 on 24-3-2015.
  */
-public class ModelCraftingTableIV extends Model {
+public class ModelCraftingTableIV extends AbstractModel {
 
     ModelCraftingTableIV() {
         textureWidth = 128;
         textureHeight = 64;
 
-        Table = new RendererModel(this, 0, 0);
-        Table.addBox(-7F, 0F, -7F, 9, 16, 14);
-        Table.setRotationPoint(0F, 0F, 0F);
-        Table.setTextureSize(128, 64);
-        Table.mirror = true;
-        setRotation(Table, 0F, 0F, 0F);
-        Door = new RendererModel(this, 96, 0);
-        Door.addBox(0F, 0F, 0F, 1, 16, 13);
-        Door.setRotationPoint(6F, 0F, -6F);
-        Door.setTextureSize(128, 64);
-        Door.mirror = true;
-        setRotation(Door, 0F, 0F, 0F);
-        door_side1 = new RendererModel(this, 61, 0);
-        door_side1.addBox(0F, 0F, 0F, 4, 16, 1);
-        door_side1.setRotationPoint(2F, 0F, -7F);
-        door_side1.setTextureSize(128, 64);
-        door_side1.mirror = true;
-        setRotation(door_side1, 0F, 0F, 0F);
-        door_side2 = new RendererModel(this, 71, 0);
-        door_side2.addBox(0F, 0F, 0F, 4, 16, 1);
-        door_side2.setRotationPoint(2F, 0F, 6F);
-        door_side2.setTextureSize(128, 64);
-        door_side2.mirror = true;
-        setRotation(door_side2, 0F, 0F, 0F);
-        door_topside1 = new RendererModel(this, 0, 46);
-        door_topside1.addBox(0F, 0F, 0F, 4, 1, 12);
-        door_topside1.setRotationPoint(2F, 0F, -6F);
-        door_topside1.setTextureSize(128, 64);
-        door_topside1.mirror = true;
-        setRotation(door_topside1, 0F, 0F, 0F);
-        door_topside2 = new RendererModel(this, 0, 33);
-        door_topside2.addBox(0F, 0F, 0F, 4, 1, 12);
-        door_topside2.setRotationPoint(2F, 15F, -6F);
-        door_topside2.setTextureSize(128, 64);
-        door_topside2.mirror = true;
-        setRotation(door_topside2, 0F, 0F, 0F);
-        Book = new RendererModel(this, 61, 23);
-        Book.addBox(0F, 0F, 0F, 5, 1, 3);
-        Book.setRotationPoint(-2F, -1F, 3.5F);
-        Book.setTextureSize(128, 64);
-        Book.mirror = true;
-        setRotation(Book, 0F, 0.4833219F, 0F);
+        ElecModelRenderer model;
+        model = new ElecModelRenderer(this, 0, 0);
+        model.addBoxLegacy(-7F, 0F, -7F, 9, 16, 14);
+        model.setRotationPoint(0F, 0F, 0F);
+        model.setTextureSize(128, 64);
+        model.mirror = true;
+        setRotation(model, 0F, 0F, 0F);
+        door = new ElecModelRenderer(this, 96, 0);
+        door.addBoxLegacy(0F, 0F, 0F, 1, 16, 13);
+        door.setRotationPoint(6F, 0F, -6F);
+        door.setTextureSize(128, 64);
+        door.mirror = true;
+        setRotation(door, 0F, 0F, 0F);
+        model = new ElecModelRenderer(this, 61, 0);
+        model.addBoxLegacy(0F, 0F, 0F, 4, 16, 1);
+        model.setRotationPoint(2F, 0F, -7F);
+        model.setTextureSize(128, 64);
+        model.mirror = true;
+        setRotation(model, 0F, 0F, 0F);
+        model = new ElecModelRenderer(this, 71, 0);
+        model.addBoxLegacy(0F, 0F, 0F, 4, 16, 1);
+        model.setRotationPoint(2F, 0F, 6F);
+        model.setTextureSize(128, 64);
+        model.mirror = true;
+        setRotation(model, 0F, 0F, 0F);
+        model = new ElecModelRenderer(this, 0, 46);
+        model.addBoxLegacy(0F, 0F, 0F, 4, 1, 12);
+        model.setRotationPoint(2F, 0F, -6F);
+        model.setTextureSize(128, 64);
+        model.mirror = true;
+        setRotation(model, 0F, 0F, 0F);
+        model = new ElecModelRenderer(this, 0, 33);
+        model.addBoxLegacy(0F, 0F, 0F, 4, 1, 12);
+        model.setRotationPoint(2F, 15F, -6F);
+        model.setTextureSize(128, 64);
+        model.mirror = true;
+        setRotation(model, 0F, 0F, 0F);
+        model = new ElecModelRenderer(this, 61, 23);
+        model.addBoxLegacy(0F, 0F, 0F, 5, 1, 3);
+        model.setRotationPoint(-2F, -1F, 3.5F);
+        model.setTextureSize(128, 64);
+        model.mirror = true;
+        setRotation(model, 0F, 0.4833219F, 0F);
     }
 
-    private RendererModel Table;
-    private RendererModel Door;
-    private RendererModel door_side1;
-    private RendererModel door_side2;
-    private RendererModel door_topside1;
-    private RendererModel door_topside2;
-    private RendererModel Book;
+    private final ElecModelRenderer door;
 
-    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
-        //super.render(entity, 0.0F, f1, f2, f3, f4, f5);
-        setRotationAngles(0.0F, f1, f2, f3, f4, f5, entity);
-        setRotation(Door, 0.0F, f, 0.0F);
-
-        Table.render(f5);
-        Door.render(f5);
-        door_side1.render(f5);
-        door_side2.render(f5);
-        door_topside1.render(f5);
-        door_topside2.render(f5);
-        Book.render(f5);
-    }
-
-    private void setRotation(RendererModel model, float x, float y, float z) {
+    private void setRotation(ElecModelRenderer model, float x, float y, float z) {
         model.rotateAngleX = x;
         model.rotateAngleY = y;
         model.rotateAngleZ = z;
     }
 
-    public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity entity) {
-        //super.setRotationAngles(f, f1, f2, f3, f4, f5, entity);
+    public void setDoorRotation(float rotation) {
+        door.rotateAngleY = rotation;
     }
 
 }

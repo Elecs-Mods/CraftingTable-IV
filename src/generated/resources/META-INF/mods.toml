@@ -1,0 +1,32 @@
+modLoader="javafml"
+loaderVersion="[${loaderversion},)"
+issueTrackerURL="https://github.com/Elecs-Mods/CraftingTable-IV/issues"
+displayURL="https://github.com/Elecs-Mods/CraftingTable-IV"
+authors="Elec332"
+
+[[mods]]
+modId="craftingtableiv"
+version="${version}"
+displayName="CraftingTable-IV"
+description="The CraftingTableIV mod is the successor of the CraftingTable III mod from the old tekkit days."
+
+[[dependencies.craftingtableiv]]
+    modId="eleccore"
+    mandatory=true
+    versionRange="[2.0.40-Beta,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.craftingtableiv]]
+    modId="forge"
+    mandatory=true
+    versionRange="[${forgeversion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.craftingtableiv]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[${mcversion},)"
+    ordering="NONE"
+    side="BOTH"

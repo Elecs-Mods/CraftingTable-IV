@@ -7,7 +7,10 @@ import com.google.common.collect.Maps;
 import elec332.core.inventory.BasicItemHandler;
 import elec332.core.inventory.ContainerNull;
 import elec332.core.inventory.DoubleItemHandler;
-import elec332.core.util.*;
+import elec332.core.util.FMLHelper;
+import elec332.core.util.InventoryHelper;
+import elec332.core.util.ItemStackHelper;
+import elec332.core.util.NBTBuilder;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.api.IRecipeHandler;
@@ -28,8 +31,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
@@ -45,7 +46,7 @@ public class CraftingHandler {
 
     private static FastRecipeList recipeList;
     private static List<WrappedRecipe> allRecipes;
-    private static List<Class<? extends IRecipe>> erroredClasses;
+    private static final List<Class<? extends IRecipe>> erroredClasses;
 
     public static void rebuildList(RecipeManager recipeManager) {
         clearLists();
@@ -54,7 +55,7 @@ public class CraftingHandler {
         Map<String, List<WrappedRecipe>> entries = Maps.newHashMap();
         SortedMap<String, List<WrappedRecipe>> namedList = Maps.newTreeMap();
         recipeLoop:
-        for (IRecipe recipe : recipeList) {
+        for (IRecipe<?> recipe : recipeList) {
             if (recipe == null || !ItemStackHelper.isStackValid(recipe.getRecipeOutput())) {
                 continue;
             }
@@ -405,8 +406,12 @@ public class CraftingHandler {
 
         @Override
         public IWorldAccessibleInventory<?> readFromNBT(CompoundNBT tag) {
-            DimensionType type = RegistryHelper.getDimensionType(new ResourceLocation(tag.getString("dimID"))).orElseThrow(NullPointerException::new);
-            World world = DimensionManager.getWorld(ServerHelper.getMinecraftServer(), type, false, false);
+            ResourceLocation name = new ResourceLocation(tag.getString("dimID"));
+            World world = WorldHelper.peekServerWorld(name);
+            if (world == null) {
+                CraftingTableIV.logger.error("World with ID: " + name + " is no longer loaded?!?");
+                return null;
+            }
             PlayerEntity player = (PlayerEntity) world.getEntityByID(tag.getInt("playerID"));
             if (player == null) {
                 CraftingTableIV.logger.error("PlayerEntity with ID: " + tag.getInt("playerID") + " does no longer exist?!?");

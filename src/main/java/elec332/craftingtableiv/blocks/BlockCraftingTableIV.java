@@ -6,7 +6,7 @@ import elec332.core.api.client.model.IElecModelBakery;
 import elec332.core.api.client.model.IElecQuadBakery;
 import elec332.core.api.client.model.IElecTemplateBakery;
 import elec332.core.api.client.model.template.IMutableModelTemplate;
-import elec332.core.block.AbstractBlock;
+import elec332.core.block.AbstractLegacyBlock;
 import elec332.core.client.model.loading.INoJsonBlock;
 import elec332.core.client.model.loading.INoJsonItem;
 import elec332.core.inventory.window.WindowManager;
@@ -15,10 +15,7 @@ import elec332.core.util.ItemStackHelper;
 import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -46,10 +43,10 @@ import javax.annotation.Nullable;
 /**
  * Created by Elec332 on 23-3-2015.
  */
-public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock, INoJsonItem, IWaterLoggable {
+public class BlockCraftingTableIV extends AbstractLegacyBlock implements INoJsonBlock, INoJsonItem, IWaterLoggable {
 
     public BlockCraftingTableIV(ResourceLocation name) {
-        super(Properties.create(Material.WOOD));
+        super(Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD));
         setRegistryName(name);
     }
 
@@ -64,7 +61,7 @@ public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock,
         TileEntityCraftingTableIV te = (TileEntityCraftingTableIV) WorldHelper.getTileAt(worldIn, pos);
         for (int i = 0; i < te.getSlots(); ++i) {
             ItemStack stack = te.getStackInSlot(i);
-            if (!ItemStackHelper.isStackValid(stack)) {
+            if (ItemStackHelper.isStackValid(stack)) {
                 WorldHelper.dropStack(worldIn, pos, stack);
             }
         }
@@ -95,7 +92,7 @@ public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock,
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+    public boolean onBlockActivatedLegacy(World world, BlockPos pos, BlockState state, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         if (!world.isRemote) {
             WindowManager.openWindow(player, CraftingTableIV.proxy, world, elecByteBuf -> elecByteBuf.writeBlockPos(pos));
         }
