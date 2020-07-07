@@ -14,27 +14,31 @@ import java.util.stream.Collectors;
  */
 public class RecipeCache {
 
-    private List<Entry> recipes, shownRecipes;
-
     public RecipeCache() {
         recipes = Lists.newArrayList();
         shownRecipes = Lists.newArrayList();
     }
 
-    public List<WrappedRecipe> getAllRecipes(){
-        return recipes.stream().map(e -> e.recipe).collect(Collectors.toList());
+    private final List<Entry> recipes, shownRecipes;
+
+    public List<WrappedRecipe> getAllRecipes() {
+        synchronized (recipes) {
+            return recipes.stream().map(e -> e.recipe).collect(Collectors.toList());
+        }
     }
 
     public int getShownSize() {
         return shownRecipes.size();
     }
 
-    public void addRecipe(WrappedRecipe recipe, int amt, Predicate<WrappedRecipe> matcher){
+    public void addRecipe(WrappedRecipe recipe, int amt, Predicate<WrappedRecipe> matcher) {
         Entry entry = new Entry(recipe, amt);
-        if (matcher.test(recipe)){
-            shownRecipes.add(entry);
+        synchronized (recipes) {
+            if (matcher.test(recipe)) {
+                shownRecipes.add(entry);
+            }
+            recipes.add(entry);
         }
-        recipes.add(entry);
     }
 
     public Entry getShownRecipe(int i) {
@@ -42,30 +46,36 @@ public class RecipeCache {
     }
 
     public ItemStack getRecipeOutput(int i) {
-        Entry e = getShownRecipe(i);
-        if (e == null){
-            return ItemStackHelper.NULL_STACK;
+        synchronized (recipes) {
+            Entry e = getShownRecipe(i);
+            if (e == null) {
+                return ItemStackHelper.NULL_STACK;
+            }
+            return e.recipe.getRecipeOutput();
         }
-        return e.recipe.getRecipeOutput();
     }
 
-    public void updateVisual(Predicate<WrappedRecipe> stackMatcher){
-        shownRecipes.clear();
-        for (Entry wrappedRecipe : recipes){
-            if (stackMatcher.test(wrappedRecipe.recipe)){
-                shownRecipes.add(wrappedRecipe);
+    public void updateVisual(Predicate<WrappedRecipe> stackMatcher) {
+        synchronized (recipes) {
+            shownRecipes.clear();
+            for (Entry wrappedRecipe : recipes) {
+                if (stackMatcher.test(wrappedRecipe.recipe)) {
+                    shownRecipes.add(wrappedRecipe);
+                }
             }
         }
     }
 
     public void clearRecipes() {
-        recipes.clear();
-        shownRecipes.clear();
+        synchronized (recipes) {
+            recipes.clear();
+            shownRecipes.clear();
+        }
     }
 
-    public class Entry {
+    public static class Entry {
 
-        Entry(WrappedRecipe recipe, int amount) {
+        private Entry(WrappedRecipe recipe, int amount) {
             this.amount = amount;
             this.recipe = recipe;
         }

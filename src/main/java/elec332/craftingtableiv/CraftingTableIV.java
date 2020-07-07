@@ -1,5 +1,6 @@
 package elec332.craftingtableiv;
 
+import com.google.common.base.Preconditions;
 import elec332.core.ElecCore;
 import elec332.core.api.mod.IElecCoreMod;
 import elec332.core.api.network.ModNetworkHandler;
@@ -33,10 +34,7 @@ import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -73,6 +71,7 @@ public class CraftingTableIV implements IElecCoreMod {
     public static IElecNetworkHandler networkHandler;
     public static Logger logger;
     private Configuration config;
+    private boolean listenMappings = false;
 
     /**Config**/
     private static final String[] CONFIG_CATEGORIES = {"general", "client", "debug"};
@@ -133,6 +132,7 @@ public class CraftingTableIV implements IElecCoreMod {
         //Mod compat stuff
         registerVanillaHandlers();
         RecipeHandler.getCompatHandler().closeRegistry();
+        this.listenMappings = true;
     }
 
     @Mod.EventHandler
@@ -141,13 +141,20 @@ public class CraftingTableIV implements IElecCoreMod {
         reloadRecipes();
     }
 
+    @Mod.EventHandler
+    public void mappingChanged(FMLModIdMappingEvent evt) {
+        if (listenMappings) {
+            reloadRecipes();
+        }
+    }
+
     @SubscribeEvent
     public void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event){
         networkHandler.sendTo(new PacketInitRecipes(), (EntityPlayerMP)event.player);
     }
 
     public void reloadRecipes(){
-        Long l = System.currentTimeMillis();
+        long l = System.currentTimeMillis();
         CraftingHandler.rebuildList();
         logger.info("Initialised " + CraftingHandler.getAllRecipes().size() + " recipes in " + (System.currentTimeMillis() - l) + " ms");
     }
@@ -181,7 +188,7 @@ public class CraftingTableIV implements IElecCoreMod {
     @SideOnly(Side.CLIENT)
     public String getFullItemName(ItemStack stack) {
         StringBuilder stringBuilder = new StringBuilder();
-        List tooltip = InventoryHelper.getTooltip(stack, ElecCore.proxy.getClientPlayer(), net.minecraft.client.Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+        List<String> tooltip = InventoryHelper.getTooltip(stack, ElecCore.proxy.getClientPlayer(), net.minecraft.client.Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
         boolean appendH = false;
         for (Object o : tooltip){
             stringBuilder.append(o);
@@ -192,18 +199,17 @@ public class CraftingTableIV implements IElecCoreMod {
         return stringBuilder.toString().toLowerCase();
     }
 
-    @SuppressWarnings("all")
     public static String getItemRegistryName(ItemStack stack) {
         ResourceLocation rl = RegistryHelper.getItemRegistry().getKey(stack.getItem());
         if (rl == null){ //...
-            CraftingTableIV.logger.info("Found a recipe with an unregistered item! "+stack.getItem().toString());
+            CraftingTableIV.logger.info("Found a recipe with an unregistered item! " + stack.getItem().toString());
             return null;
         }
         return rl.toString();
     }
 
     public static String getItemIdentifier(@Nonnull ItemStack stack){
-        return RegistryHelper.getItemRegistry().getKey(stack.getItem()).getResourceDomain();
+        return Preconditions.checkNotNull(RegistryHelper.getItemRegistry().getKey(stack.getItem())).getResourceDomain();
     }
 
 }

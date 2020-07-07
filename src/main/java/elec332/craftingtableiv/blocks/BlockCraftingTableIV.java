@@ -15,6 +15,7 @@ import elec332.core.world.WorldHelper;
 import elec332.craftingtableiv.CraftingTableIV;
 import elec332.craftingtableiv.tileentity.TileEntityCraftingTableIV;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -47,6 +48,8 @@ public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock,
     public BlockCraftingTableIV(ResourceLocation name) {
         super(Material.WOOD);
         setRegistryName(name);
+        setHardness(2.5F);
+        setSoundType(SoundType.WOOD);
         setDefaultState(IBlockStateHelper.FACING_NORMAL.setDefaultMetaState(this));
         setLightOpacity(0);
     }
@@ -60,7 +63,7 @@ public class BlockCraftingTableIV extends AbstractBlock implements INoJsonBlock,
         TileEntityCraftingTableIV te = (TileEntityCraftingTableIV) WorldHelper.getTileAt(worldIn, pos);
         for(int i = 0; i < te.getSlots(); ++i) {
             ItemStack stack = te.getStackInSlot(i);
-            if (!ItemStackHelper.isStackValid(stack)) {
+            if (ItemStackHelper.isStackValid(stack)) {
                 WorldHelper.dropStack(worldIn, pos, stack);
             }
         }
