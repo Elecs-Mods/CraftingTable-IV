@@ -1,12 +1,13 @@
 plugins {
-    id "nl.elec332.gradle.minecraft.moddev" version "0.1.3-Beta"
-    id "nl.elec332.gradle.minecraft.modmaven" version "0.1.3-Beta"
+    id "nl.elec332.gradle.minecraft.moddev" version "0.1.4-Beta"
+    id "nl.elec332.gradle.minecraft.modmaven" version "0.1.4-Beta"
 }
 
 modSettings {
     modName = "CraftingTable-IV"
     modId = "craftingtableiv"
     basePackage = "nl.elec332.craftingtableiv"
+    includeMinecraftVersion = false
 
     fgTweaks = true
 }
